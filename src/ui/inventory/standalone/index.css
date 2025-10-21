@@ -1,0 +1,309 @@
+/* Inventory Panel - Equipment and Grid */
+
+.inventory-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 7000;
+  pointer-events: auto;
+}
+
+.inventory-panel.hidden {
+  display: none;
+}
+
+.inventory-container {
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  width: 900px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.inventory-header {
+  padding: 20px 25px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  position: relative;
+}
+
+.inventory-header h2 {
+  color: #d4d4d8;
+  margin: 0;
+  font-size: 1.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.inventory-main {
+  display: flex;
+  gap: 25px;
+  padding: 25px;
+}
+
+/* Equipment Paper Doll */
+.equipment-doll {
+  flex: 0 0 380px; /* wider */
+}
+
+.equipment-doll h3 {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.doll-grid {
+  display: grid;
+  grid-template-areas:
+    ".    helmet  helmet  amulet"
+    "weapon chest chest offhand"
+    "weapon chest chest offhand"
+    "gloves belt belt boots"
+    "ring1  .    .    ring2";
+  grid-template-columns: repeat(4, 70px);
+  grid-template-rows: repeat(5, 70px);
+  gap: 8px;
+  justify-content: center;
+}
+
+.equip-slot {
+  background: linear-gradient(135deg, rgba(30, 30, 35, 0.9), rgba(40, 40, 45, 0.9));
+  border: 2px solid rgba(120, 120, 130, 0.5);
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.equip-slot.can-drop {
+  border-color: rgba(100, 200, 100, 0.8);
+  background: linear-gradient(135deg, rgba(40, 60, 40, 0.9), rgba(50, 70, 50, 0.9));
+  box-shadow: 
+    inset 0 0 15px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(100, 200, 100, 0.5);
+}
+
+.equip-slot.cannot-drop {
+  border-color: rgba(200, 100, 100, 0.8);
+  background: linear-gradient(135deg, rgba(60, 30, 30, 0.9), rgba(70, 40, 40, 0.9));
+}
+
+.slot-label {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.slot-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+/* Inventory Grid */
+.inventory-grid-panel {
+  flex: 1;
+}
+
+.inventory-grid-panel h3 {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+/* inventory-root now uses grid layout - see drop-in CSS in styles.css */
+
+/* inventory-grid sizing is controlled by drop-in CSS in styles.css */
+.inventory-grid {
+  --cell: 54px; /* bigger cells */
+  --gap: 2px;
+  overflow: hidden; /* keep items inside */
+  display: grid;
+  grid-template-columns: repeat(10, var(--cell));
+  grid-template-rows: repeat(6, var(--cell));
+  gap: var(--gap);
+  background: rgba(15,15,20,0.9);
+  padding: 10px;
+  border: 2px solid rgba(120,120,130,0.4);
+  border-radius: 6px;
+  position: relative;
+  transform-origin: top left;
+  box-sizing: border-box;
+}
+
+/* inv-cell and inventory-item sizing controlled by drop-in CSS in styles.css */
+.inv-cell,
+.inventory-item {
+  box-sizing: border-box;
+  width: var(--cell);
+  height: var(--cell);
+}
+
+/* Additional inv-cell styling (base styling in drop-in CSS) */
+
+.grid-cell,
+.inv-cell {
+  background: rgba(30, 30, 35, 0.8);
+  border: 1px solid rgba(80, 80, 90, 0.5);
+  position: relative;
+}
+
+.grid-cell.occupied {
+  background: rgba(40, 40, 50, 0.9);
+}
+
+.grid-cell.hover-valid {
+  background: rgba(40, 80, 40, 0.7);
+  border-color: rgba(100, 200, 100, 0.8);
+}
+
+.grid-cell.hover-invalid {
+  background: rgba(80, 40, 40, 0.7);
+  border-color: rgba(200, 100, 100, 0.8);
+}
+
+/* Grid Items */
+.grid-item,
+.inventory-item {
+  position: relative;
+  cursor: grab;
+  z-index: 1;
+  background: linear-gradient(135deg, rgba(40, 40, 50, 0.95), rgba(50, 50, 60, 0.95));
+  border: 2px solid;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.grid-item:active {
+  cursor: grabbing;
+}
+
+.grid-item.dragging {
+  opacity: 0.6;
+  z-index: 1000;
+}
+
+.grid-item.normal,
+.inventory-item.normal { border-color:#c8c8c8; }
+.grid-item.magic,
+.inventory-item.magic { border-color:#8888ff; }
+.grid-item.rare,
+.inventory-item.rare { border-color:#ffff77; }
+.grid-item.unique,
+.inventory-item.unique { border-color:#ff8800; }
+
+/* Item Tooltip */
+.item-tooltip {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(20, 20, 25, 0.98), rgba(30, 30, 35, 0.98));
+  border: 3px solid;
+  border-radius: 6px;
+  padding: 15px;
+  pointer-events: none;
+  z-index: 10000;
+  min-width: 220px;
+  max-width: 350px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.95);
+}
+
+.item-tooltip.hidden {
+  display: none;
+}
+
+.item-tooltip.normal {
+  border-color: #c8c8c8;
+}
+
+.item-tooltip.magic {
+  border-color: #8888ff;
+}
+
+.item-tooltip.rare {
+  border-color: #ffff77;
+}
+
+.item-tooltip.unique {
+  border-color: #ff8800;
+}
+
+.tooltip-header {
+  margin-bottom: 12px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  padding-bottom: 10px;
+}
+
+.tooltip-item-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tooltip-item-type {
+  font-size: 0.9rem;
+  color: #888;
+  text-transform: capitalize;
+}
+
+.tooltip-affixes {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tooltip-affixes div {
+  color: #8bc34a;
+  margin: 3px 0;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .inventory-main {
+    flex-direction: column;
+  }
+  
+  .equipment-doll {
+    flex: none;
+  }
+}
+

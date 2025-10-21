@@ -1,0 +1,34 @@
+{
+  "name": "browser-mmorpg",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test tests/e2e",
+    "lint": "eslint . --ext .js,.ts",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "babylonjs": "^6.32.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "jsdom": "^27.0.1",
+    "prettier": "^3.3.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9",
+    "vitest": "^2.1.0"
+  }
+}

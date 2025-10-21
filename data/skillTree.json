@@ -1,0 +1,143 @@
+{
+  "nodes": [
+    {
+      "id": "start",
+      "name": "Ascendant Root",
+      "x": 0,
+      "y": 0,
+      "type": "start",
+      "grants": [
+        { "stat": "points", "value": 3 }
+      ]
+    },
+    {
+      "id": "str1",
+      "name": "+10 STR",
+      "x": -160,
+      "y": 0,
+      "type": "small",
+      "grants": [
+        { "stat": "str", "value": 10 }
+      ],
+      "requires": ["start"]
+    },
+    {
+      "id": "dex1",
+      "name": "+10 DEX",
+      "x": 160,
+      "y": 0,
+      "type": "small",
+      "grants": [
+        { "stat": "dex", "value": 10 }
+      ],
+      "requires": ["start"]
+    },
+    {
+      "id": "hp1",
+      "name": "+50 HP",
+      "x": 0,
+      "y": -160,
+      "type": "notable",
+      "grants": [
+        { "stat": "hp_flat", "value": 50 }
+      ],
+      "requires": ["start"]
+    },
+    {
+      "id": "melee1",
+      "name": "+8% Melee Dmg",
+      "x": -320,
+      "y": 0,
+      "type": "small",
+      "grants": [
+        { "stat": "melee_pct", "value": 8 }
+      ],
+      "requires": ["str1"]
+    },
+    {
+      "id": "bow1",
+      "name": "+8% Bow Dmg",
+      "x": 320,
+      "y": 0,
+      "type": "small",
+      "grants": [
+        { "stat": "bow_pct", "value": 8 }
+      ],
+      "requires": ["dex1"]
+    },
+    {
+      "id": "int1",
+      "name": "+10 INT",
+      "x": 0,
+      "y": 160,
+      "type": "small",
+      "grants": [
+        { "stat": "int", "value": 10 }
+      ],
+      "requires": ["start"]
+    },
+    {
+      "id": "mana1",
+      "name": "+40 Mana",
+      "x": 0,
+      "y": 320,
+      "type": "small",
+      "grants": [
+        { "stat": "mp_flat", "value": 40 }
+      ],
+      "requires": ["int1"]
+    },
+    {
+      "id": "str2",
+      "name": "+15 STR",
+      "x": -160,
+      "y": -120,
+      "type": "small",
+      "grants": [
+        { "stat": "str", "value": 15 }
+      ],
+      "requires": ["str1", "hp1"]
+    },
+    {
+      "id": "dex2",
+      "name": "+15 DEX",
+      "x": 160,
+      "y": -120,
+      "type": "small",
+      "grants": [
+        { "stat": "dex", "value": 15 }
+      ],
+      "requires": ["dex1", "hp1"]
+    },
+    {
+      "id": "power",
+      "name": "Omniscient",
+      "x": 0,
+      "y": -320,
+      "type": "notable",
+      "grants": [
+        { "stat": "str", "value": 20 },
+        { "stat": "dex", "value": 20 },
+        { "stat": "int", "value": 20 }
+      ],
+      "requires": ["str2", "dex2"]
+    }
+  ],
+  "edges": [
+    ["start", "str1"],
+    ["start", "dex1"],
+    ["start", "hp1"],
+    ["start", "int1"],
+    ["str1", "melee1"],
+    ["dex1", "bow1"],
+    ["int1", "mana1"],
+    ["str1", "str2"],
+    ["dex1", "dex2"],
+    ["hp1", "str2"],
+    ["hp1", "dex2"],
+    ["str2", "power"],
+    ["dex2", "power"]
+  ]
+}
+
+

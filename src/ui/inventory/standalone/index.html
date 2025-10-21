@@ -1,0 +1,83 @@
+<div id="inventoryStandalone" class="ui-panel is-hidden">
+  <div class="ui-panel__header">
+    <span>INVENTORY</span>
+    <button class="close" data-close-panel="inventoryStandalone">&times;</button>
+  </div>
+
+  <div class="ui-panel__body">
+    <div class="inventory-root">
+      <!-- Equipment left column -->
+      <div class="equipment-root" id="equipmentRoot">
+        <div class="equipment-doll">
+          <h3>Equipment</h3>
+          <div class="doll-grid">
+            <div class="equip-slot" data-slot="helmet" style="grid-area: helmet;">
+              <div class="slot-label">Helmet</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="amulet" style="grid-area: amulet;">
+              <div class="slot-label">Amulet</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="chest" style="grid-area: chest;">
+              <div class="slot-label">Chest</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="weapon" style="grid-area: weapon;">
+              <div class="slot-label">Weapon</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="offhand" style="grid-area: offhand;">
+              <div class="slot-label">Off-hand</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="gloves" style="grid-area: gloves;">
+              <div class="slot-label">Gloves</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="belt" style="grid-area: belt;">
+              <div class="slot-label">Belt</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="boots" style="grid-area: boots;">
+              <div class="slot-label">Boots</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="ring" style="grid-area: ring1;">
+              <div class="slot-label">Ring</div>
+              <div class="slot-content"></div>
+            </div>
+            
+            <div class="equip-slot" data-slot="ring2" style="grid-area: ring2;">
+              <div class="slot-label">Ring</div>
+              <div class="slot-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Inventory grid right column -->
+      <div class="inventory-grid" id="inventory-grid" data-cols="10" data-rows="6">
+        <!-- grid cells + items rendered here -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Item tooltip -->
+  <div id="item-tooltip" class="item-tooltip hidden">
+    <div class="tooltip-header">
+      <div class="tooltip-item-name">Item Name</div>
+      <div class="tooltip-item-type">Weapon</div>
+    </div>
+    <div class="tooltip-affixes"></div>
+  </div>
+</div>
+

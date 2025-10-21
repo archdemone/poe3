@@ -1,0 +1,29 @@
+<div id="vendorPanel" class="ui-panel is-hidden">
+  <div class="ui-panel__header">
+    <span>VENDOR</span>
+    <button class="close" data-close-panel="vendorPanel">&times;</button>
+    <div class="vendor-gold">
+      <span class="gold-label">Gold:</span>
+      <span class="gold-amount" id="vendor-gold">0</span>
+    </div>
+  </div>
+
+  <div class="ui-panel__body">
+    <div class="vendor-content">
+      <div class="vendor-stock" id="vendorStock">
+        <h3>Vendor Stock</h3>
+        <div class="vendor-items" id="vendor-items">
+          <!-- Vendor items will be populated here -->
+        </div>
+      </div>
+      <div class="sell-area" id="vendorSell">
+        <div class="sell-hint">Ctrl+Click items in your inventory to sell</div>
+        <div class="sell-zone" id="vendor-sell-zone">
+          Drop items here to sell
+        </div>
+      </div>
+    </div>
+    <button class="refresh-btn" id="refresh-vendor">Refresh Stock (costs gold)</button>
+  </div>
+</div>
+

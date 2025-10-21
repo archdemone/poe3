@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Browser MMORPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- The CSS for the game UI lives in src/styles.css. Vite will handle
+         transformation and injection at build time. -->
+    <link rel="stylesheet" href="/src/styles.css">
+    <link rel="stylesheet" href="/src/ui/inventory/compact/index.css">
+  </head>
+  <body>
+    <!-- The Babylon.js engine will render to this canvas. It spans the
+         entire viewport. -->
+    <canvas id="renderCanvas"></canvas>
+    <div id="ui-layer"></div>
+
+    <!-- Dynamic UI container for menu overlays (main menu, character creation, etc.) -->
+    <div id="dynamic-ui"></div>
+
+    <!-- Standalone Inventory Panel - Full size, centered when opened alone -->
+    <div id="inventoryStandalone" class="ui-panel is-hidden">
+      <div class="ui-panel__header">
+        <span>INVENTORY</span>
+        <button class="close" data-close-panel="inventoryStandalone">&times;</button>
+      </div>
+
+      <div class="ui-panel__body">
+        <div class="inventory-root">
+          <!-- Equipment left column -->
+          <div class="equipment-root" id="equipmentRoot">
+            <div class="equipment-doll">
+              <h3>Equipment</h3>
+              <div class="doll-grid">
+                <div class="equip-slot" data-slot="helmet" style="grid-area: helmet;">
+                  <div class="slot-label">Helmet</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="amulet" style="grid-area: amulet;">
+                  <div class="slot-label">Amulet</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="chest" style="grid-area: chest;">
+                  <div class="slot-label">Chest</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="weapon" style="grid-area: weapon;">
+                  <div class="slot-label">Weapon</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="offhand" style="grid-area: offhand;">
+                  <div class="slot-label">Off-hand</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="gloves" style="grid-area: gloves;">
+                  <div class="slot-label">Gloves</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="belt" style="grid-area: belt;">
+                  <div class="slot-label">Belt</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="boots" style="grid-area: boots;">
+                  <div class="slot-label">Boots</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="ring" style="grid-area: ring1;">
+                  <div class="slot-label">Ring</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="ring2" style="grid-area: ring2;">
+                  <div class="slot-label">Ring</div>
+                  <div class="slot-content"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Inventory grid right column -->
+          <div class="inventory-grid" id="inventory-grid" data-cols="10" data-rows="6">
+            <!-- grid cells + items rendered here -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Item tooltip -->
+      <div id="item-tooltip" class="item-tooltip hidden">
+        <div class="tooltip-header">
+          <div class="tooltip-item-name">Item Name</div>
+          <div class="tooltip-item-type">Weapon</div>
+        </div>
+        <div class="tooltip-affixes"></div>
+      </div>
+    </div>
+
+    <!-- Compact Inventory Panel - Smaller, used when vendor is open -->
+    <div id="inventoryCompact" class="ui-panel is-hidden">
+      <div class="ui-panel__header">
+        <span>INVENTORY</span>
+        <button class="close" data-close-panel="inventoryCompact">&times;</button>
+      </div>
+
+      <div class="ui-panel__body invc-body">
+        <div class="invc-content">
+          <!-- Equipment left column - compact -->
+          <div class="invc-equip" id="invc-equip">
+            <div class="equipment-doll">
+              <h3>Equipment</h3>
+              <div class="doll-grid">
+                <div class="equip-slot" data-slot="helmet" style="grid-area: helmet;">
+                  <div class="slot-label">Helmet</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="amulet" style="grid-area: amulet;">
+                  <div class="slot-label">Amulet</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="chest" style="grid-area: chest;">
+                  <div class="slot-label">Chest</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="weapon" style="grid-area: weapon;">
+                  <div class="slot-label">Weapon</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="offhand" style="grid-area: offhand;">
+                  <div class="slot-label">Off-hand</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="gloves" style="grid-area: gloves;">
+                  <div class="slot-label">Gloves</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="belt" style="grid-area: belt;">
+                  <div class="slot-label">Belt</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="boots" style="grid-area: boots;">
+                  <div class="slot-label">Boots</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="ring" style="grid-area: ring1;">
+                  <div class="slot-label">Ring</div>
+                  <div class="slot-content"></div>
+                </div>
+                
+                <div class="equip-slot" data-slot="ring2" style="grid-area: ring2;">
+                  <div class="slot-label">Ring</div>
+                  <div class="slot-content"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Inventory grid right column - compact -->
+          <div class="invc-grid" id="invc-grid" data-cols="10" data-rows="6">
+            <!-- grid cells + items rendered here -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Item tooltip -->
+      <div id="invc-item-tooltip" class="item-tooltip hidden">
+        <div class="tooltip-header">
+          <div class="tooltip-item-name">Item Name</div>
+          <div class="tooltip-item-type">Weapon</div>
+        </div>
+        <div class="tooltip-affixes"></div>
+      </div>
+    </div>
+
+    <!-- Vendor Panel overlay -->
+    <div id="vendorPanel" class="ui-panel is-hidden">
+      <div class="ui-panel__header">
+        <span>VENDOR</span>
+        <button data-close-panel="vendorPanel" class="icon-btn">×</button>
+      </div>
+        
+        <div class="vendor-gold">
+          <span class="gold-label">Gold:</span>
+          <span class="gold-amount" id="vendor-gold">0</span>
+        </div>
+        
+        <div class="ui-panel__body">
+          <div class="vendor-main" data-autosize="vendor">
+          <div class="vendor-stock">
+            <h3>Vendor Stock</h3>
+            <div class="vendor-items" id="vendor-items">
+              <!-- Vendor items will be populated here -->
+            </div>
+            <button class="refresh-btn" id="refresh-vendor">Refresh Stock (20 gold)</button>
+          </div>
+          
+          <div class="vendor-sell-area">
+            <h3>Sell Items</h3>
+            <p class="hint">Ctrl+Click items in your inventory to sell them</p>
+            <div class="sell-zone" id="vendor-sell-zone">
+              Drag items here to sell
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skill Tree overlay -->
+    <div id="skill-tree" class="skill-tree hidden">
+      <div class="tree-panel">
+        <div class="tree-header">
+          <h2>Passive Skill Tree</h2>
+          <button id="close-skill-tree" class="close-btn">×</button>
+          <div class="tree-info">
+            <span class="points-display">
+              Points: <span id="available-points">0</span> / <span id="total-points">0</span>
+            </span>
+            <button id="reset-tree-btn" class="small-btn">Reset Tree</button>
+          </div>
+        </div>
+        
+        <div class="tree-canvas-container">
+          <svg id="tree-svg" width="600" height="400">
+            <!-- Lines connecting nodes will be drawn here -->
+            <g id="tree-connections"></g>
+            <!-- Nodes will be drawn here -->
+            <g id="tree-nodes"></g>
+          </svg>
+        </div>
+        
+        <!-- Node tooltip -->
+        <div id="node-tooltip" class="node-tooltip hidden">
+          <div class="tooltip-name">Node Name</div>
+          <div class="tooltip-stats"></div>
+          <div class="tooltip-cost">Cost: 1</div>
+          <div class="tooltip-status">Click to allocate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Sheet overlay -->
+    <div id="char-sheet" class="char-sheet hidden">
+      <div class="sheet-content">
+        <h2>Character Sheet</h2>
+        <button id="close-char-sheet" class="close-btn">×</button>
+        
+        <div class="sheet-sections">
+          <!-- Core Attributes -->
+          <div class="sheet-section">
+            <h3>Core Attributes</h3>
+            <div class="stat-row">
+              <span class="stat-label">Strength</span>
+              <span class="stat-value" id="stat-str">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Dexterity</span>
+              <span class="stat-value" id="stat-dex">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Intelligence</span>
+              <span class="stat-value" id="stat-int">0</span>
+            </div>
+          </div>
+          
+          <!-- Resources -->
+          <div class="sheet-section">
+            <h3>Resources</h3>
+            <div class="stat-row">
+              <span class="stat-label">Health</span>
+              <span class="stat-value"><span id="stat-hp">0</span> / <span id="stat-max-hp">0</span></span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Mana</span>
+              <span class="stat-value"><span id="stat-mp">0</span> / <span id="stat-max-mp">0</span></span>
+            </div>
+          </div>
+          
+          <!-- Offense -->
+          <div class="sheet-section">
+            <h3>Offense</h3>
+            <div class="stat-row">
+              <span class="stat-label">Melee Damage</span>
+              <span class="stat-value" id="stat-melee-dmg">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Ranged Damage</span>
+              <span class="stat-value" id="stat-ranged-dmg">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Spell Damage</span>
+              <span class="stat-value" id="stat-spell-dmg">0</span>
+            </div>
+          </div>
+          
+          <!-- Defense -->
+          <div class="sheet-section">
+            <h3>Defense</h3>
+            <div class="stat-row">
+              <span class="stat-label">Armor</span>
+              <span class="stat-value" id="stat-armor">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Physical Reduction</span>
+              <span class="stat-value" id="stat-phys-reduction">0%</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Evasion</span>
+              <span class="stat-value" id="stat-evasion">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Dodge Chance</span>
+              <span class="stat-value" id="stat-dodge-chance">0%</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Debug Controls -->
+        <div class="sheet-section debug-section">
+          <h3>Debug Controls</h3>
+          <div class="stat-row">
+            <label for="debug-str-slider">STR: <span id="debug-str-display">20</span></label>
+            <input type="range" id="debug-str-slider" min="1" max="50" value="20" />
+          </div>
+          <div class="stat-row">
+            <label for="debug-dex-slider">DEX: <span id="debug-dex-display">10</span></label>
+            <input type="range" id="debug-dex-slider" min="1" max="50" value="10" />
+          </div>
+          <div class="stat-row">
+            <label for="debug-int-slider">INT: <span id="debug-int-display">10</span></label>
+            <input type="range" id="debug-int-slider" min="1" max="50" value="10" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Death Screen overlay -->
+    <div id="death-screen" class="death-screen hidden">
+      <div class="death-content">
+        <h1>YOU DIED</h1>
+        <button id="respawn-btn" class="death-btn">Respawn in Hideout</button>
+      </div>
+    </div>
+
+    <!-- ESC Menu overlay -->
+    <div id="esc-menu" class="esc-menu hidden">
+      <div class="esc-content">
+        <h2>Game Menu</h2>
+        <div class="esc-buttons">
+          <button id="esc-resume" class="esc-btn">Resume (ESC)</button>
+          <button id="esc-save" class="esc-btn">Save Game</button>
+          <button id="esc-main-menu" class="esc-btn">Exit to Main Menu</button>
+          <button id="esc-quit" class="esc-btn">Quit to Desktop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI overlay. All of these elements are absolutely positioned on
+         top of the canvas.  Pointer-events are enabled only where
+         interaction is required (skill bar, modals). -->
+    <div id="ui">
+      <!-- Resource Orbs - Health and Mana -->
+      <div class="resource-orbs">
+        <div class="orb-container health-orb-container">
+          <div class="orb health-orb">
+            <div class="orb-fill" id="health-fill"></div>
+          </div>
+          <div class="orb-text" id="health-text">100</div>
+          <div class="orb-label">LIFE</div>
+        </div>
+        <div class="orb-container mana-orb-container">
+          <div class="orb mana-orb">
+            <div class="orb-fill" id="mana-fill"></div>
+          </div>
+          <div class="orb-text" id="mana-text">50</div>
+          <div class="orb-label">MANA</div>
+        </div>
+      </div>
+      
+      <!-- Skill bar at the bottom centre of the screen. The top row
+           represents left/middle/right mouse buttons; the bottom row
+           represents keyboard keys Q‑T. Each slot is interactive and
+           opens a placeholder modal when clicked. -->
+      <div id="skill-bar">
+        <div class="row top-row">
+          <div class="slot lmb" data-action="LMB">LMB</div>
+          <div class="slot mmb" data-action="MMB">MMB</div>
+          <div class="slot rmb" data-action="RMB">RMB</div>
+        </div>
+        <div class="row bottom-row">
+          <div class="slot" data-key="Q">Q</div>
+          <div class="slot" data-key="W">W</div>
+          <div class="slot" data-key="E">E</div>
+          <div class="slot" data-key="R">R</div>
+          <div class="slot" data-key="T">T</div>
+        </div>
+      </div>
+      <!-- A simple modal that pops up when a skill slot is clicked. In a
+           full game this would list available skills for the player to
+           assign. For now it contains placeholder content. -->
+      <div id="assign-modal" class="hidden">
+        <div class="modal-content">
+          <h2>Assign skill</h2>
+          <p>This is a placeholder for the skill selection UI. In your
+            final game this could show a list of available skills or
+            allow the player to purchase new ones.</p>
+          <button id="close-modal">Close</button>
+        </div>
+      </div>
+      <!-- The game menu panel toggled with the G key. This panel now
+           hosts the weapon and skill gem management UI. The active
+           weapon socket and two support sockets are displayed here.
+           Available skills are listed below for equipping into the
+           active socket. -->
+      <div id="g-menu" class="hidden">
+        <h2>Game Menu (G)</h2>
+        <div id="weapon-sockets" class="weapon-sockets">
+          <!-- Sockets will be populated by the game code -->
+        </div>
+        <h3>Available Skills</h3>
+        <div id="skills-list" class="skills-list">
+          <!-- Skill buttons will be populated by the game code -->
+        </div>
+        <button id="reset-progress" style="margin-top:10px;">Reset Progress</button>
+      </div>
+
+      <!-- Modal to confirm entering the dungeon from the Map Device -->
+      <div id="dungeon-modal" class="hidden">
+        <div class="modal-content">
+          <h2>Enter Dungeon?</h2>
+          <p>This will take you into a linear dungeon filled with enemies.</p>
+          <button id="enter-dungeon-btn">Enter</button>
+          <button id="cancel-dungeon-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main entry point for our Babylon.js game. Vite automatically
+         resolves TypeScript modules. -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<div class="char-create">
+  <div class="create-container">
+    <h1 class="create-title">Create Character</h1>
+    
+    <div class="create-form">
+      <!-- Name Input -->
+      <div class="form-group">
+        <label for="char-name">Character Name</label>
+        <input 
+          type="text" 
+          id="char-name" 
+          maxlength="16" 
+          placeholder="Enter name..."
+          autocomplete="off"
+        />
+      </div>
+      
+      <!-- Class Selection -->
+      <div class="form-group">
+        <label>Choose Class</label>
+        <div class="class-selection">
+          <div class="class-card" data-class="warrior">
+            <div class="class-icon">⚔️</div>
+            <h3 class="class-name">Warrior</h3>
+            <p class="class-description">
+              Melee fighter who excels in close combat.
+              Starts with Heavy Strike and Iron Sword.
+            </p>
+          </div>
+          
+          <div class="class-card" data-class="archer">
+            <div class="class-icon">🏹</div>
+            <h3 class="class-name">Archer</h3>
+            <p class="class-description">
+              Ranged attacker who strikes from afar.
+              Starts with Split Shot and Short Bow.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button id="btn-create" class="create-btn" disabled>Create Character</button>
+        <button id="btn-back" class="create-btn secondary">Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+

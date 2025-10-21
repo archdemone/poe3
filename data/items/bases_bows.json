@@ -1,0 +1,74 @@
+[
+  {
+    "id": "simple_bow",
+    "name": "Simple Bow",
+    "class": "bow",
+    "slot": "weapon",
+    "req": { "level": 1 },
+    "dmg": { "physMin": 3, "physMax": 8 },
+    "crit": 0.05,
+    "aps": 1.2,
+    "range": 8.0
+  },
+  {
+    "id": "composite_bow",
+    "name": "Composite Bow",
+    "class": "bow",
+    "slot": "weapon",
+    "req": { "level": 5, "dex": 15 },
+    "dmg": { "physMin": 5, "physMax": 12 },
+    "crit": 0.055,
+    "aps": 1.3,
+    "range": 9.0,
+    "implicit": [{ "stat": "bow_pct", "value": [5, 10] }]
+  },
+  {
+    "id": "recurve_bow",
+    "name": "Recurve Bow",
+    "class": "bow",
+    "slot": "weapon",
+    "req": { "level": 10, "dex": 25 },
+    "dmg": { "physMin": 8, "physMax": 18 },
+    "crit": 0.06,
+    "aps": 1.25,
+    "range": 10.0,
+    "implicit": [{ "stat": "dex", "value": [5, 12] }]
+  },
+  {
+    "id": "longbow",
+    "name": "Longbow",
+    "class": "bow",
+    "slot": "weapon",
+    "req": { "level": 15, "str": 15, "dex": 30 },
+    "dmg": { "physMin": 12, "physMax": 25 },
+    "crit": 0.055,
+    "aps": 1.1,
+    "range": 12.0,
+    "implicit": [{ "stat": "bow_pct", "value": [10, 15] }]
+  },
+  {
+    "id": "war_bow",
+    "name": "War Bow",
+    "class": "bow",
+    "slot": "weapon",
+    "req": { "level": 20, "str": 25, "dex": 35 },
+    "dmg": { "physMin": 15, "physMax": 32 },
+    "crit": 0.06,
+    "aps": 1.0,
+    "range": 11.0,
+    "implicit": [{ "stat": "str", "value": [8, 15] }]
+  },
+  {
+    "id": "assassins_bow",
+    "name": "Assassin's Bow",
+    "class": "bow",
+    "slot": "weapon",
+    "req": { "level": 18, "dex": 40 },
+    "dmg": { "physMin": 8, "physMax": 20 },
+    "crit": 0.075,
+    "aps": 1.45,
+    "range": 9.5,
+    "implicit": [{ "stat": "crit_chance", "value": [12, 20] }]
+  }
+]
+

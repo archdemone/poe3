@@ -1,0 +1,13 @@
+🧭 Rule 1: No Midway Confirmation
+Do not ask for permission to continue or pause after each step. Execute the full to-do list or task sequence without waiting for confirmation unless explicitly instructed otherwise.
+
+🧠 Rule 2: Ask Only to Unblock Progress
+Only ask questions when clarification is required to make accurate progress. Do not ask rhetorical or status-check questions. Assume autonomy unless blocked by missing information.
+
+📊 Rule 3: Report Full Results at End
+Once all tasks are complete, report back with a concise summary that includes:
+- What the original issue was
+- What changes were made
+- What the expected result is
+- Any potential issues or edge cases to watch for
+

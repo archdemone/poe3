@@ -1,0 +1,272 @@
+/* Skill Tree - Passive node allocation panel */
+
+.skill-tree {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 7500;
+  pointer-events: auto;
+}
+
+.skill-tree.hidden {
+  display: none;
+}
+
+.tree-panel {
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  width: 700px;
+  max-width: 95%;
+  max-height: 90vh;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.tree-header {
+  padding: 20px 25px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  position: relative;
+}
+
+.tree-header h2 {
+  color: #d4d4d8;
+  margin: 0 0 10px 0;
+  font-size: 1.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.tree-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.points-display {
+  color: #b8b8c0;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+#available-points {
+  color: #c4b088;
+  font-size: 1.2rem;
+}
+
+#total-points {
+  color: #888;
+}
+
+.small-btn {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  color: #ddd;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.small-btn:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 8px rgba(150, 150, 170, 0.3);
+}
+
+.tree-canvas-container {
+  padding: 20px;
+  flex: 1;
+  overflow: auto;
+  background: rgba(15, 15, 20, 0.8);
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+#tree-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Node styles */
+.tree-node {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tree-node circle {
+  transition: all 0.3s ease;
+}
+
+/* Start node - always allocated */
+.tree-node.start circle {
+  fill: rgba(80, 80, 90, 0.9);
+  stroke: rgba(200, 200, 210, 0.9);
+  stroke-width: 3;
+}
+
+/* Unallocated nodes */
+.tree-node.unallocated circle {
+  fill: rgba(40, 40, 50, 0.8);
+  stroke: rgba(100, 100, 110, 0.6);
+  stroke-width: 2;
+}
+
+.tree-node.unallocated.can-allocate circle {
+  stroke: rgba(150, 150, 170, 0.8);
+  stroke-width: 2.5;
+}
+
+.tree-node.unallocated.can-allocate:hover circle {
+  fill: rgba(60, 60, 70, 0.9);
+  stroke: rgba(180, 180, 200, 1);
+  filter: drop-shadow(0 0 8px rgba(150, 150, 170, 0.6));
+}
+
+/* Allocated nodes */
+.tree-node.allocated circle {
+  fill: rgba(70, 70, 85, 1);
+  stroke: rgba(180, 180, 200, 1);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px rgba(150, 150, 170, 0.5));
+}
+
+/* Notable nodes (larger, special) */
+.tree-node.notable.allocated circle {
+  fill: rgba(90, 80, 100, 1);
+  stroke: rgba(200, 180, 140, 1);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 12px rgba(200, 180, 140, 0.6));
+}
+
+.tree-node.notable.can-allocate circle {
+  stroke: rgba(180, 160, 120, 0.8);
+}
+
+/* Keystone nodes (largest, most powerful) */
+.tree-node.keystone circle {
+  stroke-width: 4;
+}
+
+.tree-node.keystone.allocated circle {
+  fill: rgba(100, 90, 110, 1);
+  stroke: rgba(220, 200, 160, 1);
+  filter: drop-shadow(0 0 15px rgba(220, 200, 160, 0.7));
+}
+
+.tree-node.keystone.can-allocate circle {
+  stroke: rgba(200, 180, 140, 0.9);
+  stroke-width: 3.5;
+}
+
+/* Node text */
+.tree-node text {
+  fill: #ccc;
+  font-size: 10px;
+  font-weight: bold;
+  text-anchor: middle;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 1);
+}
+
+.tree-node.allocated text {
+  fill: #e8e8e8;
+}
+
+/* Connection lines between nodes */
+.tree-connection {
+  stroke: rgba(80, 80, 90, 0.5);
+  stroke-width: 2;
+  fill: none;
+}
+
+.tree-connection.active {
+  stroke: rgba(140, 140, 160, 0.8);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px rgba(140, 140, 160, 0.4));
+}
+
+/* Node tooltip */
+.node-tooltip {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(30, 30, 35, 0.98), rgba(40, 40, 45, 0.98));
+  border: 2px solid rgba(150, 150, 160, 0.8);
+  border-radius: 6px;
+  padding: 12px 16px;
+  pointer-events: none;
+  z-index: 9000;
+  min-width: 180px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+.node-tooltip.hidden {
+  display: none;
+}
+
+.tooltip-name {
+  color: #d4d4d8;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tooltip-stats {
+  color: #b8b8c0;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.tooltip-stats div {
+  margin: 3px 0;
+}
+
+.tooltip-stat-positive {
+  color: #8bc34a;
+}
+
+.tooltip-cost {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.tooltip-status {
+  color: #888;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.tooltip-status.can-allocate {
+  color: #8bc34a;
+}
+
+.tooltip-status.cannot-allocate {
+  color: #f44336;
+}
+
+.tooltip-status.allocated {
+  color: #64b5f6;
+}
+
+

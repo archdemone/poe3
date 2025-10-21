@@ -1,0 +1,95 @@
+{
+  "suffixes": [
+    {
+      "group": "attr_str_suffix",
+      "stat": "str",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 3, "max": 10 }
+      ]
+    },
+    {
+      "group": "attr_dex_suffix",
+      "stat": "dex",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 3, "max": 10 }
+      ]
+    },
+    {
+      "group": "attr_int_suffix",
+      "stat": "int",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 3, "max": 10 }
+      ]
+    },
+    {
+      "group": "life_regen",
+      "stat": "hp_regen",
+      "tiers": [
+        { "tier": 3, "min": 6, "max": 10 },
+        { "tier": 2, "min": 3, "max": 5 },
+        { "tier": 1, "min": 1, "max": 2 }
+      ]
+    },
+    {
+      "group": "mana_regen",
+      "stat": "mp_regen",
+      "tiers": [
+        { "tier": 3, "min": 11, "max": 20 },
+        { "tier": 2, "min": 6, "max": 10 },
+        { "tier": 1, "min": 2, "max": 5 }
+      ]
+    },
+    {
+      "group": "fire_res",
+      "stat": "fire_res",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
+      "group": "cold_res",
+      "stat": "cold_res",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
+      "group": "lightning_res",
+      "stat": "lightning_res",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
+      "group": "attack_speed",
+      "stat": "aps_pct",
+      "tiers": [
+        { "tier": 3, "min": 11, "max": 18 },
+        { "tier": 2, "min": 6, "max": 10 },
+        { "tier": 1, "min": 3, "max": 5 }
+      ]
+    },
+    {
+      "group": "crit_chance",
+      "stat": "crit_chance",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 40 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    }
+  ]
+}
+

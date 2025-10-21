@@ -1,0 +1,94 @@
+<div id="char-sheet" class="char-sheet hidden">
+  <div class="sheet-content">
+    <h2>Character Sheet</h2>
+    <button id="close-char-sheet" class="close-btn">×</button>
+    
+    <div class="sheet-sections">
+      <!-- Core Attributes -->
+      <div class="sheet-section">
+        <h3>Core Attributes</h3>
+        <div class="stat-row">
+          <span class="stat-label">Strength</span>
+          <span class="stat-value" id="stat-str">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Dexterity</span>
+          <span class="stat-value" id="stat-dex">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Intelligence</span>
+          <span class="stat-value" id="stat-int">0</span>
+        </div>
+      </div>
+      
+      <!-- Resources -->
+      <div class="sheet-section">
+        <h3>Resources</h3>
+        <div class="stat-row">
+          <span class="stat-label">Health</span>
+          <span class="stat-value"><span id="stat-hp">0</span> / <span id="stat-max-hp">0</span></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Mana</span>
+          <span class="stat-value"><span id="stat-mp">0</span> / <span id="stat-max-mp">0</span></span>
+        </div>
+      </div>
+      
+      <!-- Offense -->
+      <div class="sheet-section">
+        <h3>Offense</h3>
+        <div class="stat-row">
+          <span class="stat-label">Melee Damage</span>
+          <span class="stat-value" id="stat-melee-dmg">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Ranged Damage</span>
+          <span class="stat-value" id="stat-ranged-dmg">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Spell Damage</span>
+          <span class="stat-value" id="stat-spell-dmg">0</span>
+        </div>
+      </div>
+      
+      <!-- Defense -->
+      <div class="sheet-section">
+        <h3>Defense</h3>
+        <div class="stat-row">
+          <span class="stat-label">Armor</span>
+          <span class="stat-value" id="stat-armor">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Physical Reduction</span>
+          <span class="stat-value" id="stat-phys-reduction">0%</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Evasion</span>
+          <span class="stat-value" id="stat-evasion">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Dodge Chance</span>
+          <span class="stat-value" id="stat-dodge-chance">0%</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Debug Controls (optional) -->
+    <div class="sheet-section debug-section">
+      <h3>Debug Controls</h3>
+      <div class="stat-row">
+        <label for="debug-str-slider">STR: <span id="debug-str-display">20</span></label>
+        <input type="range" id="debug-str-slider" min="1" max="50" value="20" />
+      </div>
+      <div class="stat-row">
+        <label for="debug-dex-slider">DEX: <span id="debug-dex-display">10</span></label>
+        <input type="range" id="debug-dex-slider" min="1" max="50" value="10" />
+      </div>
+      <div class="stat-row">
+        <label for="debug-int-slider">INT: <span id="debug-int-display">10</span></label>
+        <input type="range" id="debug-int-slider" min="1" max="50" value="10" />
+      </div>
+    </div>
+  </div>
+</div>
+

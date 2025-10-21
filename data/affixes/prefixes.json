@@ -1,0 +1,95 @@
+{
+  "prefixes": [
+    {
+      "group": "attr_str",
+      "stat": "str",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 3, "max": 10 }
+      ]
+    },
+    {
+      "group": "attr_dex",
+      "stat": "dex",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 3, "max": 10 }
+      ]
+    },
+    {
+      "group": "attr_int",
+      "stat": "int",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 3, "max": 10 }
+      ]
+    },
+    {
+      "group": "life",
+      "stat": "hp_flat",
+      "tiers": [
+        { "tier": 3, "min": 41, "max": 70 },
+        { "tier": 2, "min": 21, "max": 40 },
+        { "tier": 1, "min": 10, "max": 20 }
+      ]
+    },
+    {
+      "group": "mana",
+      "stat": "mp_flat",
+      "tiers": [
+        { "tier": 3, "min": 31, "max": 50 },
+        { "tier": 2, "min": 16, "max": 30 },
+        { "tier": 1, "min": 8, "max": 15 }
+      ]
+    },
+    {
+      "group": "melee_damage",
+      "stat": "melee_pct",
+      "tiers": [
+        { "tier": 3, "min": 11, "max": 20 },
+        { "tier": 2, "min": 6, "max": 10 },
+        { "tier": 1, "min": 3, "max": 5 }
+      ]
+    },
+    {
+      "group": "bow_damage",
+      "stat": "bow_pct",
+      "tiers": [
+        { "tier": 3, "min": 11, "max": 20 },
+        { "tier": 2, "min": 6, "max": 10 },
+        { "tier": 1, "min": 3, "max": 5 }
+      ]
+    },
+    {
+      "group": "physical_damage",
+      "stat": "phys_damage_pct",
+      "tiers": [
+        { "tier": 3, "min": 16, "max": 30 },
+        { "tier": 2, "min": 8, "max": 15 },
+        { "tier": 1, "min": 3, "max": 7 }
+      ]
+    },
+    {
+      "group": "armor",
+      "stat": "armor",
+      "tiers": [
+        { "tier": 3, "min": 51, "max": 100 },
+        { "tier": 2, "min": 26, "max": 50 },
+        { "tier": 1, "min": 10, "max": 25 }
+      ]
+    },
+    {
+      "group": "evasion",
+      "stat": "evasion",
+      "tiers": [
+        { "tier": 3, "min": 51, "max": 100 },
+        { "tier": 2, "min": 26, "max": 50 },
+        { "tier": 1, "min": 10, "max": 25 }
+      ]
+    }
+  ]
+}
+

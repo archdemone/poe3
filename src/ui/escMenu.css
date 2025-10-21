@@ -1,0 +1,70 @@
+/* ESC Menu - In-game pause menu */
+
+.esc-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8000;
+  pointer-events: auto;
+}
+
+.esc-menu.hidden {
+  display: none;
+}
+
+.esc-content {
+  background: linear-gradient(135deg, #1a1410 0%, #2a2010 100%);
+  border: 3px solid #8b7355;
+  border-radius: 8px;
+  padding: 40px;
+  min-width: 400px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+}
+
+.esc-content h2 {
+  color: #d4af37;
+  margin: 0 0 30px 0;
+  font-size: 2rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.esc-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.esc-btn {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #d4af37;
+  background: linear-gradient(135deg, rgba(40, 30, 20, 0.9), rgba(60, 45, 30, 0.9));
+  border: 2px solid #8b7355;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.esc-btn:hover {
+  background: linear-gradient(135deg, rgba(60, 45, 30, 1), rgba(80, 60, 40, 1));
+  border-color: #d4af37;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+  transform: translateY(-2px);
+}
+
+.esc-btn:active {
+  transform: translateY(0);
+}
+

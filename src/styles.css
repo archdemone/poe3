@@ -1,0 +1,2187 @@
+/* Global resets and base styling. The canvas fills the viewport and
+   the UI lives above it using absolute positioning. */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #111;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Babylon.js renders to this canvas. It should take up the entire
+   screen. */
+#renderCanvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  outline: none;
+}
+
+/* Dynamic UI container for menu overlays. Positioned above canvas but
+   doesn't interfere when empty. */
+#dynamic-ui {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5000;
+}
+
+/* Container for all UI elements. By default it doesn't intercept
+   pointer events, letting the canvas handle clicks and scrolls. We
+   enable pointer events selectively on interactive children. */
+#ui {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Resource Orbs - Health and Mana */
+.resource-orbs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.orb-container {
+  width: 120px;
+  height: 120px;
+  position: absolute;
+}
+
+.health-orb-container {
+  bottom: 20px;
+  left: 20px;
+}
+
+.mana-orb-container {
+  bottom: 20px;
+  right: 20px;
+}
+
+.orb {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid rgba(150, 150, 150, 0.8);
+  box-shadow: 
+    inset 0 0 20px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(150, 150, 150, 0.4);
+}
+
+.orb-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  transition: height 0.3s ease;
+}
+
+.health-orb .orb-fill {
+  background: linear-gradient(180deg, #ff4444 0%, #aa0000 100%);
+  box-shadow: inset 0 0 20px rgba(255, 100, 100, 0.6);
+}
+
+.mana-orb .orb-fill {
+  background: linear-gradient(180deg, #4444ff 0%, #0000aa 100%);
+  box-shadow: inset 0 0 20px rgba(100, 100, 255, 0.6);
+}
+
+.orb-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 1), 0 0 4px rgba(0, 0, 0, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.orb-label {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #aaa;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+/* The skill bar is positioned near the bottom of the screen and
+   centred horizontally. It contains two rows of slots. */
+#skill-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  background: linear-gradient(135deg, rgba(30, 30, 35, 0.95), rgba(40, 40, 45, 0.95));
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid rgba(150, 150, 150, 0.5);
+  box-shadow: 
+    0 0 20px rgba(0, 0, 0, 0.8),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+#skill-bar .row {
+  display: flex;
+  gap: 8px;
+}
+
+/* Individual skill slots with elegant silver borders */
+#skill-bar .slot {
+  width: 54px;
+  height: 54px;
+  border: 2px solid rgba(120, 120, 130, 0.6);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(20, 20, 25, 0.9), rgba(35, 35, 40, 0.9));
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.7rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+  white-space: pre-line;
+  text-align: center;
+  line-height: 1.1;
+}
+
+#skill-bar .slot::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(80, 80, 90, 0.1), transparent);
+  pointer-events: none;
+}
+
+/* Highlight slots with assigned skills */
+#skill-bar .slot.has-skill {
+  border-color: rgba(180, 160, 100, 0.5);
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(180, 160, 100, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#skill-bar .slot:hover {
+  border-color: rgba(180, 180, 200, 0.9);
+  background: linear-gradient(135deg, rgba(35, 35, 40, 1), rgba(45, 45, 50, 1));
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(150, 150, 170, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+#skill-bar .slot:active {
+  transform: translateY(0);
+}
+
+/* Modal and menu containers share a similar style: centred in the
+   viewport, dark semi‑transparent background with a light border. */
+#assign-modal.hidden,
+#g-menu.hidden,
+#dungeon-modal.hidden {
+  display: none;
+}
+
+#assign-modal,
+#g-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 280px;
+  max-width: 90%;
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 2px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  padding: 25px;
+  color: #ccc;
+  pointer-events: auto;
+  z-index: 1000;
+  box-shadow: 
+    0 0 30px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+#dungeon-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 280px;
+  max-width: 90%;
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 2px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  padding: 25px;
+  color: #ccc;
+  pointer-events: auto;
+  z-index: 1000;
+  box-shadow: 
+    0 0 30px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+#dungeon-modal h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  color: #d4d4d8;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  border-bottom: 2px solid rgba(150, 150, 160, 0.3);
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+#dungeon-modal p {
+  margin-top: 0;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  color: #aaa;
+  text-align: center;
+}
+
+#dungeon-modal button {
+  margin: 5px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  color: #ddd;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#dungeon-modal button:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 10px rgba(150, 150, 170, 0.3);
+  transform: translateY(-1px);
+}
+
+#assign-modal h2,
+#g-menu h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  color: #d4d4d8;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  border-bottom: 2px solid rgba(150, 150, 160, 0.3);
+  padding-bottom: 10px;
+}
+
+#assign-modal h3,
+#g-menu h3 {
+  color: #b8b8c0;
+  font-size: 1rem;
+  margin: 15px 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#assign-modal p,
+#g-menu p {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+  color: #aaa;
+}
+
+#assign-modal button {
+  margin-top: 1rem;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  color: #ddd;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#assign-modal button:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 10px rgba(150, 150, 170, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Floating damage numbers appear above enemies when they are hit. They are
+   absolutely positioned spans added dynamically to the UI root. */
+.damage-number {
+  font-size: 16px;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Enemy Health Bars */
+.enemy-health-bar {
+  position: absolute;
+  pointer-events: none;
+  width: 60px;
+}
+
+.health-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(40, 0, 0, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+.health-bar-fill {
+  height: 100%;
+  background: linear-gradient(to bottom, #ff4444, #cc0000);
+  width: 100%;
+  transition: width 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(255, 100, 100, 0.6);
+}
+
+/* Weapon socket UI inside the G‑menu. The active socket is drawn
+   slightly larger to distinguish it from support sockets. Disabled
+   support sockets are dimmed and non‑interactive. */
+.weapon-sockets {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 12px;
+  background: rgba(20, 20, 25, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(120, 120, 130, 0.3);
+}
+
+.weapon-sockets .socket {
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(120, 120, 130, 0.6);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(30, 30, 35, 0.9), rgba(45, 45, 50, 0.9));
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.weapon-sockets .socket.active {
+  width: 52px;
+  height: 52px;
+  border-color: rgba(180, 160, 100, 0.8);
+  font-weight: bold;
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(180, 160, 100, 0.4);
+}
+
+.weapon-sockets .socket:hover:not(.disabled) {
+  border-color: rgba(160, 160, 180, 0.9);
+  background: linear-gradient(135deg, rgba(40, 40, 45, 1), rgba(55, 55, 60, 1));
+}
+
+.weapon-sockets .socket.support.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Skills list inside the G‑menu. Each button represents a skill gem
+   that can be equipped into the active socket. */
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skills-list .skill-btn {
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(50, 50, 60, 0.9), rgba(60, 60, 70, 0.9));
+  color: #ccc;
+  border: 2px solid rgba(120, 120, 130, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: bold;
+  user-select: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.skills-list .skill-btn:hover {
+  background: linear-gradient(135deg, rgba(60, 60, 70, 1), rgba(70, 70, 80, 1));
+  border-color: rgba(150, 150, 170, 0.8);
+  box-shadow: 0 0 10px rgba(140, 140, 160, 0.3);
+  transform: translateY(-2px);
+}
+
+/* G-menu buttons (like Reset Progress) */
+#g-menu button {
+  margin-top: 10px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  color: #ddd;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#g-menu button:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 10px rgba(150, 150, 170, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ESC Menu - In-game pause menu */
+.esc-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8000;
+  pointer-events: auto;
+}
+
+.esc-menu.hidden {
+  display: none;
+}
+
+.esc-content {
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  padding: 40px;
+  min-width: 400px;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+.esc-content h2 {
+  color: #d4d4d8;
+  margin: 0 0 30px 0;
+  font-size: 2rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  border-bottom: 2px solid rgba(150, 150, 160, 0.3);
+  padding-bottom: 15px;
+}
+
+.esc-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.esc-btn {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #d4d4d8;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.esc-btn:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 15px rgba(150, 150, 170, 0.4);
+  transform: translateY(-2px);
+}
+
+.esc-btn:active {
+  transform: translateY(0);
+}
+
+/* Character Sheet - Stats panel */
+.char-sheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 7000;
+  pointer-events: auto;
+}
+
+.char-sheet.hidden {
+  display: none;
+}
+
+.sheet-content {
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  padding: 30px;
+  width: 600px;
+  max-width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.sheet-content h2 {
+  color: #d4d4d8;
+  margin: 0 0 20px 0;
+  font-size: 2rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  border-bottom: 2px solid rgba(150, 150, 160, 0.3);
+  padding-bottom: 15px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  background: rgba(50, 50, 60, 0.8);
+  color: #d4d4d8;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  background: rgba(70, 70, 80, 1);
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 10px rgba(150, 150, 170, 0.3);
+}
+
+.sheet-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.sheet-section {
+  background: rgba(30, 30, 35, 0.7);
+  border: 2px solid rgba(120, 120, 130, 0.4);
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.sheet-section h3 {
+  color: #b8b8c0;
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  padding-bottom: 8px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(120, 120, 130, 0.2);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #aaa;
+  font-size: 0.95rem;
+}
+
+.stat-value {
+  color: #d4d4d8;
+  font-weight: bold;
+  font-size: 1rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Gold accent for core attribute values */
+#stat-str,
+#stat-dex,
+#stat-int {
+  color: #c4b088;
+  text-shadow: 0 0 8px rgba(196, 176, 136, 0.3);
+}
+
+/* Colored values for resources */
+#stat-hp,
+#stat-max-hp {
+  color: #ff6b6b;
+}
+
+#stat-mp,
+#stat-max-mp {
+  color: #6b9fff;
+}
+
+/* Debug section */
+.debug-section {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+}
+
+.debug-section .stat-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+}
+
+.debug-section label {
+  color: #999;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.debug-section input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+  accent-color: rgba(180, 160, 100, 0.9);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sheet-sections {
+    grid-template-columns: 1fr;
+  }
+  
+  .sheet-content {
+    width: 95%;
+    padding: 20px;
+  }
+}
+
+/* Scrollbar styling */
+.sheet-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.sheet-content::-webkit-scrollbar-track {
+  background: rgba(20, 20, 25, 0.5);
+  border-radius: 4px;
+}
+
+.sheet-content::-webkit-scrollbar-thumb {
+  background: rgba(130, 130, 140, 0.6);
+  border-radius: 4px;
+}
+
+.sheet-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 180, 0.8);
+}
+
+/* Skill Tree - Passive node allocation panel */
+.skill-tree {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 7500;
+  pointer-events: auto;
+}
+
+.skill-tree.hidden {
+  display: none;
+}
+
+.tree-panel {
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  width: 700px;
+  max-width: 95%;
+  max-height: 90vh;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.tree-header {
+  padding: 20px 25px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  position: relative;
+}
+
+.tree-header h2 {
+  color: #d4d4d8;
+  margin: 0 0 10px 0;
+  font-size: 1.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.tree-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.points-display {
+  color: #b8b8c0;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+#available-points {
+  color: #c4b088;
+  font-size: 1.2rem;
+}
+
+#total-points {
+  color: #888;
+}
+
+.small-btn {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  color: #ddd;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.small-btn:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 8px rgba(150, 150, 170, 0.3);
+}
+
+.tree-canvas-container {
+  padding: 20px;
+  flex: 1;
+  overflow: auto;
+  background: rgba(15, 15, 20, 0.8);
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+#tree-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Node styles */
+.tree-node {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tree-node circle {
+  transition: all 0.3s ease;
+}
+
+/* Start node - always allocated */
+.tree-node.start circle {
+  fill: rgba(80, 80, 90, 0.9);
+  stroke: rgba(200, 200, 210, 0.9);
+  stroke-width: 3;
+}
+
+/* Unallocated nodes */
+.tree-node.unallocated circle {
+  fill: rgba(40, 40, 50, 0.8);
+  stroke: rgba(100, 100, 110, 0.6);
+  stroke-width: 2;
+}
+
+.tree-node.unallocated.can-allocate circle {
+  stroke: rgba(150, 150, 170, 0.8);
+  stroke-width: 2.5;
+}
+
+.tree-node.unallocated.can-allocate:hover circle {
+  fill: rgba(60, 60, 70, 0.9);
+  stroke: rgba(180, 180, 200, 1);
+  filter: drop-shadow(0 0 8px rgba(150, 150, 170, 0.6));
+}
+
+/* Allocated nodes */
+.tree-node.allocated circle {
+  fill: rgba(70, 70, 85, 1);
+  stroke: rgba(180, 180, 200, 1);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px rgba(150, 150, 170, 0.5));
+}
+
+/* Notable nodes (larger, special) */
+.tree-node.notable.allocated circle {
+  fill: rgba(90, 80, 100, 1);
+  stroke: rgba(200, 180, 140, 1);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 12px rgba(200, 180, 140, 0.6));
+}
+
+.tree-node.notable.can-allocate circle {
+  stroke: rgba(180, 160, 120, 0.8);
+}
+
+/* Keystone nodes (largest, most powerful) */
+.tree-node.keystone circle {
+  stroke-width: 4;
+}
+
+.tree-node.keystone.allocated circle {
+  fill: rgba(100, 90, 110, 1);
+  stroke: rgba(220, 200, 160, 1);
+  filter: drop-shadow(0 0 15px rgba(220, 200, 160, 0.7));
+}
+
+.tree-node.keystone.can-allocate circle {
+  stroke: rgba(200, 180, 140, 0.9);
+  stroke-width: 3.5;
+}
+
+/* Node text */
+.tree-node text {
+  fill: #ccc;
+  font-size: 10px;
+  font-weight: bold;
+  text-anchor: middle;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 1);
+}
+
+.tree-node.allocated text {
+  fill: #e8e8e8;
+}
+
+/* Connection lines between nodes */
+.tree-connection {
+  stroke: rgba(80, 80, 90, 0.5);
+  stroke-width: 2;
+  fill: none;
+}
+
+.tree-connection.active {
+  stroke: rgba(140, 140, 160, 0.8);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px rgba(140, 140, 160, 0.4));
+}
+
+/* Node tooltip */
+.node-tooltip {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(30, 30, 35, 0.98), rgba(40, 40, 45, 0.98));
+  border: 2px solid rgba(150, 150, 160, 0.8);
+  border-radius: 6px;
+  padding: 12px 16px;
+  pointer-events: none;
+  z-index: 9000;
+  min-width: 180px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+.node-tooltip.hidden {
+  display: none;
+}
+
+.tooltip-name {
+  color: #d4d4d8;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tooltip-stats {
+  color: #b8b8c0;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.tooltip-stats div {
+  margin: 3px 0;
+}
+
+.tooltip-stat-positive {
+  color: #8bc34a;
+}
+
+.tooltip-cost {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.tooltip-status {
+  color: #888;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.tooltip-status.can-allocate {
+  color: #8bc34a;
+}
+
+.tooltip-status.cannot-allocate {
+  color: #f44336;
+}
+
+.tooltip-status.allocated {
+  color: #64b5f6;
+}
+
+/* Death Screen */
+.death-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(128, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9500;
+  pointer-events: auto;
+  animation: fadeIn 1s ease;
+}
+
+.death-screen.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.death-content {
+  text-align: center;
+}
+
+.death-content h1 {
+  color: #ff0000;
+  font-size: 4rem;
+  text-transform: uppercase;
+  letter-spacing: 10px;
+  text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+  margin-bottom: 40px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.death-btn {
+  padding: 20px 40px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ddd;
+  background: linear-gradient(135deg, rgba(100, 20, 20, 0.9), rgba(150, 30, 30, 0.9));
+  border: 3px solid rgba(200, 60, 60, 0.8);
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+.death-btn:hover {
+  background: linear-gradient(135deg, rgba(150, 30, 30, 1), rgba(180, 40, 40, 1));
+  border-color: rgba(255, 100, 100, 1);
+  box-shadow: 0 0 20px rgba(255, 60, 60, 0.5);
+  transform: translateY(-2px);
+}
+
+.death-btn:active {
+  transform: translateY(0);
+}
+
+/* Inventory Panel - Equipment and Grid */
+/* OLD INVENTORY PANEL STYLES - DISABLED
+.inventory-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 7000;
+  pointer-events: auto;
+}
+*/
+
+.inventory-panel.hidden {
+  display: none;
+}
+
+.inventory-container {
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  width: 900px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.inventory-header {
+  padding: 20px 25px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  position: relative;
+}
+
+.inventory-header h2 {
+  color: #d4d4d8;
+  margin: 0;
+  font-size: 1.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.inventory-main {
+  display: flex;
+  gap: 25px;
+  padding: 25px;
+}
+
+/* Equipment Paper Doll */
+.equipment-doll {
+  flex: 0 0 340px;
+}
+
+.equipment-doll h3 {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.doll-grid {
+  display: grid;
+  grid-template-areas:
+    ".    helmet  helmet  amulet"
+    "weapon chest chest offhand"
+    "weapon chest chest offhand"
+    "gloves belt belt boots"
+    "ring1  .    .    ring2";
+  grid-template-columns: repeat(4, 70px);
+  grid-template-rows: repeat(5, 70px);
+  gap: 8px;
+  justify-content: center;
+}
+
+.equip-slot {
+  background: linear-gradient(135deg, rgba(30, 30, 35, 0.9), rgba(40, 40, 45, 0.9));
+  border: 2px solid rgba(120, 120, 130, 0.5);
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.equip-slot.can-drop {
+  border-color: rgba(100, 200, 100, 0.8);
+  background: linear-gradient(135deg, rgba(40, 60, 40, 0.9), rgba(50, 70, 50, 0.9));
+  box-shadow: 
+    inset 0 0 15px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(100, 200, 100, 0.5);
+}
+
+.equip-slot.cannot-drop {
+  border-color: rgba(200, 100, 100, 0.8);
+  background: linear-gradient(135deg, rgba(60, 30, 30, 0.9), rgba(70, 40, 40, 0.9));
+}
+
+.equip-slot .slot-label {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.equip-slot .slot-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+/* Inventory Grid */
+.inventory-grid-panel {
+  flex: 1;
+}
+
+.inventory-grid-panel h3 {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.inventory-grid {
+  /* Removed conflicting grid rules - now handled by drop-in CSS */
+  display: grid;
+  background: rgba(15, 15, 20, 0.9);
+  padding: 10px;
+  border: 2px solid rgba(120, 120, 130, 0.4);
+  border-radius: 6px;
+  position: relative;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.grid-cell {
+  background: rgba(30, 30, 35, 0.8);
+  border: 1px solid rgba(80, 80, 90, 0.5);
+  position: relative;
+}
+
+.inventory-slot {
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.inventory-item {
+  /* Dimensions set dynamically by JS based on item size */
+  box-sizing: border-box;
+  cursor: grab;
+  position: relative;
+  z-index: 10;
+}
+
+.grid-cell.occupied {
+  background: rgba(40, 40, 50, 0.9);
+}
+
+.grid-cell.hover-valid {
+  background: rgba(40, 80, 40, 0.7);
+  border-color: rgba(100, 200, 100, 0.8);
+}
+
+.grid-cell.hover-invalid {
+  background: rgba(80, 40, 40, 0.7);
+  border-color: rgba(200, 100, 100, 0.8);
+}
+
+/* Grid Items */
+.grid-item {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, rgba(40, 40, 50, 0.95), rgba(50, 50, 60, 0.95));
+  border: 2px solid;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  cursor: grab;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  box-sizing: border-box;
+  position: relative; /* not absolute */
+}
+
+.equip-slot .grid-item {
+  width: 100%;
+  height: 100%;
+}
+
+.grid-item:active {
+  cursor: grabbing;
+}
+
+.grid-item.dragging {
+  opacity: 0.6;
+  z-index: 1000;
+}
+
+.grid-item.normal {
+  border-color: #c8c8c8;
+}
+
+.grid-item.magic {
+  border-color: #8888ff;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(136, 136, 255, 0.4),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.grid-item.rare {
+  border-color: #ffff77;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(255, 255, 119, 0.4),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.grid-item.unique {
+  border-color: #ff8800;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(255, 136, 0, 0.5),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Item Tooltip */
+.item-tooltip {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(20, 20, 25, 0.98), rgba(30, 30, 35, 0.98));
+  border: 3px solid;
+  border-radius: 6px;
+  padding: 15px;
+  pointer-events: none;
+  z-index: 10000;
+  min-width: 220px;
+  max-width: 350px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.95);
+}
+
+.item-tooltip.hidden {
+  display: none;
+}
+
+.item-tooltip.normal {
+  border-color: #c8c8c8;
+}
+
+.item-tooltip.magic {
+  border-color: #8888ff;
+}
+
+.item-tooltip.rare {
+  border-color: #ffff77;
+}
+
+.item-tooltip.unique {
+  border-color: #ff8800;
+}
+
+.tooltip-header {
+  margin-bottom: 12px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  padding-bottom: 10px;
+}
+
+.tooltip-item-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tooltip-item-type {
+  font-size: 0.9rem;
+  color: #888;
+  text-transform: capitalize;
+}
+
+.tooltip-affixes {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tooltip-affixes div {
+  color: #8bc34a;
+  margin: 3px 0;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .inventory-main {
+    flex-direction: column;
+  }
+  
+  .equipment-doll {
+    flex: none;
+  }
+}
+
+/* Ground Item Drop Labels */
+#ground-item-labels {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.drop-label {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font: 12px/1.4 Cinzel, serif;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid;
+  white-space: nowrap;
+  transform-origin: center;
+  transition: transform 0.1s;
+  user-select: none;
+}
+
+.drop-label:hover {
+  transform: scale(1.1);
+}
+
+.rarity-normal {
+  color: #ddd;
+  border-color: #ddd;
+}
+
+.rarity-magic {
+  color: #6aa9ff;
+  border-color: #6aa9ff;
+}
+
+.rarity-rare {
+  color: #ffd860;
+  border-color: #ffd860;
+}
+
+.rarity-unique {
+  color: #ff9b3b;
+  border-color: #ff9b3b;
+}
+
+#ground-item-labels.labels-hidden {
+  display: none;
+}
+
+/* UI Layer System */
+#ui-layer {
+  position: fixed; 
+  inset: 0;
+  z-index: 1000;                 /* above canvas / skillbar */
+  pointer-events: none;          /* child panels re-enable */
+}
+
+/* side-by-side dock */
+#ui-two-dock {
+  position: absolute; 
+  inset: 8px;
+  display: flex; 
+  gap: 16px;
+  align-items: flex-start; 
+  justify-content: flex-start;   /* align to left instead of center */
+  pointer-events: none;          /* child panels handle input */
+}
+
+.ui-panel {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;                 /* no outer scrollbars */
+  box-sizing: border-box;
+  max-height: calc(100vh - 16px);   /* stays on screen */
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.45);
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+}
+
+/* widths – tweak as you like */
+#vendorPanel.ui-panel   { 
+  max-width: 42vw;
+  min-width: 380px;
+  width: auto;
+  height: auto;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* Removed conflicting width rules - now handled by drop-in CSS */
+  width: auto;
+  height: auto;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* header/footer fixed; body is the only scroll area (vertical only) */
+.ui-panel__header { 
+  flex: 0 0 auto; 
+  position: sticky; 
+  top: 0; 
+  z-index: 1; 
+  padding: 10px 14px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ui-panel__header span {
+  color: #d4d4d8;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  flex: 1;
+}
+
+.ui-panel__header .close,
+.ui-panel__header button.close {
+  background: none;
+  border: none;
+  color: #d4d4d8;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-panel__header .close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.ui-panel__body {
+  flex: 1 1 auto;
+  overflow-y: auto;                 /* vertical scrolling allowed */
+  overflow-x: hidden;               /* NEVER sideways scroll */
+  padding: 12px 14px;
+  contain: layout paint size;       /* perf */
+}
+
+.ui-panel__footer { 
+  flex: 0 0 auto; 
+  position: sticky; 
+  bottom: 0; 
+  padding: 8px 14px;
+  border-top: 2px solid rgba(120, 120, 130, 0.3);
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+}
+
+/* small screens: stack panels vertically */
+@media (max-width: 1180px) {
+  #ui-two-dock { flex-direction: column; }
+  #vendorPanel.ui-panel, #inventoryStandalone.ui-panel, #inventoryCompact.ui-panel { 
+    max-width: 96vw;
+    min-width: 360px;
+    width: auto;
+  }
+}
+
+/* make inner components not force width overflow */
+.inventory-grid, .vendor-list, .equipment-root, .inventory-main, .vendor-main { 
+  max-width: 100%; 
+  width: 100%; 
+  box-sizing: border-box;
+}
+
+/* helpful: global box sizing prevents layout surprises */
+*, *::before, *::after { 
+  box-sizing: border-box; 
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 160, 0.6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(180, 180, 190, 0.8);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 150, 160, 0.6) rgba(0, 0, 0, 0.3);
+}
+
+/* hide helper */
+.ui-panel.is-hidden { display: none !important; }
+
+/* Override hide when panel should be visible */
+#vendorPanel.ui-panel:not(.is-hidden),
+#inventoryStandalone.ui-panel:not(.is-hidden),
+#inventoryCompact.ui-panel:not(.is-hidden) {
+  display: flex !important;
+}
+
+/* Close button styling */
+.icon-btn {
+  background: none;
+  border: none;
+  color: #d4d4d8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  position: absolute;
+  top: 8px;
+  right: 12px;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Vendor Panel */
+/* OLD VENDOR PANEL STYLES - DISABLED
+.vendor-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 7500;
+  pointer-events: auto;
+}
+*/
+
+.vendor-panel.hidden {
+  display: none;
+}
+
+.vendor-container {
+  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
+  border: 3px solid rgba(150, 150, 160, 0.6);
+  border-radius: 8px;
+  width: 800px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.vendor-header {
+  padding: 20px 25px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.3);
+  position: relative;
+}
+
+.vendor-header h2 {
+  color: #d4d4d8;
+  margin: 0;
+  font-size: 1.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.vendor-gold {
+  padding: 15px 25px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background: rgba(30, 30, 35, 0.5);
+}
+
+.gold-label {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.gold-amount {
+  color: #c4b088;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(196, 176, 136, 0.5);
+}
+
+.vendor-main {
+  display: flex;
+  gap: 20px;
+  padding: 25px;
+}
+
+.vendor-stock {
+  flex: 1;
+}
+
+.vendor-stock h3,
+.vendor-sell-area h3 {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.vendor-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 15px;
+  align-items: start;
+}
+
+@media (max-width: 1299px) {
+  .vendor-items {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vendor-item {
+  background: linear-gradient(135deg, rgba(40, 40, 50, 0.95), rgba(50, 50, 60, 0.95));
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.vendor-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.9),
+    inset 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+.vendor-item.normal {
+  border-color: #c8c8c8;
+}
+
+.vendor-item.magic {
+  border-color: #8888ff;
+}
+
+.vendor-item.rare {
+  border-color: #ffff77;
+}
+
+.vendor-item.unique {
+  border-color: #ff8800;
+}
+
+.vendor-item-name {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.vendor-item-price {
+  font-size: 0.9rem;
+  color: #c4b088;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.vendor-item-stats {
+  font-size: 0.85rem;
+  color: #8bc34a;
+  margin-top: 5px;
+}
+
+.refresh-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  color: #ddd;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 10px rgba(150, 150, 170, 0.3);
+}
+
+.vendor-sell-area {
+  /* Removed conflicting flex rules - now handled by drop-in CSS */
+  display: flex;
+  flex-direction: column;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #aaa;
+  text-align: center;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.sell-zone {
+  flex: 1;
+  min-height: 200px;
+  background: rgba(30, 30, 35, 0.7);
+  border: 2px dashed rgba(120, 120, 130, 0.4);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.sell-zone.can-drop {
+  border-color: rgba(100, 200, 100, 0.8);
+  background: rgba(40, 60, 40, 0.7);
+  color: #8bc34a;
+}
+
+.sell-zone.cannot-drop {
+  border-color: rgba(200, 100, 100, 0.8);
+  background: rgba(60, 30, 30, 0.7);
+  color: #f44336;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .vendor-main {
+    flex-direction: column;
+  }
+  
+  /* Removed conflicting vendor-sell-area rule - now handled by drop-in CSS */
+}
+
+/* ========= DROP-IN PANEL FIXES ========= */
+/* Panels */
+#vendorPanel { 
+  width: 50vw !important; 
+  min-width: 500px !important; 
+}
+
+/* Removed conflicting panel width rule */
+
+#inventoryStandalone { 
+  width: min(75vw, 1400px) !important; 
+  min-width: 900px !important; 
+}
+
+/* Basic inventory layout */
+.inventory-root {
+  display: grid !important; 
+  grid-template-columns: 280px 1fr !important; 
+  gap: 12px !important; 
+  align-items: start !important;
+}
+
+#equipmentRoot { 
+  width: 280px !important; 
+}
+
+/* Basic inventory grid layout */
+#inventory-grid {
+  --cell: 46px;
+  --gap: 2px;
+  display: grid !important; 
+  grid-template-columns: repeat(10, var(--cell)) !important;
+  grid-template-rows: repeat(6, var(--cell)) !important; 
+  gap: var(--gap) !important;
+  transform: none !important;
+  min-width: calc(10 * var(--cell) + 9 * var(--gap)) !important;
+}
+
+.inv-cell { 
+  width: var(--cell) !important; 
+  height: var(--cell) !important; 
+  box-sizing: border-box !important; 
+}
+/* inventory-item size set dynamically based on logical dimensions */
+
+.ui-panel { 
+  display: flex !important; 
+  flex-direction: column !important; 
+  height: calc(100vh - 20px) !important; 
+  max-height: calc(100vh - 20px) !important; 
+  overflow: hidden !important; 
+}
+
+.ui-panel__body { 
+  flex: 1 1 auto !important; 
+  overflow-y: auto !important; 
+  overflow-x: hidden !important; 
+}
+
+/* Vendor inner scroll */
+.vendor-content { 
+  display: flex !important; 
+  gap: 12px !important; 
+  overflow: hidden !important; 
+}
+
+.vendor-stock { 
+  flex: 1 1 90% !important; 
+  overflow-y: auto !important; 
+  padding-right: 6px !important; 
+}
+
+#vendor-items { 
+  display: grid !important; 
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; 
+  gap: 12px !important; 
+}
+
+.sell-area, 
+.vendor-sell-area { 
+  flex: 0 0 40px !important; 
+  min-height: 40px !important; 
+  max-height: 40px !important; 
+  overflow-y: auto !important; 
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Hide any text content in the sell zone */
+.sell-zone {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+
+/* Inventory: equipment left, grid right */
+.inventory-root {
+  display: grid !important; 
+  grid-template-columns: 280px 1fr !important; 
+  gap: 12px !important; 
+  align-items: start !important;
+}
+
+#equipmentRoot { 
+  width: 280px !important; 
+}
+
+#inventory-grid {
+  --cell: 44px;
+  --gap: 2px;
+  display: grid !important; 
+  grid-template-columns: repeat(10, var(--cell)) !important;
+  grid-template-rows: repeat(6, var(--cell)) !important; 
+  gap: var(--gap) !important;
+  transform: none !important;
+  /* Debug: ensure grid doesn't get clipped */
+  min-width: calc(10 * var(--cell) + 9 * var(--gap)) !important;
+}
+
+.inv-cell { 
+  width: var(--cell) !important; 
+  height: var(--cell) !important; 
+  box-sizing: border-box !important; 
+}
+/* inventory-item size set dynamically based on logical dimensions */
+
+.inv-cell { 
+  border: 1px solid rgba(255, 255, 255, 0.07) !important; 
+  background: rgba(255, 255, 255, 0.03) !important; 
+  border-radius: 3px !important; 
+}
+
+/* Center inventory panel when opened individually */
+#inventoryStandalone.centered {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000 !important;
+}
+
+/* Ensure centered panel doesn't inherit dock positioning */
+#inventoryStandalone.centered {
+  margin: 0 !important;
+}
+
+/* Narrow screens: stack panels and stack equipment above grid */
+@media (max-width: 1180px) {
+  #vendorPanel, #inventoryStandalone, #inventoryCompact { 
+    width: min(96vw, 1100px) !important; 
+    min-width: 360px !important; 
+  }
+  
+  .inventory-root { 
+    grid-template-columns: 1fr !important; 
+  }
+  
+  #equipmentRoot { 
+    width: auto !important; 
+  }
+  
+  /* On narrow screens, don't center individually */
+  #inventoryStandalone:not(.is-hidden) {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+  }
+}
+
+/* When panels live in the two-dock, let them share space evenly */
+#ui-two-dock > #vendorPanel.ui-panel,
+#ui-two-dock > #inventoryCompact.ui-panel {
+  flex: 1 1 0;
+  /* respect the individual min/max widths already declared */
+}
+
+/* ---------------- Inventory UI tweaks ---------------- */
+/* Header padding & close button placement */
+.inventory-header,
+.ui-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  position: relative;
+}
+.inventory-header span,
+.ui-panel__header span {
+  margin-left: 6px;
+}
+.inventory-header .close,
+.ui-panel__header .close {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  background: transparent;
+  border: none;
+  color: #d4d4d8;
+  font-size: 1.4rem;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Wider equipment column */
+.equipment-root {
+  flex: 0 0 380px;
+}
+
+/* Larger inventory grid cells */
+.inventory-grid {
+  --cell: 54px;
+}
+
+/* Rarity coloured borders for items */
+.grid-item.normal, .inventory-item.normal { border: 2px solid #c8c8c8; }
+.grid-item.magic,  .inventory-item.magic  { border: 2px solid #8888ff; }
+.grid-item.rare,   .inventory-item.rare   { border: 2px solid #ffff77; }
+.grid-item.unique, .inventory-item.unique { border: 2px solid #ff8800; }
+
+/* Refined inventory grid sizing */
+#inventory-grid {
+  --cell: 54px !important; /* cell size */
+  --gap: 2px !important;
+  display: grid !important;
+  grid-template-columns: repeat(var(--cols, 10), var(--cell)) !important;
+  grid-template-rows: repeat(var(--rows, 6), var(--cell)) !important;
+  gap: var(--gap) !important;
+  width: fit-content !important;  /* no trailing black strip */
+  height: fit-content !important;
+  min-width: unset !important;    /* remove forced width */
+  transform: none !important;
+}
+
+/* Widen equipment column a bit more now that grid is compact */
+.inventory-root {
+  grid-template-columns: 320px 1fr !important;
+}
+#equipmentRoot { width: 320px !important; }
+
+/* Stretch inventory sections to use full panel height */
+.ui-panel__body > .inventory-root {
+  height: 100% !important;
+}
+.inventory-root { align-items: stretch !important; }
+#equipmentRoot { display: flex !important; flex-direction: column !important; height: 100% !important; }
+.equipment-doll { flex: 1 1 auto !important; display: flex !important; flex-direction: column !important; }
+.doll-grid { flex: 1 1 auto !important; }
+#inventory-grid { align-self: stretch !important; }
+
+/* Make inventory root consume full panel height */
+.ui-panel__body {
+  display: flex !important;
+  flex-direction: column !important;
+}
+#inventoryStandalone .ui-panel__body > .inventory-root {
+  flex: 1 1 auto !important;
+  height: 100% !important;
+}
+
+.inventory-root { align-items: stretch !important; }
+#equipmentRoot { height: 100% !important; display: flex !important; flex-direction: column !important; }
+.doll-grid { flex: 1 1 auto !important; }
+
+#inventory-grid { height: 100% !important; align-self: stretch !important; }
+
+#equipmentRoot { margin-top: 3px !important; }

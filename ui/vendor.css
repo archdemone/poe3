@@ -1,0 +1,238 @@
+/* Vendor Panel - now uses shared .ui-panel styling */
+
+/* Move gold display into header */
+.ui-panel__header .vendor-gold {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(120, 120, 130, 0.2);
+}
+
+.vendor-gold {
+  padding: 10px 18px;
+  border-bottom: 2px solid rgba(120, 120, 130, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: rgba(30, 30, 35, 0.5);
+}
+
+.gold-label {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.gold-amount {
+  color: #c4b088;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(196, 176, 136, 0.5);
+}
+
+.vendor-main {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+}
+
+/* Vendor content layout - controlled by drop-in CSS in styles.css */
+.vendor-content {
+  flex: 1;
+}
+
+.vendor-stock {
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+}
+
+/* vendor-items grid controlled by drop-in CSS in styles.css */
+.vendor-items {
+  flex: 1;
+}
+
+.vendor-stock h3,
+.vendor-sell-area h3 {
+  color: #b8b8c0;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+
+.vendor-item {
+  background: linear-gradient(135deg, rgba(40, 40, 50, 0.95), rgba(50, 50, 60, 0.95));
+  border: 2px solid;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+  flex: 0 0 auto;
+  box-sizing: border-box;
+}
+
+.vendor-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.9),
+    inset 0 0 15px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.vendor-item.normal {
+  border-color: #c8c8c8;
+}
+
+.vendor-item.magic {
+  border-color: #8888ff;
+}
+
+.vendor-item.rare {
+  border-color: #ffff77;
+}
+
+.vendor-item.unique {
+  border-color: #ff8800;
+}
+
+.vendor-item-name {
+  font-size: 0.7rem;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.vendor-item-price {
+  font-size: 0.6rem;
+  color: #c4b088;
+  font-weight: bold;
+  margin-top: 3px;
+}
+
+.vendor-item-stats {
+  font-size: 0.55rem;
+  color: #8bc34a;
+  margin-top: 2px;
+}
+
+.refresh-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.9), rgba(70, 70, 80, 0.9));
+  color: #ddd;
+  border: 2px solid rgba(130, 130, 140, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background: linear-gradient(135deg, rgba(70, 70, 80, 1), rgba(80, 80, 90, 1));
+  border-color: rgba(160, 160, 180, 0.8);
+  box-shadow: 0 0 10px rgba(150, 150, 170, 0.3);
+}
+
+/* sell-area sizing controlled by drop-in CSS in styles.css */
+.sell-area {
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sell-hint {
+  font-size: 0.85rem;
+  color: #aaa;
+  text-align: center;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.vendor-sell-area {
+  flex: 1;
+  border: 1px dashed rgba(255,255,255,0.2);
+  border-radius: 4px;
+  padding: 12px;
+  min-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #aaa;
+  text-align: center;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.sell-zone {
+  flex: 1;
+  min-height: 150px;
+  background: rgba(30, 30, 35, 0.7);
+  border: 2px dashed rgba(120, 120, 130, 0.4);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.sell-zone.can-drop {
+  border-color: rgba(100, 200, 100, 0.8);
+  background: rgba(40, 60, 40, 0.7);
+  color: #8bc34a;
+}
+
+.sell-zone.cannot-drop {
+  border-color: rgba(200, 100, 100, 0.8);
+  background: rgba(60, 30, 30, 0.7);
+  color: #f44336;
+}
+
+/* Responsive and positioning options */
+@media (max-width: 900px) {
+  .vendor-main {
+    flex-direction: column;
+  }
+  
+  .vendor-sell-area {
+    flex: none;
+  }
+}
+
+/* Alternative positioning for right side */
+.vendor-panel.right-side {
+  left: auto;
+  right: 50px;
+}
+
+/* Alternative positioning for center when inventory is closed */
+.vendor-panel.center {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+

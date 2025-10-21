@@ -1,0 +1,33 @@
+<div id="skill-tree" class="skill-tree hidden">
+  <div class="tree-panel">
+    <div class="tree-header">
+      <h2>Passive Skill Tree</h2>
+      <button id="close-skill-tree" class="close-btn">×</button>
+      <div class="tree-info">
+        <span class="points-display">
+          Points: <span id="available-points">0</span> / <span id="total-points">0</span>
+        </span>
+        <button id="reset-tree-btn" class="small-btn">Reset Tree</button>
+      </div>
+    </div>
+    
+    <div class="tree-canvas-container">
+      <svg id="tree-svg" width="600" height="400">
+        <!-- Lines connecting nodes will be drawn here -->
+        <g id="tree-connections"></g>
+        <!-- Nodes will be drawn here -->
+        <g id="tree-nodes"></g>
+      </svg>
+    </div>
+    
+    <!-- Node tooltip -->
+    <div id="node-tooltip" class="node-tooltip hidden">
+      <div class="tooltip-name">Node Name</div>
+      <div class="tooltip-stats"></div>
+      <div class="tooltip-cost">Cost: 1</div>
+      <div class="tooltip-status">Click to allocate</div>
+    </div>
+  </div>
+</div>
+
+
