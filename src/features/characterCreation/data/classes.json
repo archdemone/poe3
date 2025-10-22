@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sentinel",
+    "displayName": "Sentinel (Strength-focused)",
+    "affinity": { "str": 32, "dex": 14, "int": 14 },
+    "startingStats": {
+      "strength": 20,
+      "dexterity": 10,
+      "intelligence": 10,
+      "hp": 100,
+      "maxHp": 100,
+      "mp": 50,
+      "maxMp": 50,
+      "armor": 10,
+      "evasion": 5
+    },
+    "allowedAscendancies": ["warden", "champion"],
+    "saveClass": "warrior"
+  },
+  {
+    "id": "huntress",
+    "displayName": "Huntress (Dexterity-focused)",
+    "affinity": { "str": 14, "dex": 32, "int": 14 },
+    "startingStats": {
+      "strength": 10,
+      "dexterity": 20,
+      "intelligence": 10,
+      "hp": 80,
+      "maxHp": 80,
+      "mp": 60,
+      "maxMp": 60,
+      "armor": 5,
+      "evasion": 15
+    },
+    "allowedAscendancies": ["pathfinder", "marksman"],
+    "saveClass": "archer"
+  }
+]

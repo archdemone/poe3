@@ -1,0 +1,30 @@
+[
+  {
+    "id": "warden",
+    "classId": "sentinel",
+    "displayName": "Warden",
+    "shortDescription": "Stalwart defender focused on armor and life.",
+    "creationBonuses": { "hp_flat": 30, "armor": 10, "str": 4 }
+  },
+  {
+    "id": "champion",
+    "classId": "sentinel",
+    "displayName": "Champion",
+    "shortDescription": "Offensive frontline with improved melee.",
+    "creationBonuses": { "melee_pct": 10, "str": 4, "hp_flat": 10 }
+  },
+  {
+    "id": "pathfinder",
+    "classId": "huntress",
+    "displayName": "Pathfinder",
+    "shortDescription": "Mobile skirmisher with better evasion.",
+    "creationBonuses": { "evasion": 10, "dex": 4 }
+  },
+  {
+    "id": "marksman",
+    "classId": "huntress",
+    "displayName": "Marksman",
+    "shortDescription": "Ranged specialist with increased bow damage.",
+    "creationBonuses": { "bow_pct": 10, "dex": 4 }
+  }
+]

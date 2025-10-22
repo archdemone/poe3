@@ -19,6 +19,7 @@ import {
   Color4,
   StandardMaterial,
 } from 'babylonjs';
+import { ENABLE_POE_STYLE_CREATOR } from './config';
 
 import {
   World,
@@ -111,6 +112,11 @@ scene.clearColor = new Color3(0.1, 0.1, 0.15).toColor4();
 // This will be replaced when the game initializes
 const defaultCamera = new ArcRotateCamera('defaultCam', 0, 0, 10, Vector3.Zero(), scene);
 scene.activeCamera = defaultCamera;
+
+// Expose engine/scene for UI overlays (character creator) without tight coupling
+// Safe for dev tooling; avoid relying on this outside UI overlays.
+(window as any).__gameEngine = engine;
+(window as any).__gameScene = scene;
 
 // Global game state
 let currentSaveData: SaveData | null = null;
@@ -2188,7 +2194,12 @@ stateManager.on(GameState.CHARACTER_CREATE, async (data) => {
     // Store slot in window for the char create module to access
     (window as any).__charCreateSlot = data.slot;
   }
-  await loadUI('/ui/charCreate.html');
+  // Feature flag: load PoE-style creator when enabled, otherwise fallback
+  if (ENABLE_POE_STYLE_CREATOR) {
+    await loadUI('/src/features/characterCreation/ui/index.html');
+  } else {
+    await loadUI('/ui/charCreate.html');
+  }
 });
 
 stateManager.on(GameState.HIDEOUT, async (data) => {

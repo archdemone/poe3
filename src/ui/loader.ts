@@ -59,6 +59,14 @@ export async function loadUI(htmlPath: string): Promise<void> {
         modulePath = jsPath;
         currentScriptModule = await import(/* @vite-ignore */ modulePath);
       }
+      // If an index.ts exists in same folder, use that (for feature modules)
+      if (!currentScriptModule?.init) {
+        const baseDir = htmlPath.substring(0, htmlPath.lastIndexOf('/'));
+        const indexTs = `${baseDir}/index.ts`;
+        try {
+          currentScriptModule = await import(/* @vite-ignore */ indexTs);
+        } catch {}
+      }
       // If the module exports an init function, call it
       if (currentScriptModule?.init) {
         currentScriptModule.init();

@@ -1,0 +1,54 @@
+<div id="poe-creator" class="poe-creator" role="dialog" aria-label="Character Creator">
+  <div class="creator-wrap">
+    <div class="creator-left">
+      <section class="panel class-selector" aria-labelledby="class-heading">
+        <h2 id="class-heading">Choose Class</h2>
+        <div id="class-grid" class="grid" tabindex="0" aria-label="Class Grid"></div>
+      </section>
+
+      <section class="panel ascendancy-selector" aria-labelledby="asc-heading">
+        <h2 id="asc-heading">Choose Ascendancy</h2>
+        <div id="asc-grid" class="grid" tabindex="0" aria-label="Ascendancy Grid"></div>
+      </section>
+    </div>
+
+    <div class="creator-center">
+      <section class="panel preview-panel">
+        <h2>Preview</h2>
+        <div class="preview-canvas-hint">3D preview on main canvas</div>
+        <div class="appearance-controls">
+          <button id="pose-a" class="btn small" aria-label="Pose A">Pose A</button>
+          <button id="pose-b" class="btn small" aria-label="Pose B">Pose B</button>
+          <button id="tint-a" class="btn small" aria-label="Color A">Color A</button>
+          <button id="tint-b" class="btn small" aria-label="Color B">Color B</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="creator-right">
+      <section class="panel stats-panel" aria-labelledby="stats-heading">
+        <h2 id="stats-heading">Stat Overview</h2>
+        <ul class="stat-list">
+          <li><span>STR</span><strong id="stat-str">-</strong></li>
+          <li><span>DEX</span><strong id="stat-dex">-</strong></li>
+          <li><span>INT</span><strong id="stat-int">-</strong></li>
+          <li><span>Life</span><strong id="stat-hp">-</strong></li>
+          <li><span>Mana</span><strong id="stat-mp">-</strong></li>
+          <li><span>Armor</span><strong id="stat-armor">-</strong></li>
+          <li><span>Evasion</span><strong id="stat-evasion">-</strong></li>
+        </ul>
+      </section>
+
+      <section class="panel summary-panel">
+        <label for="creator-name">Name</label>
+        <input id="creator-name" type="text" maxlength="16" placeholder="Enter name..." />
+        <div id="validation" class="validation" aria-live="polite"></div>
+        <div class="actions">
+          <button id="creator-back" class="btn">Back</button>
+          <button id="creator-next" class="btn">Next</button>
+          <button id="creator-confirm" class="btn primary" disabled>Confirm</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
