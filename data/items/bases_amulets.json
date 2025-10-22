@@ -1,0 +1,126 @@
+[
+  {
+    "id": "amber_amulet",
+    "name": "Amber Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "str", "value": [8, 12] }]
+  },
+  {
+    "id": "coral_amulet",
+    "name": "Coral Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "dex", "value": [8, 12] }]
+  },
+  {
+    "id": "lapis_amulet",
+    "name": "Lapis Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "int", "value": [8, 12] }]
+  },
+  {
+    "id": "jade_amulet",
+    "name": "Jade Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 5 },
+    "implicit": [{ "stat": "life_regen", "value": [1, 2] }]
+  },
+  {
+    "id": "gold_amulet",
+    "name": "Gold Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 8 },
+    "implicit": [{ "stat": "mana_regen", "value": [2, 3] }]
+  },
+  {
+    "id": "agate_amulet",
+    "name": "Agate Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 16 },
+    "implicit": [{ "stat": "fire_res", "value": [10, 15] }]
+  },
+  {
+    "id": "turquoise_amulet",
+    "name": "Turquoise Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 16 },
+    "implicit": [{ "stat": "cold_res", "value": [10, 15] }]
+  },
+  {
+    "id": "citrine_amulet",
+    "name": "Citrine Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 16 },
+    "implicit": [{ "stat": "lightning_res", "value": [10, 15] }]
+  },
+  {
+    "id": "onyx_amulet",
+    "name": "Onyx Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 20 },
+    "implicit": [{ "stat": "chaos_res", "value": [5, 10] }]
+  },
+  {
+    "id": "ruby_amulet",
+    "name": "Ruby Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 25 },
+    "implicit": [{ "stat": "fire_damage_pct", "value": [10, 15] }]
+  },
+  {
+    "id": "sapphire_amulet",
+    "name": "Sapphire Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 25 },
+    "implicit": [{ "stat": "cold_damage_pct", "value": [10, 15] }]
+  },
+  {
+    "id": "topaz_amulet",
+    "name": "Topaz Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 25 },
+    "implicit": [{ "stat": "lightning_damage_pct", "value": [10, 15] }]
+  },
+  {
+    "id": "emerald_amulet",
+    "name": "Emerald Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 35 },
+    "implicit": [{ "stat": "poison_damage_pct", "value": [10, 20] }]
+  },
+  {
+    "id": "prismatic_amulet",
+    "name": "Prismatic Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 45 },
+    "implicit": [
+      { "stat": "fire_res", "value": [5, 10] },
+      { "stat": "cold_res", "value": [5, 10] },
+      { "stat": "lightning_res", "value": [5, 10] }
+    ]
+  },
+  {
+    "id": "astral_amulet",
+    "name": "Astral Amulet",
+    "class": "amulet",
+    "slot": "amulet",
+    "req": { "level": 50 },
+    "implicit": [{ "stat": "energy_shield", "value": [20, 40] }]
+  }
+]

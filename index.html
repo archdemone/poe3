@@ -7,6 +7,7 @@
     <!-- The CSS for the game UI lives in src/styles.css. Vite will handle
          transformation and injection at build time. -->
     <link rel="stylesheet" href="/src/styles.css">
+    <link rel="stylesheet" href="/src/ui/inventory/standalone/index.css">
     <link rel="stylesheet" href="/src/ui/inventory/compact/index.css">
   </head>
   <body>
@@ -26,7 +27,7 @@
       </div>
 
       <div class="ui-panel__body">
-        <div class="inventory-root">
+        <div class="inventory-root" data-panel="inventoryStandalone">
           <!-- Equipment left column -->
           <div class="equipment-root" id="equipmentRoot">
             <div class="equipment-doll">
@@ -409,6 +410,24 @@
           <div class="slot" data-key="T">T</div>
         </div>
       </div>
+
+      <!-- Flask bar next to the skill bar -->
+      <div id="flask-bar">
+        <div class="flask-row">
+          <div class="flask-slot" data-key="3">
+            <div class="flask-icon">🧪</div>
+            <div class="flask-charges">0</div>
+          </div>
+          <div class="flask-slot" data-key="4">
+            <div class="flask-icon">🧪</div>
+            <div class="flask-charges">0</div>
+          </div>
+          <div class="flask-slot" data-key="5">
+            <div class="flask-icon">🧪</div>
+            <div class="flask-charges">0</div>
+          </div>
+        </div>
+      </div>
       <!-- A simple modal that pops up when a skill slot is clicked. In a
            full game this would list available skills for the player to
            assign. For now it contains placeholder content. -->
@@ -445,6 +464,38 @@
           <p>This will take you into a linear dungeon filled with enemies.</p>
           <button id="enter-dungeon-btn">Enter</button>
           <button id="cancel-dungeon-btn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Map Device Modal -->
+      <div id="map-device-modal" class="hidden">
+        <div class="modal-content map-device-content">
+          <h2>Map Device</h2>
+          <p>Insert a map to create portals to new areas.</p>
+
+          <div class="map-device-sections">
+            <!-- Map Slot -->
+            <div class="map-slot-section">
+              <h3>Map Slot</h3>
+              <div id="map-device-slot" class="map-device-slot empty">
+                <div class="slot-placeholder">Drop map here</div>
+              </div>
+              <button id="clear-map-btn" class="clear-map-btn">Remove Map</button>
+            </div>
+
+            <!-- Map Info -->
+            <div class="map-info-section">
+              <h3>Map Information</h3>
+              <div id="map-info-display" class="map-info-display">
+                <p class="no-map-selected">No map selected</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="map-device-actions">
+            <button id="activate-map-device-btn" class="activate-btn" disabled>Activate Device</button>
+            <button id="close-map-device-btn" class="cancel-btn">Close</button>
+          </div>
         </div>
       </div>
     </div>

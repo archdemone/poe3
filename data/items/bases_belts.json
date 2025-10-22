@@ -1,0 +1,135 @@
+[
+  {
+    "id": "leather_belt",
+    "name": "Leather Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "life_flat", "value": [15, 25] }]
+  },
+  {
+    "id": "heavy_belt",
+    "name": "Heavy Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 8, "str": 20 },
+    "implicit": [{ "stat": "str", "value": [10, 15] }]
+  },
+  {
+    "id": "studded_belt",
+    "name": "Studded Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 12, "str": 25 },
+    "implicit": [{ "stat": "life_flat", "value": [30, 45] }]
+  },
+  {
+    "id": "ornate_belt",
+    "name": "Ornate Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 16, "str": 30 },
+    "implicit": [{ "stat": "str", "value": [15, 25] }]
+  },
+  {
+    "id": "wide_belt",
+    "name": "Wide Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 20, "str": 35 },
+    "implicit": [{ "stat": "life_flat", "value": [50, 70] }]
+  },
+  {
+    "id": "warriors_belt",
+    "name": "Warrior's Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 25, "str": 40 },
+    "implicit": [
+      { "stat": "str", "value": [20, 30] },
+      { "stat": "life_flat", "value": [20, 35] }
+    ]
+  },
+  {
+    "id": "constrictor_belt",
+    "name": "Constrictor Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 25, "dex": 40 },
+    "implicit": [
+      { "stat": "dex", "value": [20, 30] },
+      { "stat": "life_flat", "value": [20, 35] }
+    ]
+  },
+  {
+    "id": "occultist_belt",
+    "name": "Occultist's Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 25, "int": 40 },
+    "implicit": [
+      { "stat": "int", "value": [20, 30] },
+      { "stat": "energy_shield", "value": [15, 25] }
+    ]
+  },
+  {
+    "id": "belt_of_the_deceiver",
+    "name": "Belt of the Deceiver",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 30, "dex": 45 },
+    "implicit": [{ "stat": "attack_speed_pct", "value": [8, 12] }]
+  },
+  {
+    "id": "crystal_belt",
+    "name": "Crystal Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 35, "int": 50 },
+    "implicit": [{ "stat": "energy_shield", "value": [30, 50] }]
+  },
+  {
+    "id": "noble_belt",
+    "name": "Noble Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 40, "str": 50, "dex": 50, "int": 50 },
+    "implicit": [
+      { "stat": "str", "value": [10, 20] },
+      { "stat": "dex", "value": [10, 20] },
+      { "stat": "int", "value": [10, 20] }
+    ]
+  },
+  {
+    "id": "saintly_chain_belt",
+    "name": "Saintly Chain Belt",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 45 },
+    "implicit": [{ "stat": "life_regen", "value": [2, 4] }]
+  },
+  {
+    "id": "vambraces",
+    "name": "Vambraces",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 50, "str": 60 },
+    "implicit": [{ "stat": "block_chance", "value": [3, 6] }]
+  },
+  {
+    "id": "triumphant_lamellar",
+    "name": "Triumphant Lamellar",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 55, "str": 65 },
+    "implicit": [{ "stat": "armor", "value": [50, 100] }]
+  },
+  {
+    "id": "miasmal_guard",
+    "name": "Miasmal Guard",
+    "class": "belt",
+    "slot": "belt",
+    "req": { "level": 60, "dex": 70 },
+    "implicit": [{ "stat": "poison_damage_pct", "value": [15, 25] }]
+  }
+]

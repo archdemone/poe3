@@ -1,0 +1,145 @@
+[
+  {
+    "id": "iron_ring",
+    "name": "Iron Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "str", "value": [3, 6] }]
+  },
+  {
+    "id": "cerulean_ring",
+    "name": "Cerulean Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "dex", "value": [3, 6] }]
+  },
+  {
+    "id": "sapphire_ring",
+    "name": "Sapphire Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "int", "value": [3, 6] }]
+  },
+  {
+    "id": "golden_hoop",
+    "name": "Golden Hoop",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "life_flat", "value": [4, 8] }]
+  },
+  {
+    "id": "topaz_ring",
+    "name": "Topaz Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "mana_flat", "value": [6, 12] }]
+  },
+  {
+    "id": "ruby_ring",
+    "name": "Ruby Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 8 },
+    "implicit": [{ "stat": "fire_res", "value": [8, 12] }]
+  },
+  {
+    "id": "amethyst_ring",
+    "name": "Amethyst Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 8 },
+    "implicit": [{ "stat": "cold_res", "value": [8, 12] }]
+  },
+  {
+    "id": "diamond_ring",
+    "name": "Diamond Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 8 },
+    "implicit": [{ "stat": "lightning_res", "value": [8, 12] }]
+  },
+  {
+    "id": "opal_ring",
+    "name": "Opal Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 12 },
+    "implicit": [{ "stat": "chaos_res", "value": [3, 6] }]
+  },
+  {
+    "id": "emerald_ring",
+    "name": "Emerald Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 15 },
+    "implicit": [{ "stat": "life_regen", "value": [1, 2] }]
+  },
+  {
+    "id": "moonstone_ring",
+    "name": "Moonstone Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 15 },
+    "implicit": [{ "stat": "mana_regen", "value": [1, 2] }]
+  },
+  {
+    "id": "two_toned_ring",
+    "name": "Two-Toned Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 20 },
+    "implicit": [
+      { "stat": "str", "value": [5, 10] },
+      { "stat": "dex", "value": [5, 10] }
+    ]
+  },
+  {
+    "id": "jet_ring",
+    "name": "Jet Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 20 },
+    "implicit": [{ "stat": "cast_speed_pct", "value": [3, 5] }]
+  },
+  {
+    "id": "bone_ring",
+    "name": "Bone Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 25 },
+    "implicit": [{ "stat": "attack_speed_pct", "value": [3, 5] }]
+  },
+  {
+    "id": "prismatic_ring",
+    "name": "Prismatic Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 30 },
+    "implicit": [
+      { "stat": "fire_res", "value": [5, 8] },
+      { "stat": "cold_res", "value": [5, 8] },
+      { "stat": "lightning_res", "value": [5, 8] }
+    ]
+  },
+  {
+    "id": "void_ring",
+    "name": "Void Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 35 },
+    "implicit": [{ "stat": "chaos_damage_pct", "value": [5, 10] }]
+  },
+  {
+    "id": "crystal_ring",
+    "name": "Crystal Ring",
+    "class": "ring",
+    "slot": "ring",
+    "req": { "level": 40 },
+    "implicit": [{ "stat": "energy_shield", "value": [10, 20] }]
+  }
+]

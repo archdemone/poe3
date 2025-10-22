@@ -1,0 +1,122 @@
+[
+  {
+    "id": "leather_tunic",
+    "name": "Leather Tunic",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "armor", "value": [8, 15] }]
+  },
+  {
+    "id": "chain_mail",
+    "name": "Chain Mail",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 5, "str": 18 },
+    "implicit": [{ "stat": "armor", "value": [20, 35] }]
+  },
+  {
+    "id": "plate_mail",
+    "name": "Plate Mail",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 12, "str": 28 },
+    "implicit": [{ "stat": "armor", "value": [40, 65] }]
+  },
+  {
+    "id": "field_armor",
+    "name": "Field Armor",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 20, "str": 40 },
+    "implicit": [{ "stat": "armor", "value": [65, 100] }]
+  },
+  {
+    "id": "battle_plate",
+    "name": "Battle Plate",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 30, "str": 50 },
+    "implicit": [{ "stat": "armor", "value": [100, 150] }]
+  },
+  {
+    "id": "full_plate",
+    "name": "Full Plate",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 40, "str": 60 },
+    "implicit": [{ "stat": "armor", "value": [150, 220] }]
+  },
+  {
+    "id": "brigandine",
+    "name": "Brigandine",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 8, "dex": 20 },
+    "implicit": [{ "stat": "armor", "value": [30, 50] }]
+  },
+  {
+    "id": "studded_leather",
+    "name": "Studded Leather",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 3, "dex": 15 },
+    "implicit": [{ "stat": "armor", "value": [15, 25] }]
+  },
+  {
+    "id": "scale_armor",
+    "name": "Scale Armor",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 15, "str": 25, "dex": 25 },
+    "implicit": [{ "stat": "armor", "value": [50, 80] }]
+  },
+  {
+    "id": "splint_armor",
+    "name": "Splint Armor",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 25, "str": 35, "dex": 35 },
+    "implicit": [{ "stat": "armor", "value": [80, 120] }]
+  },
+  {
+    "id": "light_plate",
+    "name": "Light Plate",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 18, "str": 32 },
+    "implicit": [{ "stat": "armor", "value": [55, 85] }]
+  },
+  {
+    "id": "crusader_plate",
+    "name": "Crusader Plate",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 45, "str": 65 },
+    "implicit": [{ "stat": "armor", "value": [180, 260] }]
+  },
+  {
+    "id": "robe",
+    "name": "Robe",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 1, "int": 10 },
+    "implicit": [{ "stat": "energy_shield", "value": [12, 20] }]
+  },
+  {
+    "id": "silk_robe",
+    "name": "Silk Robe",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 8, "int": 20 },
+    "implicit": [{ "stat": "energy_shield", "value": [25, 40] }]
+  },
+  {
+    "id": "scholar_robe",
+    "name": "Scholar Robe",
+    "class": "chest",
+    "slot": "chest",
+    "req": { "level": 15, "int": 30 },
+    "implicit": [{ "stat": "energy_shield", "value": [40, 65] }]
+  }
+]

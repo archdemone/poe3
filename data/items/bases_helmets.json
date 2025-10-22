@@ -1,0 +1,98 @@
+[
+  {
+    "id": "leather_cap",
+    "name": "Leather Cap",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "armor", "value": [3, 6] }]
+  },
+  {
+    "id": "iron_helmet",
+    "name": "Iron Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 1, "str": 12 },
+    "implicit": [{ "stat": "armor", "value": [8, 15] }]
+  },
+  {
+    "id": "steel_helmet",
+    "name": "Steel Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 8, "str": 20 },
+    "implicit": [{ "stat": "armor", "value": [15, 25] }]
+  },
+  {
+    "id": "full_helmet",
+    "name": "Full Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 15, "str": 30 },
+    "implicit": [{ "stat": "armor", "value": [25, 40] }]
+  },
+  {
+    "id": "great_helmet",
+    "name": "Great Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 25, "str": 45 },
+    "implicit": [{ "stat": "armor", "value": [40, 60] }]
+  },
+  {
+    "id": "royal_helmet",
+    "name": "Royal Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 35, "str": 55 },
+    "implicit": [{ "stat": "armor", "value": [60, 90] }]
+  },
+  {
+    "id": "bone_helmet",
+    "name": "Bone Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 12, "dex": 25 },
+    "implicit": [{ "stat": "armor", "value": [20, 30] }]
+  },
+  {
+    "id": "wizard_hat",
+    "name": "Wizard Hat",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 5, "int": 15 },
+    "implicit": [{ "stat": "energy_shield", "value": [8, 15] }]
+  },
+  {
+    "id": "conical_helmet",
+    "name": "Conical Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 18, "str": 35 },
+    "implicit": [{ "stat": "armor", "value": [30, 45] }]
+  },
+  {
+    "id": "horned_helmet",
+    "name": "Horned Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 28, "str": 40 },
+    "implicit": [{ "stat": "armor", "value": [45, 65] }]
+  },
+  {
+    "id": "spiked_helmet",
+    "name": "Spiked Helmet",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 22, "str": 38 },
+    "implicit": [{ "stat": "armor", "value": [35, 50] }]
+  },
+  {
+    "id": "crown",
+    "name": "Crown",
+    "class": "helmet",
+    "slot": "helmet",
+    "req": { "level": 40, "str": 50, "dex": 50, "int": 50 },
+    "implicit": [{ "stat": "armor", "value": [70, 100] }]
+  }
+]

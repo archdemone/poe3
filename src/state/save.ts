@@ -195,7 +195,7 @@ export function createNewSave(
     inventory: {
       grid: {
         width: 10,
-        height: 6,
+        height: 7,
         items: [], // Empty starting inventory (weapon is equipped)
       },
     },

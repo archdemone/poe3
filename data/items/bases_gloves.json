@@ -1,0 +1,98 @@
+[
+  {
+    "id": "leather_gloves",
+    "name": "Leather Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "armor", "value": [2, 4] }]
+  },
+  {
+    "id": "chain_gloves",
+    "name": "Chain Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 5, "str": 15 },
+    "implicit": [{ "stat": "armor", "value": [6, 12] }]
+  },
+  {
+    "id": "plate_gloves",
+    "name": "Plate Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 12, "str": 25 },
+    "implicit": [{ "stat": "armor", "value": [12, 20] }]
+  },
+  {
+    "id": "gauntlets",
+    "name": "Gauntlets",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 20, "str": 35 },
+    "implicit": [{ "stat": "armor", "value": [20, 35] }]
+  },
+  {
+    "id": "crusader_gloves",
+    "name": "Crusader Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 30, "str": 45 },
+    "implicit": [{ "stat": "armor", "value": [35, 55] }]
+  },
+  {
+    "id": "wrapped_mitts",
+    "name": "Wrapped Mitts",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 1, "dex": 10 },
+    "implicit": [{ "stat": "armor", "value": [3, 5] }]
+  },
+  {
+    "id": "strapped_gloves",
+    "name": "Strapped Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 8, "dex": 20 },
+    "implicit": [{ "stat": "armor", "value": [8, 15] }]
+  },
+  {
+    "id": "clasped_mitts",
+    "name": "Clasped Mitts",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 15, "dex": 30 },
+    "implicit": [{ "stat": "armor", "value": [15, 25] }]
+  },
+  {
+    "id": "fingerless_silk_gloves",
+    "name": "Fingerless Silk Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 5, "int": 15 },
+    "implicit": [{ "stat": "energy_shield", "value": [5, 10] }]
+  },
+  {
+    "id": "wool_gloves",
+    "name": "Wool Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 1, "int": 10 },
+    "implicit": [{ "stat": "energy_shield", "value": [3, 6] }]
+  },
+  {
+    "id": "velvet_gloves",
+    "name": "Velvet Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 12, "int": 25 },
+    "implicit": [{ "stat": "energy_shield", "value": [12, 20] }]
+  },
+  {
+    "id": "silk_gloves",
+    "name": "Silk Gloves",
+    "class": "gloves",
+    "slot": "gloves",
+    "req": { "level": 20, "int": 35 },
+    "implicit": [{ "stat": "energy_shield", "value": [20, 30] }]
+  }
+]

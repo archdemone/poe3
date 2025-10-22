@@ -1,0 +1,653 @@
+[
+  {
+    "id": "heavy_strike",
+    "name": "Heavy Strike",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["mace", "staff", "two_hand_mace", "two_hand_staff"],
+      "manaCost": 10,
+      "cooldown": 1.0,
+      "effect": [
+        { "stat": "melee_physical_damage_pct", "value": 50 },
+        { "stat": "stun_chance_pct", "value": 25 }
+      ],
+      "description": "Deals heavy damage with a chance to stun enemies"
+    }
+  },
+  {
+    "id": "lightning_strike",
+    "name": "Lightning Strike",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["mace", "staff", "two_hand_mace", "two_hand_staff"],
+      "manaCost": 15,
+      "cooldown": 1.2,
+      "effect": [
+        { "stat": "lightning_damage", "value": [20, 40] },
+        { "stat": "chain_lightning", "value": 1 }
+      ],
+      "description": "Strikes enemies with lightning that can chain to nearby foes"
+    }
+  },
+  {
+    "id": "fire_strike",
+    "name": "Fire Strike",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["mace", "staff", "two_hand_mace", "two_hand_staff"],
+      "manaCost": 12,
+      "cooldown": 1.0,
+      "effect": [
+        { "stat": "fire_damage", "value": [15, 35] },
+        { "stat": "burn_damage_pct", "value": 20 }
+      ],
+      "description": "Strikes enemies with fire that can cause burn damage over time"
+    }
+  },
+  {
+    "id": "ice_strike",
+    "name": "Ice Strike",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["mace", "staff", "two_hand_mace", "two_hand_staff"],
+      "manaCost": 12,
+      "cooldown": 1.0,
+      "effect": [
+        { "stat": "cold_damage", "value": [15, 35] },
+        { "stat": "freeze_chance_pct", "value": 15 }
+      ],
+      "description": "Strikes enemies with cold that can freeze them"
+    }
+  },
+  {
+    "id": "cleave",
+    "name": "Cleave",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["axe", "sword", "two_hand_axe", "two_hand_sword"],
+      "manaCost": 8,
+      "cooldown": 0.8,
+      "effect": [
+        { "stat": "melee_physical_damage_pct", "value": 30 },
+        { "stat": "area_damage", "value": 25 }
+      ],
+      "description": "Attacks multiple enemies in an arc"
+    }
+  },
+  {
+    "id": "double_strike",
+    "name": "Double Strike",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["axe", "sword", "mace", "dagger", "claw", "sceptre"],
+      "manaCost": 6,
+      "cooldown": 0.6,
+      "effect": [
+        { "stat": "attack_speed_pct", "value": 20 },
+        { "stat": "melee_physical_damage_pct", "value": 20 }
+      ],
+      "description": "Attacks twice with increased speed"
+    }
+  },
+  {
+    "id": "dual_strike",
+    "name": "Dual Strike",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["axe", "sword", "mace", "dagger", "claw", "sceptre"],
+      "manaCost": 7,
+      "cooldown": 0.7,
+      "effect": [
+        { "stat": "melee_physical_damage_pct", "value": 25 },
+        { "stat": "critical_strike_chance_pct", "value": 10 }
+      ],
+      "description": "Attacks with both weapons for increased damage and crit chance"
+    }
+  },
+  {
+    "id": "frenzy",
+    "name": "Frenzy",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["dagger", "claw"],
+      "manaCost": 10,
+      "cooldown": 1.0,
+      "effect": [
+        { "stat": "attack_speed_pct", "value": 30 },
+        { "stat": "movement_speed_pct", "value": 15 }
+      ],
+      "description": "Grants increased attack and movement speed"
+    }
+  },
+  {
+    "id": "spark",
+    "name": "Spark",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["wand", "sceptre"],
+      "manaCost": 12,
+      "cooldown": 0.8,
+      "effect": [
+        { "stat": "lightning_damage", "value": [10, 25] },
+        { "stat": "projectile_speed_pct", "value": 50 }
+      ],
+      "description": "Launches a projectile that deals lightning damage"
+    }
+  },
+  {
+    "id": "fireball",
+    "name": "Fireball",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["wand", "sceptre", "staff"],
+      "manaCost": 15,
+      "cooldown": 1.0,
+      "effect": [
+        { "stat": "fire_damage", "value": [20, 40] },
+        { "stat": "area_damage", "value": 30 }
+      ],
+      "description": "Launches a fireball that explodes on impact"
+    }
+  },
+  {
+    "id": "frostbolt",
+    "name": "Frostbolt",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["wand", "sceptre", "staff"],
+      "manaCost": 12,
+      "cooldown": 0.9,
+      "effect": [
+        { "stat": "cold_damage", "value": [15, 35] },
+        { "stat": "chill_effect_pct", "value": 20 }
+      ],
+      "description": "Launches a projectile that chills enemies"
+    }
+  },
+  {
+    "id": "immolate",
+    "name": "Immolate",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["wand", "sceptre", "staff"],
+      "manaCost": 10,
+      "cooldown": 0.8,
+      "effect": [
+        { "stat": "fire_damage", "value": [8, 20] },
+        { "stat": "burn_damage_pct", "value": 30 }
+      ],
+      "description": "Burns enemies in an area around you"
+    }
+  },
+  {
+    "id": "glacial_hammer",
+    "name": "Glacial Hammer",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["mace", "staff", "two_hand_mace", "two_hand_staff"],
+      "manaCost": 14,
+      "cooldown": 1.2,
+      "effect": [
+        { "stat": "cold_damage", "value": [25, 45] },
+        { "stat": "freeze_chance_pct", "value": 25 }
+      ],
+      "description": "Throws a hammer that deals cold damage and can freeze"
+    }
+  },
+  {
+    "id": "infernal_blow",
+    "name": "Infernal Blow",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["axe", "sword", "mace", "two_hand_axe", "two_hand_sword", "two_hand_mace"],
+      "manaCost": 16,
+      "cooldown": 1.5,
+      "effect": [
+        { "stat": "fire_damage", "value": [30, 60] },
+        { "stat": "knockback", "value": 1 }
+      ],
+      "description": "A powerful strike that knocks back enemies"
+    }
+  },
+  {
+    "id": "cyclone",
+    "name": "Cyclone",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["axe", "sword", "staff", "two_hand_axe", "two_hand_sword", "two_hand_staff"],
+      "manaCost": 25,
+      "cooldown": 3.0,
+      "effect": [
+        { "stat": "melee_physical_damage_pct", "value": 100 },
+        { "stat": "spin_damage", "value": 200 }
+      ],
+      "description": "Spins around dealing damage to nearby enemies"
+    }
+  },
+  {
+    "id": "lacerate",
+    "name": "Lacerate",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["claw"],
+      "manaCost": 8,
+      "cooldown": 0.7,
+      "effect": [
+        { "stat": "melee_physical_damage_pct", "value": 35 },
+        { "stat": "bleed_damage_pct", "value": 40 }
+      ],
+      "description": "Slashes enemies causing bleed damage"
+    }
+  },
+  {
+    "id": "rain_of_arrows",
+    "name": "Rain of Arrows",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["bow"],
+      "manaCost": 18,
+      "cooldown": 1.5,
+      "effect": [
+        { "stat": "physical_damage", "value": [25, 45] },
+        { "stat": "area_damage", "value": 50 }
+      ],
+      "description": "Fires multiple arrows into the air that rain down on enemies"
+    }
+  },
+  {
+    "id": "explosive_arrow",
+    "name": "Explosive Arrow",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["bow"],
+      "manaCost": 15,
+      "cooldown": 1.2,
+      "effect": [
+        { "stat": "physical_damage", "value": [20, 35] },
+        { "stat": "explosion_damage", "value": 75 }
+      ],
+      "description": "Fires an arrow that explodes on impact"
+    }
+  },
+  {
+    "id": "split_arrow",
+    "name": "Split Arrow",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "active_skill",
+      "tags": ["bow"],
+      "manaCost": 12,
+      "cooldown": 1.0,
+      "effect": [
+        { "stat": "physical_damage", "value": [15, 30] },
+        { "stat": "split_damage", "value": 60 }
+      ],
+      "description": "Fires an arrow that splits into multiple projectiles"
+    }
+  },
+  {
+    "id": "added_fire_damage",
+    "name": "Added Fire Damage",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "added_fire_damage", "value": [8, 15] }
+      ],
+      "description": "Adds fire damage to attacks and spells"
+    }
+  },
+  {
+    "id": "added_cold_damage",
+    "name": "Added Cold Damage",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "added_cold_damage", "value": [8, 15] }
+      ],
+      "description": "Adds cold damage to attacks and spells"
+    }
+  },
+  {
+    "id": "added_lightning_damage",
+    "name": "Added Lightning Damage",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "added_lightning_damage", "value": [8, 15] }
+      ],
+      "description": "Adds lightning damage to attacks and spells"
+    }
+  },
+  {
+    "id": "increased_damage",
+    "name": "Increased Damage",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "damage_pct", "value": 30 }
+      ],
+      "description": "Increases damage dealt by supported skills"
+    }
+  },
+  {
+    "id": "increased_critical_strikes",
+    "name": "Increased Critical Strikes",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "critical_strike_chance_pct", "value": 25 },
+        { "stat": "critical_strike_multiplier_pct", "value": 25 }
+      ],
+      "description": "Increases critical strike chance and damage"
+    }
+  },
+  {
+    "id": "increased_area_damage",
+    "name": "Increased Area Damage",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "area_damage_pct", "value": 25 },
+        { "stat": "area_of_effect_pct", "value": 15 }
+      ],
+      "description": "Increases area damage and effect size"
+    }
+  },
+  {
+    "id": "faster_casting",
+    "name": "Faster Casting",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["spell"],
+      "effect": [
+        { "stat": "cast_speed_pct", "value": 20 }
+      ],
+      "description": "Increases casting speed"
+    }
+  },
+  {
+    "id": "faster_attacks",
+    "name": "Faster Attacks",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack"],
+      "effect": [
+        { "stat": "attack_speed_pct", "value": 20 }
+      ],
+      "description": "Increases attack speed"
+    }
+  },
+  {
+    "id": "multistrike",
+    "name": "Multistrike",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "multistrike", "value": 2 }
+      ],
+      "description": "Supported skills repeat 2 additional times"
+    }
+  },
+  {
+    "id": "chain",
+    "name": "Chain",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "chain_count", "value": 3 }
+      ],
+      "description": "Supported skills can chain to additional targets"
+    }
+  },
+  {
+    "id": "fork",
+    "name": "Fork",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "fork_count", "value": 2 }
+      ],
+      "description": "Supported skills can fork to additional targets"
+    }
+  },
+  {
+    "id": "increased_duration",
+    "name": "Increased Duration",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "duration_pct", "value": 50 }
+      ],
+      "description": "Increases duration of supported skills"
+    }
+  },
+  {
+    "id": "lesser_multiple_projectiles",
+    "name": "Lesser Multiple Projectiles",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "projectile_count", "value": 2 }
+      ],
+      "description": "Supported skills fire 2 additional projectiles"
+    }
+  },
+  {
+    "id": "pierce",
+    "name": "Pierce",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "pierce_count", "value": 2 }
+      ],
+      "description": "Supported projectiles can pierce through 2 additional enemies"
+    }
+  },
+  {
+    "id": "knockback",
+    "name": "Knockback",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "knockback", "value": 1 }
+      ],
+      "description": "Supported skills knock enemies back on hit"
+    }
+  },
+  {
+    "id": "stun",
+    "name": "Stun",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack"],
+      "effect": [
+        { "stat": "stun_chance_pct", "value": 25 }
+      ],
+      "description": "Supported attacks have a chance to stun enemies"
+    }
+  },
+  {
+    "id": "item_rarity",
+    "name": "Item Rarity",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "item_rarity_pct", "value": 30 }
+      ],
+      "description": "Increases the rarity of items dropped by enemies"
+    }
+  },
+  {
+    "id": "item_quantity",
+    "name": "Item Quantity",
+    "class": "socketable",
+    "slot": "socketable",
+    "size": { "w": 1, "h": 1 },
+    "icon": "💎",
+    "socketable": {
+      "type": "support_skill",
+      "tags": ["attack", "spell"],
+      "effect": [
+        { "stat": "item_quantity_pct", "value": 20 }
+      ],
+      "description": "Increases the quantity of items dropped by enemies"
+    }
+  }
+]

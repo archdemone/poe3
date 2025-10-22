@@ -1,6 +1,7 @@
 // Item generation orchestrator
 
 import type { ItemInstance, ItemBase } from '../../systems/items';
+import { ItemSets } from '../../systems/items';
 import { rollRarity, type Rarity } from './rarity';
 import { pickRandomBase } from './dropTables';
 import { rollAffixes } from './affixes';
@@ -93,6 +94,15 @@ export function generateItem(areaLevel: number, allowUnique: boolean = true): It
     };
   }
   
+  // Assign set ID if this item belongs to a set
+  let setId: string | undefined;
+  for (const [setKey, setData] of Object.entries(ItemSets)) {
+    if (setData.items.includes(base.id)) {
+      setId = setKey;
+      break;
+    }
+  }
+
   return {
     uid: `${base.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     baseId: base.id,
@@ -100,6 +110,7 @@ export function generateItem(areaLevel: number, allowUnique: boolean = true): It
     affixes,
     sockets,
     level: areaLevel,
+    setId,
   };
 }
 

@@ -11,6 +11,7 @@ import {
   ArcRotateCamera,
   Vector3,
   HemisphericLight,
+  PointLight,
   MeshBuilder,
   Matrix,
   Viewport,
@@ -18,6 +19,9 @@ import {
   Color3,
   Color4,
   StandardMaterial,
+  AbstractMesh,
+  Texture,
+  ParticleSystem,
 } from 'babylonjs';
 
 import {
@@ -48,12 +52,17 @@ import type { SaveData } from './state/save';
 import { saveGame, updatePlaytime } from './state/save';
 import type { CharacterStats } from './gameplay/stats';
 import { calculateSkillDamage, calculateDerivedStats } from './gameplay/stats';
+import { getAssetLoader, disposeAssetLoader } from './systems/assetManager';
+import { getModelManager, disposeModelManager } from './systems/assetManager';
+import { createTorchFlame, createMagicalAura, createPortalEffect, createAmbientDust } from './systems/particleEffects';
+import { installParticleDebugCommands } from './systems/particleDebug';
+import { createStoneTexture, createWoodTexture, createMetalTexture, createCrystalTexture, createGroundTileTexture, createDirtTexture } from './systems/proceduralTextures';
 import { updateCharacterSheet, initDebugSliders } from '../ui/charSheet';
 import { loadSkillTree, setAllocatedNodes, getAllocatedNodeIds, computePassiveBonuses, getSkillTree, setPassivePoints, getTreeState } from './gameplay/skillTree';
 import type { DerivedBonuses } from './gameplay/skillTree';
 import { initSkillTree, refreshTree } from '../ui/skillTree';
-import type { ItemInstance, EquipmentState, InventoryGrid } from './systems/items';
-import { createItem, getItemBase } from './systems/items';
+import type { ItemInstance, EquipmentState, InventoryGrid, MapModifiers } from './systems/items';
+import { createItem, getItemBase, removeItemFromGrid, updateFlaskCharges, useFlask, canUseFlask, applyCurrencyToItem } from './systems/items';
 import { computeEquipBonuses, zeroEquip } from './gameplay/equipBonuses';
 import type { EquipBonuses } from './gameplay/equipBonuses';
 import { initInventoryCompact, getEquipment as getEquipmentCompact, getInventory as getInventoryCompact, addItem as addItemToInventoryCompact, updateInventoryData as updateInventoryDataCompact } from './ui/inventory/compact/index';
@@ -99,6 +108,8 @@ import { openVendorAndInventory, attachPanelClosers } from '../ui/layout';
 import { ensureTwoDock } from '../ui/mount';
 import { setupIndependentToggles } from '../ui/toggles';
 import { initVendor as initVendorData, setGold, getGold, saveVendorState, loadVendorState } from './gameplay/loot/vendor';
+import { pickRandomBase } from './gameplay/loot/dropTables';
+import { rollAffixes } from './gameplay/loot/affixes';
 import { DeathSystem } from './ecs/systems/deathSystem';
 
 // Grab the canvas and set up the engine and scene.
@@ -106,6 +117,19 @@ const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
 const engine = new Engine(canvas, true);
 const scene = new Scene(engine);
 scene.clearColor = new Color3(0.1, 0.1, 0.15).toColor4();
+
+// Expose scene and canvas for debugging and testing
+(window as any).scene = scene;
+(window as any).canvas = canvas;
+(window as any).engine = engine;
+
+// Install particle debugging commands
+installParticleDebugCommands(scene);
+
+// Initialize asset management system
+const assetLoader = getAssetLoader(scene);
+const modelManager = getModelManager(scene, assetLoader);
+console.log('Asset management system initialized');
 
 // Create a default camera immediately so render loop doesn't error
 // This will be replaced when the game initializes
@@ -174,6 +198,33 @@ const dungeonMeshes: any[] = [];
 let dungeonEnemies: Entity[] = [];
 // The map device mesh (part of hideout) which opens the dungeon.
 let mapDevice: any | null = null;
+
+// Map Device System
+interface PortalInstance {
+  id: string;
+  mesh: AbstractMesh;
+  position: Vector3;
+  isActive: boolean;
+  mapItem: ItemInstance | null;
+  mapModifiers: MapModifiers | null;
+  particles?: ParticleSystem;
+}
+
+interface MapDeviceState {
+  insertedMap: ItemInstance | null;
+  portals: PortalInstance[];
+  activePortals: number;
+}
+
+let mapDeviceState: MapDeviceState = {
+  insertedMap: null,
+  portals: [],
+  activePortals: 0
+};
+
+// Current map modifiers applied to dungeon
+let currentMapModifiers: MapModifiers | null = null;
+let currentPortalInstanceId: string | null = null;
 // The target dummy entity in the hideout. Hidden when entering
 // dungeon and shown when leaving.
 let dummyEntity: Entity | null = null;
@@ -378,7 +429,7 @@ let equipmentBonuses: EquipBonuses = { ...zeroEquip };
 let currentEquipment: EquipmentState = {};
 let currentInventoryGrid: InventoryGrid = {
   width: 10,
-  height: 6,
+  height: 7,
   items: [],
 };
 
@@ -511,64 +562,963 @@ world.addSystem(new DeathSystem({
     // grantXP(killerPlayerId, calcXPFor(enemyId));
   },
   onPlayerKilled: (playerId) => {
+    // Handle map device portal deactivation on death
+    onPlayerDeath();
+
     // TODO: Show death overlay and respawn logic
     console.log('[DeathSystem] Player died');
   }
 }));
 
 // ---------------------------------------------------------------------
+// Map Device System Functions
+
+/**
+ * Shows the map device modal and initializes drag/drop functionality
+ */
+function showMapDeviceModal(): void {
+  const modal = document.getElementById('map-device-modal');
+  if (!modal) return;
+
+  modal.classList.remove('hidden');
+  updateMapDeviceUI();
+  setupMapDeviceDragDrop();
+}
+
+/**
+ * Updates the map device UI to reflect current state
+ */
+function updateMapDeviceUI(): void {
+  const slotElement = document.getElementById('map-device-slot');
+  const infoElement = document.getElementById('map-info-display');
+  const activateBtn = document.getElementById('activate-map-device-btn') as HTMLButtonElement;
+
+  if (!slotElement || !infoElement || !activateBtn) return;
+
+  if (mapDeviceState.insertedMap) {
+    // Get base item info
+    const base = getItemBase(mapDeviceState.insertedMap.baseId);
+    if (!base) return;
+
+    // Show inserted map
+    slotElement.classList.remove('empty');
+    slotElement.innerHTML = `
+      <div class="map-item-display">
+        <div class="map-icon">${base.icon}</div>
+        <div class="map-name">${base.name}</div>
+      </div>
+    `;
+
+    // Show map info
+    if (base.mapMods) {
+      infoElement.innerHTML = `
+        <div class="map-info-content">
+          <h4>${base.name}</h4>
+          <div class="map-modifiers">
+            ${base.mapMods.monsterPackSize ? `<div class="map-modifier"><span class="modifier-label">More Monsters</span><span class="modifier-value">${Math.round((base.mapMods.monsterPackSize! - 1) * 100)}%</span></div>` : ''}
+            ${base.mapMods.monsterRarity ? `<div class="map-modifier"><span class="modifier-label">Rarer Monsters</span><span class="modifier-value">${Math.round(base.mapMods.monsterRarity! * 100)}%</span></div>` : ''}
+            ${base.mapMods.monsterLevel ? `<div class="map-modifier"><span class="modifier-label">Stronger Monsters</span><span class="modifier-value">+${base.mapMods.monsterLevel}</span></div>` : ''}
+            ${base.mapMods.itemQuantity ? `<div class="map-modifier"><span class="modifier-label">More Items</span><span class="modifier-value">${Math.round((base.mapMods.itemQuantity! - 1) * 100)}%</span></div>` : ''}
+            ${base.mapMods.itemRarity ? `<div class="map-modifier"><span class="modifier-label">Better Items</span><span class="modifier-value">${Math.round(base.mapMods.itemRarity! * 100)}%</span></div>` : ''}
+            ${base.mapMods.bossChance ? `<div class="map-modifier"><span class="modifier-label">Boss Monsters</span><span class="modifier-value">${Math.round(base.mapMods.bossChance! * 100)}%</span></div>` : ''}
+            ${base.mapMods.areaLevel ? `<div class="map-modifier"><span class="modifier-label">Area Level</span><span class="modifier-value">${base.mapMods.areaLevel}</span></div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    activateBtn.disabled = false;
+  } else {
+    // Show empty slot
+    slotElement.classList.add('empty');
+    slotElement.innerHTML = '<div class="slot-placeholder">Drop map here</div>';
+    infoElement.innerHTML = '<p class="no-map-selected">No map selected</p>';
+    activateBtn.disabled = true;
+  }
+}
+
+/**
+ * Sets up drag and drop functionality for the map device
+ */
+function setupMapDeviceDragDrop(): void {
+  const slotElement = document.getElementById('map-device-slot');
+  if (!slotElement) return;
+
+  // Remove existing listeners to avoid duplicates
+  slotElement.removeEventListener('dragover', handleMapDragOver);
+  slotElement.removeEventListener('drop', handleMapDrop);
+
+  slotElement.addEventListener('dragover', handleMapDragOver);
+  slotElement.addEventListener('drop', handleMapDrop);
+}
+
+function handleMapDragOver(e: DragEvent): void {
+  e.preventDefault();
+  e.dataTransfer!.dropEffect = 'move';
+
+  const slotElement = e.target as HTMLElement;
+  if (slotElement.id === 'map-device-slot') {
+    slotElement.style.borderColor = 'rgba(100, 200, 100, 0.8)';
+    slotElement.style.background = 'rgba(40, 60, 40, 0.8)';
+  }
+}
+
+function handleMapDrop(e: DragEvent): void {
+  e.preventDefault();
+  console.log('[MapDevice] Drop event fired');
+
+  const slotElement = e.target as HTMLElement;
+  slotElement.style.borderColor = '';
+  slotElement.style.background = '';
+
+  try {
+    const dataString = e.dataTransfer!.getData('application/json');
+    console.log('[MapDevice] Drag data:', dataString);
+    
+    const data = JSON.parse(dataString);
+    console.log('[MapDevice] Parsed data:', data);
+    
+    if (data.type === 'inventory-item' && data.item) {
+      const item = data.item as ItemInstance;
+      console.log('[MapDevice] Item:', item);
+      
+      const base = getItemBase(item.baseId); // FIX: was item.id, should be item.baseId
+      console.log('[MapDevice] Base:', base);
+
+      if (base && base.slot === 'map') {
+        console.log('[MapDevice] Inserting map into device');
+        insertMapIntoDevice(item);
+      } else {
+        console.warn('[MapDevice] Not a map item. Base slot:', base?.slot);
+      }
+    } else {
+      console.warn('[MapDevice] Invalid drag data type or missing item');
+    }
+  } catch (error) {
+    console.warn('[MapDevice] Failed to parse drop data:', error);
+  }
+}
+
+/**
+ * Inserts a map into the map device
+ */
+function insertMapIntoDevice(item: ItemInstance): void {
+  console.log('[MapDevice] insertMapIntoDevice called with:', item);
+  
+  if (mapDeviceState.insertedMap) {
+    // Return existing map to inventory
+    console.log('[MapDevice] Returning existing map to inventory');
+    addItem(mapDeviceState.insertedMap);
+  }
+
+  // Remove map from inventory using UID (not id)
+  // Get the current inventory (standalone or compact)
+  const currentInventory = getInventory();
+  console.log('[MapDevice] Current inventory:', currentInventory);
+  console.log('[MapDevice] Removing item from inventory, UID:', item.uid);
+  const removed = removeItemFromGrid(currentInventory, item.uid);
+  console.log('[MapDevice] Item removed from inventory:', removed);
+  
+  // Refresh inventory UI
+  refreshInventory();
+
+  // Insert new map
+  mapDeviceState.insertedMap = item;
+  updateMapDeviceUI();
+  
+  console.log('[MapDevice] Map device state updated');
+}
+
+/**
+ * Removes the map from the device
+ */
+function removeMapFromDevice(): void {
+  if (mapDeviceState.insertedMap) {
+    addItem(mapDeviceState.insertedMap);
+    mapDeviceState.insertedMap = null;
+    updateMapDeviceUI();
+  }
+}
+
+/**
+ * Activates the map device, creating portals
+ */
+function activateMapDevice(): void {
+  console.log('[MapDevice] Activate button clicked');
+  
+  if (!mapDeviceState.insertedMap) {
+    console.log('[MapDevice] No map inserted');
+    return;
+  }
+
+  console.log('[MapDevice] Inserted map:', mapDeviceState.insertedMap);
+  const base = getItemBase(mapDeviceState.insertedMap.baseId);
+  console.log('[MapDevice] Map base:', base);
+  
+  if (!base || !base.mapMods) {
+    console.log('[MapDevice] No base or mapMods found');
+    return;
+  }
+
+  console.log('[MapDevice] Creating portals with mods:', base.mapMods);
+  // Create 6 portals around the map device
+  createMapPortals(base.mapMods);
+
+  // Close the modal
+  const modal = document.getElementById('map-device-modal');
+  if (modal) modal.classList.add('hidden');
+
+  // Clear the inserted map (it's consumed)
+  mapDeviceState.insertedMap = null;
+  updateMapDeviceUI();
+  console.log('[MapDevice] Portals created, map consumed');
+}
+
+/**
+ * Creates 6 portals around the map device
+ */
+function createMapPortals(mapMods: MapModifiers): void {
+  // Clear existing portals
+  clearMapPortals();
+
+  // Portal positions in a circle around the map device
+  const portalPositions: Vector3[] = [];
+  const centerPos = mapDevice ? mapDevice.position.clone() : new Vector3(0, 1, -5);
+  const radius = 4;
+
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2;
+    const pos = new Vector3(
+      centerPos.x + Math.cos(angle) * radius,
+      centerPos.y,
+      centerPos.z + Math.sin(angle) * radius
+    );
+    portalPositions.push(pos);
+  }
+
+  // Create portal meshes
+  portalPositions.forEach((pos, index) => {
+    const portalMesh = MeshBuilder.CreateCylinder(`portal_${index}`, {
+      diameter: 1.5,
+      height: 0.1
+    }, scene);
+
+    portalMesh.position = pos;
+    portalMesh.rotation.x = Math.PI / 2; // Lay flat
+
+    // Portal material - glowing effect
+    const portalMaterial = new StandardMaterial(`portal_material_${index}`, scene);
+    portalMaterial.emissiveColor = new Color3(0.2, 0.8, 1.0);
+    portalMaterial.alpha = 0.8;
+    portalMesh.material = portalMaterial;
+
+    // Add to hideout meshes so it's cleaned up properly
+    hideoutMeshes.push(portalMesh);
+
+    // HIGH-QUALITY Portal particle effects with GPU acceleration
+    const portalParticles = createPortalEffect(`portalEffect_${index}`, portalMesh, scene);
+    portalParticles.start();
+    console.log(`[Particles] Started portal effect ${index}`);
+
+    const portal: PortalInstance = {
+      id: `portal_${index}`,
+      mesh: portalMesh,
+      position: pos,
+      isActive: true,
+      mapItem: mapDeviceState.insertedMap,
+      mapModifiers: mapMods
+      // particles: portalParticles
+    };
+
+    mapDeviceState.portals.push(portal);
+  });
+
+  mapDeviceState.activePortals = 6;
+  console.log('Created 6 map portals with particle effects');
+}
+
+/**
+ * Clears all active portals
+ */
+function clearMapPortals(): void {
+  mapDeviceState.portals.forEach(portal => {
+    portal.mesh.dispose();
+    // Dispose of particle systems
+    if (portal.particles) {
+      portal.particles.dispose();
+    }
+    // Remove from hideout meshes
+    const index = hideoutMeshes.indexOf(portal.mesh);
+    if (index > -1) {
+      hideoutMeshes.splice(index, 1);
+    }
+  });
+
+  mapDeviceState.portals = [];
+  mapDeviceState.activePortals = 0;
+}
+
+/**
+ * Handles player entering a portal
+ */
+function enterPortal(portalIndex: number): void {
+  const portal = mapDeviceState.portals[portalIndex];
+  if (!portal || !portal.isActive || !portal.mapModifiers) return;
+
+  // Apply map modifiers to dungeon generation
+  currentMapModifiers = portal.mapModifiers;
+
+  // Set portal instance ID for tracking
+  currentPortalInstanceId = portal.id;
+
+  // Start dungeon with map modifiers
+  setupDungeon();
+  autoSave();
+}
+
+/**
+ * Called when player dies - close one portal
+ */
+function onPlayerDeath(): void {
+  if (mapDeviceState.activePortals > 0) {
+    // Find and deactivate the first active portal
+    const activePortal = mapDeviceState.portals.find(p => p.isActive);
+    if (activePortal) {
+      activePortal.isActive = false;
+
+      // Make portal visually inactive
+      const material = activePortal.mesh.material as StandardMaterial;
+      if (material) {
+        material.emissiveColor = new Color3(0.5, 0.1, 0.1); // Red glow for inactive
+        material.alpha = 0.3;
+      }
+
+      mapDeviceState.activePortals--;
+      console.log(`Portal ${activePortal.id} deactivated. ${mapDeviceState.activePortals} portals remaining.`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------
 // Scene setup functions
 
-/** Set up the hideout scene by creating the ground, map device and target
- *  dummy. Meshes are added to hideoutMeshes so they can be hidden
- *  when entering the dungeon. */
-function setupHideout(): void {
+/** Set up the hideout scene by creating gothic-themed environment with
+ *  better 3D assets, atmospheric lighting, and decorative elements.
+ *  Meshes are added to hideoutMeshes so they can be hidden when entering dungeon. */
+async function setupHideout(): Promise<void> {
+  console.log('[HIDEOUT] Starting hideout setup...');
   currentScene = 'hideout';
-  // Lighting: ensure the scene has a hemispheric light so meshes are visible.
-  new HemisphericLight('hideoutLight', new Vector3(0, 1, 0), scene);
-  // Create or reuse ground
-  const ground = MeshBuilder.CreateGround('hideoutGround', { width: 30, height: 30 }, scene);
-  // Apply a simple material to the ground for a subtle colour
-  const groundMat = new StandardMaterial('hideoutGroundMat', scene);
-  groundMat.diffuseColor = new Color3(0.15, 0.15, 0.3);
+
+  try {
+    // Enhanced lighting setup for gothic atmosphere
+    console.log('[HIDEOUT] Setting up lighting...');
+    setupGothicLighting();
+
+    // Create gothic-style ground and environment
+    console.log('[HIDEOUT] Creating ground...');
+    createGothicGround();
+
+    // Create gothic castle walls and structures
+    console.log('[HIDEOUT] Creating castle...');
+    createGothicCastle();
+
+    // Create enhanced map device with gothic styling
+    console.log('[HIDEOUT] Creating map device...');
+    await createGothicMapDevice();
+
+    // Create target dummy with gothic styling
+    console.log('[HIDEOUT] Creating target dummy...');
+    await createGothicTargetDummy();
+
+    // Create gothic-style treasure chest
+    console.log('[HIDEOUT] Creating treasure chest...');
+    createGothicTreasureChest();
+
+    // Create gothic vendor NPC
+    console.log('[HIDEOUT] Creating vendor NPC...');
+    createGothicVendorNPC();
+
+    // Add decorative elements
+    console.log('[HIDEOUT] Adding decorations...');
+    addGothicDecorations();
+
+    // HIGH-QUALITY Ambient dust particles for atmosphere
+    console.log('[HIDEOUT] Creating ambient dust particles...');
+    const dustParticles = createAmbientDust('hideoutDust', new Vector3(0, 2, 0), 15, scene);
+    dustParticles.start();
+    console.log('[Particles] Started ambient dust in hideout');
+
+    console.log('='.repeat(60));
+    console.log('[HIDEOUT] Gothic hideout setup complete!');
+    console.log('[HIDEOUT] Total meshes created:', hideoutMeshes.length);
+    console.log('[HIDEOUT] Checking mesh visibility...');
+    
+    // Debug: Check if meshes are visible
+    let visibleCount = 0;
+    let invisibleCount = 0;
+    hideoutMeshes.forEach((mesh, i) => {
+      if (mesh.isVisible) {
+        visibleCount++;
+      } else {
+        invisibleCount++;
+        console.warn(`[HIDEOUT] Mesh ${i} (${mesh.name}) is INVISIBLE!`);
+      }
+    });
+    console.log(`[HIDEOUT] Visible: ${visibleCount}, Invisible: ${invisibleCount}`);
+    console.log('='.repeat(60));
+  } catch (error) {
+    console.error('[HIDEOUT] Error during hideout setup:', error);
+    alert(`HIDEOUT SETUP ERROR: ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Setup atmospheric lighting for gothic theme
+ */
+function setupGothicLighting(): void {
+  // Main hemispheric light - BRIGHTER and more neutral
+  const mainLight = new HemisphericLight('hideoutMainLight', new Vector3(0.3, 1, 0.3), scene);
+  mainLight.intensity = 1.2; // Increased from 0.7
+  mainLight.diffuse = new Color3(0.7, 0.65, 0.75); // Lighter, less purple
+  mainLight.groundColor = new Color3(0.3, 0.3, 0.35); // Much brighter ground reflection
+
+  // Torch-like point lights for atmosphere - MORE LIGHTS, BRIGHTER
+  const torchPositions = [
+    // Corner torches (brighter)
+    new Vector3(-10, 4, -10),
+    new Vector3(10, 4, -10),
+    new Vector3(-10, 4, 10),
+    new Vector3(10, 4, 10),
+    // Center area lights (new)
+    new Vector3(0, 5, 0),      // Center overhead
+    new Vector3(-5, 3, -5),    // Near chest
+    new Vector3(5, 3, -5),     // Near vendor
+    new Vector3(0, 3, -5),     // Near map device
+    new Vector3(5, 3, 5),      // Near dummy
+    // Wall lights (new)
+    new Vector3(0, 4, 12),     // North wall
+    new Vector3(0, 4, -12),    // South wall
+    new Vector3(12, 4, 0),     // East wall
+    new Vector3(-12, 4, 0)     // West wall
+  ];
+
+  torchPositions.forEach((pos, index) => {
+    const torchLight = new PointLight(`torchLight${index}`, pos, scene);
+    torchLight.intensity = 1.5; // Increased from 0.8
+    torchLight.diffuse = new Color3(1.0, 0.9, 0.7); // Warmer, brighter light
+    torchLight.range = 15; // Increased from 8
+    
+    // HIGH-QUALITY Torch flame particles with GPU acceleration
+    const flameParticles = createTorchFlame(`torchFlame${index}`, pos, scene);
+    flameParticles.start();
+  });
+  console.log('[Particles] Started hideout torch flames');
+
+  // Add ambient fog for gothic atmosphere - MUCH LIGHTER
+  scene.fogMode = Scene.FOGMODE_EXP2;
+  scene.fogColor = new Color3(0.2, 0.18, 0.25); // Lighter fog color
+  scene.fogDensity = 0.001; // Reduced from 0.002 for even less fog
+}
+
+/**
+ * Create gothic-style ground with stone texture
+ */
+function createGothicGround(): void {
+  // Main ground plane
+  const ground = MeshBuilder.CreateGround('hideoutGround', { width: 50, height: 50 }, scene);
+
+  // HIGH-QUALITY Gothic stone material with procedural texture
+  const groundMat = new StandardMaterial('gothicGroundMat', scene);
+  const groundTexture = createGroundTileTexture('groundTiles', scene, 1024);
+  groundTexture.uScale = 4; // Repeat texture
+  groundTexture.vScale = 4;
+  
+  groundMat.diffuseTexture = groundTexture;
+  groundMat.diffuseColor = new Color3(1, 1, 1); // White to show texture colors
+  groundMat.specularColor = new Color3(0.2, 0.2, 0.2); // Subtle shine
+  groundMat.specularPower = 64; // Sharp specular for wet stone look
+  groundMat.ambientColor = new Color3(0.3, 0.3, 0.3);
+
   ground.material = groundMat;
+  ground.receiveShadows = true;
   hideoutMeshes.push(ground);
-  // Create a map device (purple cylinder). When clicked it opens the dungeon modal.
-  mapDevice = MeshBuilder.CreateCylinder('mapDevice', { diameter: 1.5, height: 2 }, scene);
-  mapDevice.position = new Vector3(0, 1, -5);
-  // Colour the map device
-  const mdMat = new StandardMaterial('mapDeviceMat', scene);
-  mdMat.diffuseColor = new Color3(0.5, 0.2, 0.6);
-  (mapDevice as any).material = mdMat;
-  hideoutMeshes.push(mapDevice);
-  // Create target dummy in hideout
-  dummyEntity = createTargetDummy(new Vector3(5, 1, 5));
+
+  // Add some stone tiles around key areas
+  createStoneTiles();
+}
+
+/**
+ * Create simple stone bump texture
+ */
+function createStoneBumpTexture(): Texture {
+  // Create a basic texture for now - will be replaced with proper bump texture later
+  // For performance, we'll skip bump mapping for now
+  return null as any;
+}
+
+/**
+ * Create stone tiles around key areas
+ */
+function createStoneTiles(): void {
+  const tilePositions = [
+    new Vector3(0, 0.01, -5), // Around map device
+    new Vector3(-5, 0.01, -5), // Around chest
+    new Vector3(5, 0.01, -5), // Around vendor
+    new Vector3(5, 0.01, 5) // Around dummy
+  ];
+
+  // Create shared stone texture for tiles
+  const stoneTexture = createStoneTexture('stoneTiles', scene, 512);
+
+  tilePositions.forEach((pos, index) => {
+    const tile = MeshBuilder.CreateGround(`stoneTile${index}`, { width: 6, height: 6 }, scene);
+    tile.position = pos;
+
+    const tileMat = new StandardMaterial(`tileMat${index}`, scene);
+    tileMat.diffuseTexture = stoneTexture;
+    tileMat.diffuseColor = new Color3(1, 1, 1);
+    tileMat.specularColor = new Color3(0.3, 0.3, 0.3);
+    tileMat.specularPower = 64;
+
+    tile.material = tileMat;
+    hideoutMeshes.push(tile);
+  });
+}
+
+/**
+ * Create gothic castle walls and structures
+ */
+function createGothicCastle(): void {
+  // Main castle walls
+  const wallPositions = [
+    { pos: new Vector3(0, 2.5, 15), rot: new Vector3(0, 0, 0), size: { w: 30, h: 5, d: 1 } }, // North wall
+    { pos: new Vector3(0, 2.5, -15), rot: new Vector3(0, 0, 0), size: { w: 30, h: 5, d: 1 } }, // South wall
+    { pos: new Vector3(15, 2.5, 0), rot: new Vector3(0, Math.PI/2, 0), size: { w: 30, h: 5, d: 1 } }, // East wall
+    { pos: new Vector3(-15, 2.5, 0), rot: new Vector3(0, Math.PI/2, 0), size: { w: 30, h: 5, d: 1 } }  // West wall
+  ];
+
+  // Create shared high-quality stone texture for walls
+  const wallStoneTexture = createStoneTexture('wallStone', scene, 512);
+  wallStoneTexture.uScale = 3;
+  wallStoneTexture.vScale = 2;
+
+  wallPositions.forEach((wall, index) => {
+    const wallMesh = MeshBuilder.CreateBox(`castleWall${index}`, wall.size, scene);
+    wallMesh.position = wall.pos;
+    wallMesh.rotation = wall.rot;
+
+    const wallMat = new StandardMaterial(`wallMat${index}`, scene);
+    wallMat.diffuseTexture = wallStoneTexture;
+    wallMat.diffuseColor = new Color3(1, 1, 1);
+    wallMat.specularColor = new Color3(0.2, 0.2, 0.2);
+    wallMat.specularPower = 64;
+    wallMat.ambientColor = new Color3(0.3, 0.3, 0.3);
+
+    wallMesh.material = wallMat;
+    hideoutMeshes.push(wallMesh);
+  });
+
+  // Add gothic towers at corners
+  createGothicTowers();
+}
+
+/**
+ * Create gothic towers at castle corners
+ */
+function createGothicTowers(): void {
+  const towerPositions = [
+    new Vector3(12, 0, 12),
+    new Vector3(-12, 0, 12),
+    new Vector3(12, 0, -12),
+    new Vector3(-12, 0, -12)
+  ];
+
+  // Create shared tower texture
+  const towerTexture = createStoneTexture('towerStone', scene, 512);
+  towerTexture.uScale = 2;
+  towerTexture.vScale = 3;
+
+  towerPositions.forEach((pos, index) => {
+    // Tower base
+    const towerBase = MeshBuilder.CreateCylinder(`towerBase${index}`, {
+      height: 6,
+      diameter: 3,
+      tessellation: 8
+    }, scene);
+    towerBase.position = new Vector3(pos.x, 3, pos.z);
+
+    // Tower top (smaller)
+    const towerTop = MeshBuilder.CreateCylinder(`towerTop${index}`, {
+      height: 4,
+      diameter: 2.5,
+      tessellation: 8
+    }, scene);
+    towerTop.position = new Vector3(pos.x, 7, pos.z);
+
+    // Spire
+    const spire = MeshBuilder.CreateCylinder(`spire${index}`, {
+      height: 3,
+      diameterTop: 0.5,
+      diameterBottom: 1.5,
+      tessellation: 6
+    }, scene);
+    spire.position = new Vector3(pos.x, 9.5, pos.z);
+
+    const stoneMat = new StandardMaterial(`towerMat${index}`, scene);
+    stoneMat.diffuseTexture = towerTexture;
+    stoneMat.diffuseColor = new Color3(1, 1, 1);
+    stoneMat.specularColor = new Color3(0.3, 0.3, 0.3);
+    stoneMat.specularPower = 64;
+    stoneMat.ambientColor = new Color3(0.3, 0.3, 0.3);
+
+    towerBase.material = stoneMat;
+    towerTop.material = stoneMat;
+    spire.material = stoneMat;
+
+    hideoutMeshes.push(towerBase, towerTop, spire);
+  });
+}
+
+/**
+ * Create enhanced gothic map device
+ */
+async function createGothicMapDevice(): Promise<void> {
+  // Main pedestal
+  const pedestal = MeshBuilder.CreateCylinder('mapPedestal', {
+    height: 1.5,
+    diameter: 2.5,
+    tessellation: 12
+  }, scene);
+  pedestal.position = new Vector3(0, 0.75, -5);
+
+  // Upper platform
+  const platform = MeshBuilder.CreateCylinder('mapPlatform', {
+    height: 0.3,
+    diameter: 3.5,
+    tessellation: 12
+  }, scene);
+  platform.position = new Vector3(0, 1.65, -5);
+
+  // Central crystal/map device
+  mapDevice = MeshBuilder.CreateCylinder('mapCrystal', {
+    height: 1.2,
+    diameterTop: 0.8,
+    diameterBottom: 1.2,
+    tessellation: 8
+  }, scene);
+  mapDevice.position = new Vector3(0, 2.4, -5);
+
+  // HIGH-QUALITY stone material for pedestal with texture
+  const stoneMat = new StandardMaterial('pedestalMat', scene);
+  const pedestalTexture = createStoneTexture('pedestalStone', scene, 512);
+  pedestalTexture.uScale = 2;
+  pedestalTexture.vScale = 2;
+  stoneMat.diffuseTexture = pedestalTexture;
+  stoneMat.diffuseColor = new Color3(1, 1, 1);
+  stoneMat.specularColor = new Color3(0.3, 0.3, 0.3);
+  stoneMat.specularPower = 64;
+
+  // HIGH-QUALITY Glowing crystal material with procedural texture
+  const crystalMat = new StandardMaterial('crystalMat', scene);
+  const crystalTexture = createCrystalTexture('mapCrystal', scene, 512);
+  crystalMat.diffuseTexture = crystalTexture;
+  crystalMat.diffuseColor = new Color3(1, 1, 1);
+  crystalMat.emissiveColor = new Color3(0.3, 0.5, 0.8); // Bright magical glow
+  crystalMat.emissiveTexture = crystalTexture; // Make texture glow
+  crystalMat.specularColor = new Color3(1.0, 1.0, 1.0);
+  crystalMat.specularPower = 256; // Very glossy crystal
+  crystalMat.alpha = 0.95;
+
+  pedestal.material = stoneMat;
+  platform.material = stoneMat;
+  mapDevice.material = crystalMat;
+
+  hideoutMeshes.push(pedestal, platform, mapDevice);
+  
+  // HIGH-QUALITY Magical aura particles for map device with GPU acceleration
+  const auraParticles = createMagicalAura('mapDeviceAura', mapDevice, scene);
+  auraParticles.start();
+  console.log('[Particles] Started map device magical aura');
+}
+
+/**
+ * Create gothic target dummy
+ */
+async function createGothicTargetDummy(): Promise<void> {
+  dummyEntity = await createTargetDummy(new Vector3(5, 1, 5));
   const dTransform = world.getComponent<Transform>(dummyEntity, 'transform');
   if (dTransform && dTransform.mesh) {
     hideoutMeshes.push(dTransform.mesh);
   }
+}
+
+/**
+ * Create gothic-style treasure chest
+ */
+function createGothicTreasureChest(): void {
+  // ENHANCED Chest base with better shape
+  const chestBase = MeshBuilder.CreateBox('chestBase', { width: 1.5, height: 0.85, depth: 1 }, scene);
+  chestBase.position = new Vector3(-5, 0.425, -5);
+
+  // Chest lid (curved top for more realistic look)
+  const chestLid = MeshBuilder.CreateCylinder('chestLid', { 
+    height: 1.6, 
+    diameter: 1, 
+    tessellation: 16,
+    arc: 0.5 // Half cylinder for curved lid
+  }, scene);
+  chestLid.position = new Vector3(-5, 0.95, -5);
+  chestLid.rotation.z = Math.PI / 2;
+
+  // Metal bands across chest
+  for (let i = 0; i < 3; i++) {
+    const band = MeshBuilder.CreateBox(`chestBand${i}`, { width: 1.65, height: 0.08, depth: 0.05 }, scene);
+    band.position = new Vector3(-5, 0.2 + (i * 0.35), -4.48);
+  }
+
+  // Lock in front
+  const lock = MeshBuilder.CreateBox('chestLock', { width: 0.25, height: 0.3, depth: 0.15 }, scene);
+  lock.position = new Vector3(-5, 0.5, -4.42);
+
+  const lockDetail = MeshBuilder.CreateCylinder('lockHole', { height: 0.16, diameter: 0.08, tessellation: 8 }, scene);
+  lockDetail.position = new Vector3(-5, 0.5, -4.41);
+  lockDetail.rotation.x = Math.PI / 2;
+
+  // Gothic decorations (hinges)
+  const hinge1 = MeshBuilder.CreateBox('chestHinge1', { width: 0.15, height: 0.08, depth: 0.25 }, scene);
+  hinge1.position = new Vector3(-5.4, 0.85, -4.48);
+
+  const hinge2 = MeshBuilder.CreateBox('chestHinge2', { width: 0.15, height: 0.08, depth: 0.25 }, scene);
+  hinge2.position = new Vector3(-4.6, 0.85, -4.48);
+
+  // Decorative corner studs
+  const corners = [
+    new Vector3(-5.7, 0.1, -5.45),
+    new Vector3(-4.3, 0.1, -5.45),
+    new Vector3(-5.7, 0.1, -4.55),
+    new Vector3(-4.3, 0.1, -4.55)
+  ];
   
-  // Create dev item chest (spawns test items)
-  const devChest = MeshBuilder.CreateBox('devChest', { width: 1, height: 1, depth: 1 }, scene);
-  devChest.position = new Vector3(-5, 0.5, -5);
-  const chestMat = new StandardMaterial('chestMat', scene);
-  chestMat.diffuseColor = new Color3(0.6, 0.4, 0.2);
-  devChest.material = chestMat;
-  hideoutMeshes.push(devChest);
+  corners.forEach((pos, i) => {
+    const stud = MeshBuilder.CreateSphere(`chestStud${i}`, { diameter: 0.12, segments: 8 }, scene);
+    stud.position = pos;
+  });
+
+  // HIGH-QUALITY Materials with procedural textures
+  const woodMat = new StandardMaterial('chestWoodMat', scene);
+  const woodTexture = createWoodTexture('chestWood', scene, 512);
+  woodTexture.uScale = 1;
+  woodTexture.vScale = 1;
+  woodMat.diffuseTexture = woodTexture;
+  woodMat.diffuseColor = new Color3(1, 1, 1);
+  woodMat.specularColor = new Color3(0.15, 0.15, 0.15);
+  woodMat.specularPower = 32;
+
+  const metalMat = new StandardMaterial('chestMetalMat', scene);
+  const metalTexture = createMetalTexture('chestMetal', scene, 256);
+  metalMat.diffuseTexture = metalTexture;
+  metalMat.diffuseColor = new Color3(1, 1, 1);
+  metalMat.specularColor = new Color3(0.7, 0.7, 0.8);
+  metalMat.specularPower = 128; // Very shiny metal
+
+  // Apply materials to all chest parts
+  chestBase.material = woodMat;
+  chestLid.material = woodMat;
   
-  // Store reference for click handling
-  (window as any).devChest = devChest;
+  // Apply metal material to all metal parts
+  const metalParts = scene.meshes.filter(m => 
+    m.name.includes('chestBand') || 
+    m.name.includes('chestLock') || 
+    m.name.includes('chestHinge') || 
+    m.name.includes('chestStud') ||
+    m.name === 'lockHole'
+  );
+  metalParts.forEach(part => {
+    part.material = metalMat;
+  });
+
+  // Collect all chest parts for hideout meshes and click handling
+  const allChestParts = [chestBase, chestLid, ...metalParts];
+  hideoutMeshes.push(...allChestParts);
   
-  // Create vendor NPC (cylinder with label)
-  const vendorNPC = MeshBuilder.CreateCylinder('vendorNPC', { diameter: 1, height: 2 }, scene);
-  vendorNPC.position = new Vector3(5, 1, -5);
-  const vendorMat = new StandardMaterial('vendorMat', scene);
-  vendorMat.diffuseColor = new Color3(0.8, 0.6, 0.2); // Golden color
-  vendorNPC.material = vendorMat;
-  hideoutMeshes.push(vendorNPC);
+  // Store references for click handling
+  (window as any).devChest = chestBase;
+  (window as any).devChestParts = allChestParts;
+}
+
+/**
+ * Create gothic vendor NPC
+ */
+function createGothicVendorNPC(): void {
+  // Body (robe-like)
+  const vendorBody = MeshBuilder.CreateCylinder('vendorBody', { height: 1.8, diameter: 1.2 }, scene);
+  vendorBody.position = new Vector3(5, 0.9, -5);
+
+  // Head
+  const vendorHead = MeshBuilder.CreateSphere('vendorHead', { diameter: 0.6 }, scene);
+  vendorHead.position = new Vector3(5, 2.1, -5);
+
+  // Hood/cloak
+  const vendorHood = MeshBuilder.CreateCylinder('vendorHood', {
+    height: 0.8,
+    diameterTop: 0.8,
+    diameterBottom: 1.0
+  }, scene);
+  vendorHood.position = new Vector3(5, 2.5, -5);
+
+  // Materials
+  const robeMat = new StandardMaterial('robeMat', scene);
+  robeMat.diffuseColor = new Color3(0.2, 0.1, 0.3); // Dark robe
+
+  const skinMat = new StandardMaterial('skinMat', scene);
+  skinMat.diffuseColor = new Color3(0.8, 0.6, 0.4); // Skin tone
+
+  vendorBody.material = robeMat;
+  vendorHead.material = skinMat;
+  vendorHood.material = robeMat;
+
+  const vendorNPC = vendorBody; // Use body as main clickable object
+  hideoutMeshes.push(vendorBody, vendorHead, vendorHood);
   
   // Store reference for click handling
   (window as any).vendorNPC = vendorNPC;
+}
+
+/**
+ * Add gothic decorative elements
+ */
+function addGothicDecorations(): void {
+  // Gothic trees
+  createGothicTrees();
+
+  // Stone pillars
+  createStonePillars();
+
+  // Gothic statues
+  createGothicStatues();
+}
+
+/**
+ * Create gothic trees
+ */
+function createGothicTrees(): void {
+  const treePositions = [
+    new Vector3(-10, 0, 10),
+    new Vector3(10, 0, 10),
+    new Vector3(-10, 0, -10),
+    new Vector3(10, 0, -10)
+  ];
+
+  treePositions.forEach((pos, index) => {
+    // Trunk
+    const trunk = MeshBuilder.CreateCylinder(`treeTrunk${index}`, {
+      height: 4,
+      diameter: 0.6,
+      tessellation: 8
+    }, scene);
+    trunk.position = new Vector3(pos.x, 2, pos.z);
+
+    // Branches (stylized gothic)
+    const branches = MeshBuilder.CreateCylinder(`treeBranches${index}`, {
+      height: 3,
+      diameterTop: 3,
+      diameterBottom: 1.5,
+      tessellation: 6
+    }, scene);
+    branches.position = new Vector3(pos.x, 4.5, pos.z);
+
+    // Materials
+    const barkMat = new StandardMaterial(`barkMat${index}`, scene);
+    barkMat.diffuseColor = new Color3(0.25, 0.15, 0.1);
+
+    const foliageMat = new StandardMaterial(`foliageMat${index}`, scene);
+    foliageMat.diffuseColor = new Color3(0.1, 0.2, 0.1); // Dark foliage
+
+    trunk.material = barkMat;
+    branches.material = foliageMat;
+
+    hideoutMeshes.push(trunk, branches);
+  });
+}
+
+/**
+ * Create stone pillars
+ */
+function createStonePillars(): void {
+  const pillarPositions = [
+    new Vector3(-8, 0, 0),
+    new Vector3(8, 0, 0),
+    new Vector3(0, 0, 8),
+    new Vector3(0, 0, -8)
+  ];
+
+  pillarPositions.forEach((pos, index) => {
+    const pillar = MeshBuilder.CreateCylinder(`stonePillar${index}`, {
+      height: 5,
+      diameter: 0.8,
+      tessellation: 12
+    }, scene);
+    pillar.position = new Vector3(pos.x, 2.5, pos.z);
+
+    // Capital (top decoration)
+    const capital = MeshBuilder.CreateCylinder(`pillarCapital${index}`, {
+      height: 0.5,
+      diameterTop: 1.2,
+      diameterBottom: 0.8,
+      tessellation: 12
+    }, scene);
+    capital.position = new Vector3(pos.x, 5.25, pos.z);
+
+    const stoneMat = new StandardMaterial(`pillarMat${index}`, scene);
+    stoneMat.diffuseColor = new Color3(0.3, 0.25, 0.35);
+
+    pillar.material = stoneMat;
+    capital.material = stoneMat;
+
+    hideoutMeshes.push(pillar, capital);
+  });
+}
+
+/**
+ * Create gothic statues
+ */
+function createGothicStatues(): void {
+  const statuePositions = [
+    new Vector3(-12, 0, -2),
+    new Vector3(12, 0, -2)
+  ];
+
+  statuePositions.forEach((pos, index) => {
+    // Statue base
+    const base = MeshBuilder.CreateCylinder(`statueBase${index}`, {
+      height: 0.5,
+      diameter: 1.5,
+      tessellation: 8
+    }, scene);
+    base.position = new Vector3(pos.x, 0.25, pos.z);
+
+    // Statue figure (simplified gothic warrior)
+    const figure = MeshBuilder.CreateCylinder(`statueFigure${index}`, {
+      height: 2.5,
+      diameter: 0.8,
+      tessellation: 8
+    }, scene);
+    figure.position = new Vector3(pos.x, 1.75, pos.z);
+
+    // Statue head
+    const head = MeshBuilder.CreateSphere(`statueHead${index}`, { diameter: 0.6 }, scene);
+    head.position = new Vector3(pos.x, 3.2, pos.z);
+
+    const stoneMat = new StandardMaterial(`statueMat${index}`, scene);
+    stoneMat.diffuseColor = new Color3(0.25, 0.22, 0.28);
+
+    base.material = stoneMat;
+    figure.material = stoneMat;
+    head.material = stoneMat;
+
+    hideoutMeshes.push(base, figure, head);
+  });
 }
 
 /** Build the dungeon scene. Hides hideout meshes, spawns a long
@@ -585,34 +1535,257 @@ function setupDungeon(): void {
     if (dTrans && dTrans.mesh) dTrans.mesh.isVisible = false;
   }
   if (mapDevice) mapDevice.isVisible = false;
-  // Create narrow ground corridor
-  const ground = MeshBuilder.CreateGround('dungeonGround', { width: 4, height: 60 }, scene);
+
+  // Disable fog in dungeon for better visibility
+  scene.fogMode = Scene.FOGMODE_NONE;
+
+  // Enhanced dungeon generation with stone corridors
+  createStoneCorridor();
+  
+  // Reposition player at the start of the corridor
+  const pTrans = world.getComponent<Transform>(playerEntity, 'transform');
+  if (pTrans) {
+    pTrans.position.x = 0;
+    pTrans.position.z = 5; // Start near the beginning of the corridor (corridor is at z=30, length=60, so starts at z=0)
+    pTrans.position.y = 0.5;
+    if (pTrans.mesh) pTrans.mesh.position.copyFrom(pTrans.position);
+    console.log('[Dungeon] Player repositioned to:', pTrans.position);
+  }
+}
+
+/**
+ * Creates an enhanced stone corridor dungeon with walls, torches, and props
+ */
+function createStoneCorridor(): void {
+  console.log('='.repeat(60));
+  console.log('[DUNGEON] CREATING STONE CORRIDOR - THIS IS THE NEW CODE!');
+  console.log('='.repeat(60));
+  
+  const corridorLength = 60;
+  const corridorWidth = 6;
+  const wallHeight = 5;
+
+  // Add bright ambient light for dungeon visibility
+  const dungeonLight = new HemisphericLight('dungeonAmbient', new Vector3(0, 1, 0), scene);
+  dungeonLight.intensity = 1.5;
+  dungeonLight.diffuse = new Color3(0.9, 0.85, 0.8);
+  dungeonLight.groundColor = new Color3(0.3, 0.3, 0.4);
+
+  // HIGH-QUALITY Stone material for walls and floor with detailed texture
+  const stoneMat = new StandardMaterial('dungeonStoneMat', scene);
+  const dungeonStoneTexture = createStoneTexture('dungeonStone', scene, 512);
+  dungeonStoneTexture.uScale = 6;
+  dungeonStoneTexture.vScale = 6;
+  stoneMat.diffuseTexture = dungeonStoneTexture;
+  stoneMat.diffuseColor = new Color3(1, 1, 1);
+  stoneMat.specularColor = new Color3(0.15, 0.15, 0.15);
+  stoneMat.specularPower = 64;
+  stoneMat.emissiveColor = new Color3(0.08, 0.08, 0.1); // Slight glow for visibility
+  stoneMat.ambientColor = new Color3(0.4, 0.4, 0.45);
+
+  // Floor
+  const ground = MeshBuilder.CreateGround('dungeonGround', { width: corridorWidth, height: corridorLength }, scene);
   ground.position = new Vector3(0, 0, 30);
-  // Apply a dark material so the corridor contrasts with the hideout
-  const dgMat = new StandardMaterial('dungeonGroundMat', scene);
-  dgMat.diffuseColor = new Color3(0.1, 0.1, 0.2);
-  ground.material = dgMat;
+  ground.material = stoneMat;
+  ground.isVisible = true; // Explicitly set visible
   dungeonMeshes.push(ground);
-  // Optionally add walls or other visuals (omitted for brevity)
-  // Spawn enemies at random intervals along the corridor
+  console.log('[Dungeon] Ground created at', ground.position, 'visible:', ground.isVisible);
+
+  // Left wall
+  const leftWall = MeshBuilder.CreateBox('leftWall', { width: 0.5, height: wallHeight, depth: corridorLength }, scene);
+  leftWall.position = new Vector3(-corridorWidth / 2, wallHeight / 2, 30);
+  leftWall.material = stoneMat;
+  leftWall.isVisible = true;
+  dungeonMeshes.push(leftWall);
+
+  // Right wall
+  const rightWall = MeshBuilder.CreateBox('rightWall', { width: 0.5, height: wallHeight, depth: corridorLength }, scene);
+  rightWall.position = new Vector3(corridorWidth / 2, wallHeight / 2, 30);
+  rightWall.material = stoneMat;
+  rightWall.isVisible = true;
+  dungeonMeshes.push(rightWall);
+
+  // Ceiling (optional, for atmosphere)
+  const ceiling = MeshBuilder.CreateGround('dungeonCeiling', { width: corridorWidth, height: corridorLength }, scene);
+  ceiling.position = new Vector3(0, wallHeight, 30);
+  ceiling.rotation.x = Math.PI; // Flip upside down
+  ceiling.material = stoneMat;
+  ceiling.isVisible = true;
+  dungeonMeshes.push(ceiling);
+  
+  console.log('[Dungeon] Walls and ceiling created. Total meshes:', dungeonMeshes.length);
+
+  // Add wall torches and pillars along the corridor
+  for (let z = 0; z < corridorLength; z += 10) {
+    const zPos = ground.position.z - corridorLength / 2 + z;
+
+    // Left wall torch
+    const leftTorchPos = new Vector3(-corridorWidth / 2 + 0.5, 3, zPos);
+    const leftTorch = createDungeonTorch(leftTorchPos);
+    dungeonMeshes.push(leftTorch);
+
+    // Right wall torch
+    const rightTorchPos = new Vector3(corridorWidth / 2 - 0.5, 3, zPos);
+    const rightTorch = createDungeonTorch(rightTorchPos);
+    dungeonMeshes.push(rightTorch);
+
+    // Add stone pillars every 20 units
+    if (z % 20 === 0 && z > 0) {
+      const leftPillar = MeshBuilder.CreateCylinder(`dungeonPillarLeft_${z}`, { height: wallHeight - 1, diameter: 0.8 }, scene);
+      leftPillar.position = new Vector3(-corridorWidth / 2 + 1, wallHeight / 2, zPos);
+      leftPillar.material = stoneMat;
+      dungeonMeshes.push(leftPillar);
+
+      const rightPillar = MeshBuilder.CreateCylinder(`dungeonPillarRight_${z}`, { height: wallHeight - 1, diameter: 0.8 }, scene);
+      rightPillar.position = new Vector3(corridorWidth / 2 - 1, wallHeight / 2, zPos);
+      rightPillar.material = stoneMat;
+      dungeonMeshes.push(rightPillar);
+    }
+  }
+
+  // Add some debris/props for atmosphere
+  for (let i = 0; i < 6; i++) {
+    const debrisX = (Math.random() - 0.5) * (corridorWidth - 2);
+    const debrisZ = ground.position.z - corridorLength / 2 + Math.random() * corridorLength;
+    const debris = MeshBuilder.CreateBox(`debris_${i}`, { width: 0.5, height: 0.3, depth: 0.4 }, scene);
+    debris.position = new Vector3(debrisX, 0.15, debrisZ);
+    debris.rotation.y = Math.random() * Math.PI;
+    debris.material = stoneMat;
+    dungeonMeshes.push(debris);
+  }
+
+  // Spawn enemies at strategic positions
   dungeonEnemies = [];
-  for (let i = 0; i < 4; i++) {
-    const z = 10 + i * 10;
-    const enemy = createEnemy(new Vector3((Math.random() - 0.5) * 2, 0.4, ground.position.z - 30 + z));
+  const enemyCount = currentMapModifiers?.monsterPackSize ? Math.floor(6 * currentMapModifiers.monsterPackSize) : 6;
+  
+  for (let i = 0; i < enemyCount; i++) {
+    const x = (Math.random() - 0.5) * (corridorWidth - 2);
+    const z = ground.position.z - corridorLength / 2 + 10 + Math.random() * (corridorLength - 20);
+    const enemy = createEnemy(new Vector3(x, 0.4, z));
     dungeonEnemies.push(enemy);
     const etrans = world.getComponent<Transform>(enemy, 'transform');
     if (etrans && etrans.mesh) {
       dungeonMeshes.push(etrans.mesh);
     }
   }
-  // Reposition player at the start of the corridor
-  const pTrans = world.getComponent<Transform>(playerEntity, 'transform');
-  if (pTrans) {
-    pTrans.position.x = 0;
-    pTrans.position.z = ground.position.z - 30 - 5;
-    pTrans.position.y = 0.5;
-    if (pTrans.mesh) pTrans.mesh.position.copyFrom(pTrans.position);
+
+  // Boss room at the end
+  createBossRoom(new Vector3(0, 0, ground.position.z + corridorLength / 2 + 10));
+}
+
+/**
+ * Creates a torch for dungeon walls
+ */
+function createDungeonTorch(position: Vector3): AbstractMesh {
+  const torch = MeshBuilder.CreateCylinder('dungeonTorch', { height: 0.8, diameter: 0.15 }, scene);
+  torch.position = position;
+
+  const torchMat = new StandardMaterial('dungeonTorchMat', scene);
+  torchMat.diffuseColor = new Color3(0.3, 0.2, 0.1); // Dark wood
+  torch.material = torchMat;
+
+  // Add torch light
+  const torchLight = new PointLight(`dungeonTorchLight_${position.z}`, position, scene);
+  torchLight.intensity = 1.0;
+  torchLight.diffuse = new Color3(1.0, 0.7, 0.4); // Orange flame light
+  torchLight.range = 8;
+
+  // HIGH-QUALITY Dungeon torch flame particles with GPU acceleration
+  const flameParticles = createTorchFlame(`dungeonTorchFlame_${position.z}`, position, scene);
+  flameParticles.start();
+
+  return torch;
+}
+
+/**
+ * Creates a boss room at the end of the corridor
+ */
+function createBossRoom(centerPos: Vector3): void {
+  const roomSize = 15;
+  const wallHeight = 6;
+
+  const stoneMat = new StandardMaterial('bossRoomStoneMat', scene);
+  stoneMat.diffuseColor = new Color3(0.2, 0.2, 0.25); // Darker stone for boss room
+  stoneMat.specularColor = new Color3(0.15, 0.15, 0.15);
+  stoneMat.emissiveColor = new Color3(0.03, 0.02, 0.04); // Slight purple glow
+
+  // Boss room floor
+  const bossFloor = MeshBuilder.CreateGround('bossRoomFloor', { width: roomSize, height: roomSize }, scene);
+  bossFloor.position = centerPos;
+  bossFloor.material = stoneMat;
+  dungeonMeshes.push(bossFloor);
+
+  // Boss room walls (4 sides)
+  const wallPositions = [
+    { x: 0, z: -roomSize / 2, width: roomSize, depth: 0.5 }, // Front wall (with gap for entrance)
+    { x: 0, z: roomSize / 2, width: roomSize, depth: 0.5 },  // Back wall
+    { x: -roomSize / 2, z: 0, width: 0.5, depth: roomSize }, // Left wall
+    { x: roomSize / 2, z: 0, width: 0.5, depth: roomSize }   // Right wall
+  ];
+
+  wallPositions.forEach((wallPos, index) => {
+    // Skip part of the front wall for entrance
+    if (index === 0) {
+      // Create two shorter walls for entrance
+      const leftPart = MeshBuilder.CreateBox('bossWallLeftEntrance', { width: (roomSize - 4) / 2, height: wallHeight, depth: 0.5 }, scene);
+      leftPart.position = new Vector3(centerPos.x - roomSize / 4 - 1, centerPos.y + wallHeight / 2, centerPos.z + wallPos.z);
+      leftPart.material = stoneMat;
+      dungeonMeshes.push(leftPart);
+
+      const rightPart = MeshBuilder.CreateBox('bossWallRightEntrance', { width: (roomSize - 4) / 2, height: wallHeight, depth: 0.5 }, scene);
+      rightPart.position = new Vector3(centerPos.x + roomSize / 4 + 1, centerPos.y + wallHeight / 2, centerPos.z + wallPos.z);
+      rightPart.material = stoneMat;
+      dungeonMeshes.push(rightPart);
+    } else {
+      const wall = MeshBuilder.CreateBox(`bossWall_${index}`, { width: wallPos.width, height: wallHeight, depth: wallPos.depth }, scene);
+      wall.position = new Vector3(centerPos.x + wallPos.x, centerPos.y + wallHeight / 2, centerPos.z + wallPos.z);
+      wall.material = stoneMat;
+      dungeonMeshes.push(wall);
+    }
+  });
+
+  // Add corner pillars
+  const cornerPositions = [
+    new Vector3(-roomSize / 2 + 0.5, 0, -roomSize / 2 + 0.5),
+    new Vector3(roomSize / 2 - 0.5, 0, -roomSize / 2 + 0.5),
+    new Vector3(-roomSize / 2 + 0.5, 0, roomSize / 2 - 0.5),
+    new Vector3(roomSize / 2 - 0.5, 0, roomSize / 2 - 0.5)
+  ];
+
+  cornerPositions.forEach((cornerPos, index) => {
+    const pillar = MeshBuilder.CreateCylinder(`bossPillar_${index}`, { height: wallHeight - 0.5, diameter: 1 }, scene);
+    pillar.position = new Vector3(centerPos.x + cornerPos.x, wallHeight / 2, centerPos.z + cornerPos.z);
+    pillar.material = stoneMat;
+    dungeonMeshes.push(pillar);
+
+    // Add lights to pillars
+    const pillarLight = new PointLight(`bossPillarLight_${index}`, pillar.position.clone().add(new Vector3(0, 2, 0)), scene);
+    pillarLight.intensity = 1.5;
+    pillarLight.diffuse = new Color3(0.6, 0.3, 0.9); // Purple mystical light
+    pillarLight.range = 10;
+  });
+
+  // Always spawn a boss in the boss room
+  const boss = createEnemy(new Vector3(centerPos.x, 0.4, centerPos.z + 5));
+  
+  // Make boss much stronger based on map level and modifiers
+  const baseHealth = 150;
+  const monsterLevel = currentMapModifiers?.monsterLevel || 1;
+  const bossHealth = world.getComponent<Health>(boss, 'health');
+  if (bossHealth) {
+    bossHealth.max = baseHealth * monsterLevel;
+    bossHealth.current = bossHealth.max;
   }
+  
+  dungeonEnemies.push(boss);
+  const btrans = world.getComponent<Transform>(boss, 'transform');
+  if (btrans && btrans.mesh) {
+    // Make boss much bigger and more imposing
+    btrans.mesh.scaling = new Vector3(2.0, 2.0, 2.0);
+    dungeonMeshes.push(btrans.mesh);
+  }
+  
+  console.log(`[BossRoom] Spawned boss with ${bossHealth?.max} HP (monster level: ${monsterLevel})`);
 }
 
 /** Tear down the dungeon and return to the hideout. Cleans up all
@@ -637,6 +1810,22 @@ function leaveDungeon(): void {
   
   // Clear enemy health bars
   enemyHealthBars.clear();
+
+  // Clear ground items from dungeon
+  cleanupGroundItems();
+
+  // Clear map modifiers and portal instance tracking
+  currentMapModifiers = null;
+  currentPortalInstanceId = null;
+  
+  // Clear all portals when completing dungeon
+  clearMapPortals();
+  console.log('[MapDevice] Portals cleared on dungeon completion');
+  
+  // Re-enable fog for hideout atmosphere
+  scene.fogMode = Scene.FOGMODE_EXP2;
+  scene.fogColor = new Color3(0.2, 0.18, 0.25);
+  scene.fogDensity = 0.001;
   
   // Show hideout meshes and dummy
   for (const m of hideoutMeshes) {
@@ -785,9 +1974,120 @@ window.addEventListener('keyup', (ev) => {
 // Create a player entity with a visible mesh.
 function createPlayer(): Entity {
   const e = world.createEntity();
-  const mesh = MeshBuilder.CreateBox('player', { size: 1 }, scene);
-  mesh.position = new Vector3(0, 0.5, 0);
-  const transform: Transform = { position: mesh.position.clone(), mesh };
+  
+  // Create ENHANCED procedural character model with better details
+  const parentMesh = new AbstractMesh('player', scene);
+  parentMesh.position = new Vector3(0, 0.5, 0);
+  
+  // Body (torso) - more detailed with better shape
+  const body = MeshBuilder.CreateCylinder('playerBody', { 
+    height: 1.1, 
+    diameterTop: 0.55, 
+    diameterBottom: 0.65,
+    tessellation: 12 
+  }, scene);
+  body.parent = parentMesh;
+  body.position.y = 0.05;
+  const bodyMat = new StandardMaterial('playerBodyMat', scene);
+  bodyMat.diffuseColor = new Color3(0.15, 0.25, 0.45); // Deep blue armor
+  bodyMat.specularColor = new Color3(0.6, 0.6, 0.7);
+  bodyMat.specularPower = 128;
+  body.material = bodyMat;
+  
+  // Chest plate detail
+  const chestPlate = MeshBuilder.CreateBox('playerChest', { width: 0.5, height: 0.4, depth: 0.15 }, scene);
+  chestPlate.parent = parentMesh;
+  chestPlate.position.set(0, 0.3, -0.28);
+  chestPlate.material = bodyMat;
+  
+  // Shoulder pads
+  const leftShoulder = MeshBuilder.CreateSphere('leftShoulder', { diameter: 0.35, segments: 8 }, scene);
+  leftShoulder.parent = parentMesh;
+  leftShoulder.position.set(-0.45, 0.5, 0);
+  leftShoulder.scaling.y = 0.6;
+  leftShoulder.material = bodyMat;
+  
+  const rightShoulder = MeshBuilder.CreateSphere('rightShoulder', { diameter: 0.35, segments: 8 }, scene);
+  rightShoulder.parent = parentMesh;
+  rightShoulder.position.set(0.45, 0.5, 0);
+  rightShoulder.scaling.y = 0.6;
+  rightShoulder.material = bodyMat;
+  
+  // Head
+  const head = MeshBuilder.CreateSphere('playerHead', { diameter: 0.42, segments: 12 }, scene);
+  head.parent = parentMesh;
+  head.position.y = 0.85;
+  const headMat = new StandardMaterial('playerHeadMat', scene);
+  headMat.diffuseColor = new Color3(0.85, 0.75, 0.65); // Better skin tone
+  headMat.specularColor = new Color3(0.2, 0.2, 0.2);
+  headMat.specularPower = 32;
+  head.material = headMat;
+  
+  // Helmet/hood
+  const helmet = MeshBuilder.CreateSphere('playerHelmet', { diameter: 0.46, segments: 12 }, scene);
+  helmet.parent = parentMesh;
+  helmet.position.y = 0.88;
+  helmet.scaling.y = 0.7; // Flatten for helmet shape
+  const helmetMat = new StandardMaterial('helmetMat', scene);
+  helmetMat.diffuseColor = new Color3(0.3, 0.3, 0.35); // Dark metal
+  helmetMat.specularColor = new Color3(0.7, 0.7, 0.8);
+  helmetMat.specularPower = 256;
+  helmet.material = helmetMat;
+  
+  // Arms with better tapering
+  const leftArm = MeshBuilder.CreateCylinder('playerLeftArm', { 
+    height: 0.85, 
+    diameterTop: 0.18, 
+    diameterBottom: 0.15,
+    tessellation: 8 
+  }, scene);
+  leftArm.parent = parentMesh;
+  leftArm.position.set(-0.42, 0, 0);
+  leftArm.rotation.z = 0.2;
+  leftArm.material = bodyMat;
+  
+  const rightArm = MeshBuilder.CreateCylinder('playerRightArm', { 
+    height: 0.85, 
+    diameterTop: 0.18, 
+    diameterBottom: 0.15,
+    tessellation: 8 
+  }, scene);
+  rightArm.parent = parentMesh;
+  rightArm.position.set(0.42, 0, 0);
+  rightArm.rotation.z = -0.2;
+  rightArm.material = bodyMat;
+  
+  // Legs with better shape
+  const leftLeg = MeshBuilder.CreateCylinder('playerLeftLeg', { 
+    height: 0.9, 
+    diameterTop: 0.24, 
+    diameterBottom: 0.2,
+    tessellation: 8 
+  }, scene);
+  leftLeg.parent = parentMesh;
+  leftLeg.position.set(-0.18, -0.95, 0);
+  leftLeg.material = bodyMat;
+  
+  const rightLeg = MeshBuilder.CreateCylinder('playerRightLeg', { 
+    height: 0.9, 
+    diameterTop: 0.24, 
+    diameterBottom: 0.2,
+    tessellation: 8 
+  }, scene);
+  rightLeg.parent = parentMesh;
+  rightLeg.position.set(0.18, -0.95, 0);
+  rightLeg.material = bodyMat;
+  
+  // Belt
+  const belt = MeshBuilder.CreateCylinder('playerBelt', { height: 0.08, diameter: 0.68, tessellation: 12 }, scene);
+  belt.parent = parentMesh;
+  belt.position.y = -0.45;
+  const beltMat = new StandardMaterial('beltMat', scene);
+  beltMat.diffuseColor = new Color3(0.3, 0.2, 0.1); // Leather
+  beltMat.specularColor = new Color3(0.2, 0.2, 0.2);
+  belt.material = beltMat;
+  
+  const transform: Transform = { position: parentMesh.position.clone(), mesh: parentMesh };
   const velocity: Velocity = { value: new Vector3(0, 0, 0) };
   const health: Health = { current: 100, max: 100 };
   const tag: PlayerTag = {};
@@ -816,10 +2116,18 @@ function createPlayer(): Entity {
 }
 
 // Create a stationary target dummy with infinite health.
-function createTargetDummy(pos: Vector3): Entity {
+async function createTargetDummy(pos: Vector3): Promise<Entity> {
   const e = world.createEntity();
+
+  // Use procedural mesh (no external assets needed)
   const mesh = MeshBuilder.CreateCylinder('dummy', { diameter: 1, height: 2 }, scene);
   mesh.position = pos.clone();
+  
+  // Add a simple material
+  const dummyMat = new StandardMaterial('dummyMat', scene);
+  dummyMat.diffuseColor = new Color3(0.8, 0.7, 0.6); // Tan color
+  mesh.material = dummyMat;
+
   const transform: Transform = { position: mesh.position.clone(), mesh };
   const velocity: Velocity = { value: new Vector3(0, 0, 0) };
   const health: Health = { current: Infinity, max: Infinity, infinite: true };
@@ -848,15 +2156,133 @@ function createTargetDummy(pos: Vector3): Entity {
 // machine and can attack the player.
 function createEnemy(pos: Vector3): Entity {
   const e = world.createEntity();
-  const mesh = MeshBuilder.CreateBox('enemy', { size: 0.8 }, scene);
-  mesh.position = pos.clone();
   
-  // Give enemy a material so we can change its color
-  const mat = new StandardMaterial(`enemy_${e}`, scene);
-  mat.diffuseColor = new Color3(0.5, 0.5, 0.5); // Default gray for idle
-  mesh.material = mat;
+  // Create ENHANCED procedural enemy model - more menacing and detailed
+  const parentMesh = new AbstractMesh(`enemy_${e}`, scene);
+  parentMesh.position = pos.clone();
   
-  const transform: Transform = { position: mesh.position.clone(), mesh };
+  // Body (bulkier, hunched posture)
+  const body = MeshBuilder.CreateCylinder(`enemyBody_${e}`, { 
+    height: 1.0, 
+    diameterTop: 0.7, 
+    diameterBottom: 0.8,
+    tessellation: 10 
+  }, scene);
+  body.parent = parentMesh;
+  body.position.y = 0;
+  body.rotation.x = 0.2; // Slight forward hunch
+  const bodyMat = new StandardMaterial(`enemyBodyMat_${e}`, scene);
+  bodyMat.diffuseColor = new Color3(0.35, 0.2, 0.15); // Dark reddish brown
+  bodyMat.emissiveColor = new Color3(0.15, 0.05, 0.02); // Evil red glow
+  bodyMat.specularColor = new Color3(0.3, 0.2, 0.2);
+  bodyMat.specularPower = 64;
+  body.material = bodyMat;
+  
+  // Spiky shoulder guards
+  const leftSpike = MeshBuilder.CreateCylinder(`leftSpike_${e}`, { 
+    height: 0.4, 
+    diameterTop: 0.05, 
+    diameterBottom: 0.2,
+    tessellation: 6 
+  }, scene);
+  leftSpike.parent = parentMesh;
+  leftSpike.position.set(-0.5, 0.5, 0);
+  leftSpike.rotation.z = -0.5;
+  leftSpike.material = bodyMat;
+  
+  const rightSpike = MeshBuilder.CreateCylinder(`rightSpike_${e}`, { 
+    height: 0.4, 
+    diameterTop: 0.05, 
+    diameterBottom: 0.2,
+    tessellation: 6 
+  }, scene);
+  rightSpike.parent = parentMesh;
+  rightSpike.position.set(0.5, 0.5, 0);
+  rightSpike.rotation.z = 0.5;
+  rightSpike.material = bodyMat;
+  
+  // Head (more monster-like, larger)
+  const head = MeshBuilder.CreateSphere(`enemyHead_${e}`, { diameter: 0.5, segments: 10 }, scene);
+  head.parent = parentMesh;
+  head.position.y = 0.75;
+  head.scaling.set(1, 0.9, 1.1); // Make it more brutish
+  const headMat = new StandardMaterial(`enemyHeadMat_${e}`, scene);
+  headMat.diffuseColor = new Color3(0.45, 0.35, 0.3); // Grayish skin
+  headMat.specularColor = new Color3(0.2, 0.2, 0.2);
+  head.material = headMat;
+  
+  // Glowing red eyes
+  const leftEye = MeshBuilder.CreateSphere(`leftEye_${e}`, { diameter: 0.08 }, scene);
+  leftEye.parent = parentMesh;
+  leftEye.position.set(-0.12, 0.8, -0.22);
+  const eyeMat = new StandardMaterial(`eyeMat_${e}`, scene);
+  eyeMat.emissiveColor = new Color3(1, 0.1, 0); // Bright red glow
+  eyeMat.diffuseColor = new Color3(0.8, 0, 0);
+  leftEye.material = eyeMat;
+  
+  const rightEye = MeshBuilder.CreateSphere(`rightEye_${e}`, { diameter: 0.08 }, scene);
+  rightEye.parent = parentMesh;
+  rightEye.position.set(0.12, 0.8, -0.22);
+  rightEye.material = eyeMat;
+  
+  // Arms (muscular, menacing)
+  const leftArm = MeshBuilder.CreateCylinder(`enemyLeftArm_${e}`, { 
+    height: 0.8, 
+    diameterTop: 0.28, 
+    diameterBottom: 0.22,
+    tessellation: 8 
+  }, scene);
+  leftArm.parent = parentMesh;
+  leftArm.position.set(-0.5, -0.1, 0);
+  leftArm.rotation.z = 0.5;
+  leftArm.material = bodyMat;
+  
+  // Clawed hand
+  const leftHand = MeshBuilder.CreateSphere(`leftHand_${e}`, { diameter: 0.25, segments: 8 }, scene);
+  leftHand.parent = parentMesh;
+  leftHand.position.set(-0.75, -0.65, 0);
+  leftHand.scaling.set(1.2, 0.8, 0.8);
+  leftHand.material = bodyMat;
+  
+  const rightArm = MeshBuilder.CreateCylinder(`enemyRightArm_${e}`, { 
+    height: 0.8, 
+    diameterTop: 0.28, 
+    diameterBottom: 0.22,
+    tessellation: 8 
+  }, scene);
+  rightArm.parent = parentMesh;
+  rightArm.position.set(0.5, -0.1, 0);
+  rightArm.rotation.z = -0.5;
+  rightArm.material = bodyMat;
+  
+  const rightHand = MeshBuilder.CreateSphere(`rightHand_${e}`, { diameter: 0.25, segments: 8 }, scene);
+  rightHand.parent = parentMesh;
+  rightHand.position.set(0.75, -0.65, 0);
+  rightHand.scaling.set(1.2, 0.8, 0.8);
+  rightHand.material = bodyMat;
+  
+  // Legs (thick, powerful)
+  const leftLeg = MeshBuilder.CreateCylinder(`enemyLeftLeg_${e}`, { 
+    height: 0.75, 
+    diameterTop: 0.28, 
+    diameterBottom: 0.24,
+    tessellation: 8 
+  }, scene);
+  leftLeg.parent = parentMesh;
+  leftLeg.position.set(-0.22, -0.85, 0);
+  leftLeg.material = bodyMat;
+  
+  const rightLeg = MeshBuilder.CreateCylinder(`enemyRightLeg_${e}`, { 
+    height: 0.75, 
+    diameterTop: 0.28, 
+    diameterBottom: 0.24,
+    tessellation: 8 
+  }, scene);
+  rightLeg.parent = parentMesh;
+  rightLeg.position.set(0.22, -0.85, 0);
+  rightLeg.material = bodyMat;
+  
+  const transform: Transform = { position: parentMesh.position.clone(), mesh: parentMesh };
   const velocity: Velocity = { value: new Vector3(0, 0, 0) };
   const health: Health = { current: 30, max: 30 };
   const tag: EnemyTag = {};
@@ -1100,17 +2526,26 @@ scene.onPointerObservable.add((pointerInfo) => {
     // If we're in the hideout and clicked the map device, open the
     // dungeon confirmation modal.
     if (currentScene === 'hideout' && mapDevice && pick.pickedMesh === mapDevice) {
-      // Show the dungeon modal
-      const dModal = document.getElementById('dungeon-modal');
-      if (dModal) dModal.classList.remove('hidden');
+      // Show the map device modal
+      showMapDeviceModal();
       return;
     }
     
-    // If clicked dev chest, spawn test items
-    const devChest = (window as any).devChest;
-    if (currentScene === 'hideout' && devChest && pick.pickedMesh === devChest) {
+    // If clicked dev chest (any part of it), spawn test items
+    const devChestParts = (window as any).devChestParts as Array<any> | undefined;
+    if (currentScene === 'hideout' && devChestParts && devChestParts.includes(pick.pickedMesh)) {
       spawnDevItems();
       return;
+    }
+    
+    // If clicked portal, enter it
+    if (currentScene === 'hideout') {
+      const clickedPortal = mapDeviceState.portals.find(p => p.mesh === pick.pickedMesh && p.isActive);
+      if (clickedPortal) {
+        const portalIndex = mapDeviceState.portals.indexOf(clickedPortal);
+        enterPortal(portalIndex);
+        return;
+      }
     }
     
     // If clicked vendor NPC, open vendor UI
@@ -1410,51 +2845,60 @@ function handleRespawn(): void {
 
 // Spawn dev items when clicking the chest
 function spawnDevItems(): void {
-  // Create starter items based on player class
-  if (playerClass === 'warrior') {
-    const sword = createItem('iron_sword', [
-      { stat: 'str', value: 10 },
-      { stat: 'melee_pct', value: 8 },
-    ], 'magic');
-    addItemToInventory(sword);
-  } else {
-    const bow = createItem('short_bow', [
-      { stat: 'dex', value: 10 },
-      { stat: 'bow_pct', value: 8 },
-    ], 'magic');
-    addItemToInventory(bow);
+  // Spawn random weapons for testing purposes
+  console.log('Spawning random dev items...');
+
+  // Generate 8-12 random items from different weapon types + maps
+  const numItems = Math.floor(Math.random() * 5) + 8; // 8-12 items
+
+  for (let i = 0; i < numItems; i++) {
+    // Randomly select item type (70% weapons, 30% maps)
+    const isMap = Math.random() < 0.3;
+
+    if (isMap) {
+      // Spawn a random map
+      const mapTypes = [
+        'dungeon_map', 'infested_dungeon_map', 'haunted_dungeon_map',
+        'cursed_dungeon_map', 'corrupted_dungeon_map'
+      ];
+      const randomMapType = mapTypes[Math.floor(Math.random() * mapTypes.length)];
+
+      const mapItem = createItem(randomMapType);
+      addItemToInventory(mapItem);
+    } else {
+      // Spawn a random weapon
+      const weaponTypes = [
+        'one_hand_sword', 'bow', 'axe', 'mace', 'dagger', 'claw',
+        'sceptre', 'spear', 'flail', 'two_hand_sword', 'two_hand_axe',
+        'two_hand_mace', 'staff', 'shield', 'quiver'
+      ];
+
+      const randomType = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+
+      // Get random base item from selected type
+      const baseItem = pickRandomBase(1, randomType); // Level 1 for easier testing
+      if (baseItem) {
+        // Create the item with random rarity
+        const item = createItem(baseItem.id, [], 'normal');
+
+        // 40% chance to make it magic, 20% chance to make it rare
+        const rand = Math.random();
+        if (rand < 0.4) {
+          // Generate affixes for magic items
+          item.affixes = rollAffixes('magic', 1);
+          item.rarity = 'magic';
+        } else if (rand < 0.6) {
+          // Generate affixes for rare items
+          item.affixes = rollAffixes('rare', 1);
+          item.rarity = 'rare';
+        }
+
+        addItemToInventory(item);
+      }
+    }
   }
-  
-  // Add some universal items
-  const belt = createItem('leather_belt', [
-    { stat: 'hp_flat', value: 50 },
-  ], 'normal');
-  addItemToInventory(belt);
-  
-  const ring1 = createItem('gold_ring', [
-    { stat: 'mp_flat', value: 30 },
-  ], 'normal');
-  addItemToInventory(ring1);
-  
-  const ring2 = createItem('mana_ring', [
-    { stat: 'int', value: 15 },
-    { stat: 'mp_flat', value: 40 },
-  ], 'rare');
-  addItemToInventory(ring2);
-  
-  const helmet = createItem('steel_helmet', [
-    { stat: 'armor', value: 15 },
-    { stat: 'str', value: 8 },
-  ], 'magic');
-  addItemToInventory(helmet);
-  
-  const chest = createItem('leather_chest', [
-    { stat: 'hp_flat', value: 80 },
-    { stat: 'armor', value: 25 },
-  ], 'rare');
-  addItemToInventory(chest);
-  
-  console.log('Dev items spawned! Press I to open inventory.');
+
+  console.log(`${numItems} random weapon types spawned! Press I to open inventory.`);
 }
 
 // ---------------------------------------------------------------------
@@ -1462,6 +2906,132 @@ function spawnDevItems(): void {
 const timestepMs = 1000 / 60;
 let gameLoopInterval: number | null = null;
 let playtimeAccumulator = 0;
+
+/** Update charges for all flasks in inventory and equipment */
+function updateAllFlaskCharges(dt: number): void {
+  if (!currentSaveData?.inventory?.grid) return;
+
+  // Update flasks in inventory
+  for (const row of currentSaveData.inventory.grid) {
+    for (const item of row) {
+      if (item) {
+        updateFlaskCharges(item, dt);
+      }
+    }
+  }
+
+  // Update flasks in equipment (if any equipment slots can hold flasks)
+  // For now, flasks are only in inventory, but this could be extended
+}
+
+/** Use a flask from inventory */
+function useFlaskFromInventory(flaskIndex: number): boolean {
+  if (!currentSaveData?.inventory?.grid) return false;
+
+  // Find flask in inventory (assuming they're in specific slots for now)
+  // This is a simplified implementation - in a real game you'd have dedicated flask slots
+  const flasks = [];
+  for (const row of currentSaveData.inventory.grid) {
+    for (const item of row) {
+      if (item && getItemBase(item.baseId)?.slot === 'flask') {
+        flasks.push(item);
+      }
+    }
+  }
+
+  if (flaskIndex >= flasks.length) return false;
+
+  const flask = flasks[flaskIndex];
+  if (!canUseFlask(flask)) return false;
+
+  return useFlask(flask, currentStats,
+    // Heal callback
+    (amount: number) => {
+      currentStats.hp = Math.min(currentStats.maxHp, currentStats.hp + amount);
+      console.log(`Flask healed for ${amount} HP`);
+      updateResourceOrbs(); // Update UI after healing
+    },
+    // Effect callback
+    (effects: any[]) => {
+      // Apply temporary effects (this would need a buff system)
+      console.log('Flask effects applied:', effects);
+      // For now, just apply simple stat bonuses
+      for (const effect of effects) {
+        if (effect.stat && effect.value) {
+          // This is a simplified implementation - you'd want a proper buff system
+          console.log(`Applied ${effect.stat}: ${effect.value}`);
+        }
+      }
+    }
+  );
+}
+
+/** Use currency on an item */
+function useCurrencyOnItem(currencyItem: ItemInstance, targetItem: ItemInstance): { success: boolean; message: string } {
+  const result = applyCurrencyToItem(targetItem, currencyItem);
+
+  if (result.success) {
+    // Remove one currency item from stack
+    if (currencyItem.quantity && currencyItem.quantity > 1) {
+      currencyItem.quantity--;
+    } else {
+      // Remove the currency item completely (this would need inventory management)
+      console.log('Currency item consumed completely');
+    }
+
+    // Update UI
+    refreshInventory();
+  }
+
+  return result;
+}
+
+/** Update flask UI to reflect current flask state */
+function updateFlaskUI(): void {
+  if (!currentSaveData?.inventory?.grid) return;
+
+  // Find flasks in inventory
+  const flasks = [];
+  for (const row of currentSaveData.inventory.grid) {
+    for (const item of row) {
+      if (item && getItemBase(item.baseId)?.slot === 'flask') {
+        flasks.push(item);
+      }
+    }
+  }
+
+  // Update each flask slot in the UI
+  const flaskSlots = document.querySelectorAll('.flask-slot');
+  flaskSlots.forEach((slot, index) => {
+    const flaskElement = slot as HTMLElement;
+    const iconElement = flaskElement.querySelector('.flask-icon') as HTMLElement;
+    const chargesElement = flaskElement.querySelector('.flask-charges') as HTMLElement;
+
+    if (index < flasks.length) {
+      const flask = flasks[index];
+      const flaskCharges = flask.flaskCharges || 0;
+      const maxCharges = getItemBase(flask.baseId)?.flask?.maxCharges || 0;
+
+      // Update charges display
+      chargesElement.textContent = flaskCharges.toString();
+
+      // Update visual state
+      flaskElement.classList.remove('empty', 'ready', 'cooldown');
+      if (flaskCharges === 0) {
+        flaskElement.classList.add('empty');
+      } else if (flaskCharges === maxCharges) {
+        flaskElement.classList.add('ready');
+      } else {
+        flaskElement.classList.add('cooldown');
+      }
+    } else {
+      // No flask in this slot
+      chargesElement.textContent = '0';
+      flaskElement.classList.remove('ready', 'cooldown');
+      flaskElement.classList.add('empty');
+    }
+  });
+}
 
 function update() {
   const dt = 1 / 60;
@@ -1476,9 +3046,13 @@ function update() {
       autoSave();
     }
   }
-  
+
+  // Update flask charges
+  updateAllFlaskCharges(dt);
+
   // Update UI elements
   updateResourceOrbs();
+  updateFlaskUI();
   
   // If LMB is held and bound to move, continuously update the
   // destination based on the current mouse position
@@ -1771,7 +3345,25 @@ function initializeSkillBarHandlers(): void {
       toggleLabels();
       return;
     }
-    
+
+    // Flask hotkeys (3, 4, 5)
+    if (ev.key === '3') {
+      ev.preventDefault();
+      if (useFlaskFromInventory(0)) {
+        console.log('Used flask 1');
+      }
+    } else if (ev.key === '4') {
+      ev.preventDefault();
+      if (useFlaskFromInventory(1)) {
+        console.log('Used flask 2');
+      }
+    } else if (ev.key === '5') {
+      ev.preventDefault();
+      if (useFlaskFromInventory(2)) {
+        console.log('Used flask 3');
+      }
+    }
+
     if (ev.key === 'g' || ev.key === 'G') {
       ev.preventDefault();
       gMenu.classList.toggle('hidden');
@@ -1956,7 +3548,7 @@ async function initializeGame(saveData: SaveData): Promise<void> {
   console.log('Camera created');
   
   // Setup hideout scene
-  setupHideout();
+  await setupHideout();
   console.log('Hideout setup');
   
   // Initialize ground items system
@@ -1985,6 +3577,7 @@ async function initializeGame(saveData: SaveData): Promise<void> {
   // Apply player appearance and update UI
   updatePlayerAppearance();
   updateSkillBarSlotsUI();
+  updateFlaskUI();
   console.log('Player appearance updated');
   
   // Start game loop
@@ -1995,7 +3588,10 @@ async function initializeGame(saveData: SaveData): Promise<void> {
   scene.render();
   
   gameInitialized = true;
-  console.log('Game initialization complete!');
+  console.log('='.repeat(60));
+  console.log('GAME INITIALIZATION COMPLETE - NEW CODE VERSION!');
+  console.log('Build timestamp:', new Date().toISOString());
+  console.log('='.repeat(60));
   
   // Initialize UI with current health/mana values
   updateResourceOrbs();
@@ -2108,6 +3704,7 @@ function loadSaveIntoGame(saveData: SaveData): void {
   // Force UI update after loading save data
   if (gameInitialized) {
     updateResourceOrbs();
+    updateFlaskUI();
   }
 }
 
@@ -2206,6 +3803,7 @@ stateManager.on(GameState.HIDEOUT, async (data) => {
   // Ensure hideout scene is active
   if (currentScene !== 'hideout' && gameInitialized) {
     leaveDungeon();
+    // Note: setupHideout() is called in initializeGame, so we don't need to call it here
   }
 });
 
@@ -2220,12 +3818,46 @@ stateManager.on(GameState.DUNGEON, () => {
 // ---------------------------------------------------------------------
 // Bootstrap - Start the application
 
+// Initialize map device modal event listeners
+function initMapDeviceModal(): void {
+  const activateBtn = document.getElementById('activate-map-device-btn');
+  const clearBtn = document.getElementById('clear-map-btn');
+  const closeBtn = document.getElementById('close-map-device-btn');
+
+  if (activateBtn) {
+    activateBtn.addEventListener('click', activateMapDevice);
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', removeMapFromDevice);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      const modal = document.getElementById('map-device-modal');
+      if (modal) modal.classList.add('hidden');
+    });
+  }
+
+  // Close modal when clicking outside
+  const modal = document.getElementById('map-device-modal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  }
+}
+
 // Wait for DOM to be ready, then start the state machine
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
+    initMapDeviceModal();
     stateManager.transitionTo(GameState.MAIN_MENU);
   });
 } else {
   // DOM already loaded
+  initMapDeviceModal();
   stateManager.transitionTo(GameState.MAIN_MENU);
 }

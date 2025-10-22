@@ -1,0 +1,212 @@
+[
+  {
+    "id": "portal_scroll",
+    "name": "Portal Scroll",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "📜",
+    "stackable": true,
+    "maxStack": 40,
+    "currency": {
+      "effect": "Creates a portal to town",
+      "action": "portal"
+    }
+  },
+  {
+    "id": "wisdom_scroll",
+    "name": "Scroll of Wisdom",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "📜",
+    "stackable": true,
+    "maxStack": 40,
+    "currency": {
+      "effect": "Identifies an unidentified item",
+      "action": "identify"
+    }
+  },
+  {
+    "id": "orb_of_transmutation",
+    "name": "Orb of Transmutation",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 20,
+    "currency": {
+      "effect": "Upgrades a normal item to a magic item",
+      "action": "transmute"
+    }
+  },
+  {
+    "id": "orb_of_augmentation",
+    "name": "Orb of Augmentation",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 30,
+    "currency": {
+      "effect": "Adds a random modifier to a magic item",
+      "action": "augment"
+    }
+  },
+  {
+    "id": "orb_of_alteration",
+    "name": "Orb of Alteration",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 20,
+    "currency": {
+      "effect": "Rerolls the random modifiers on a magic item",
+      "action": "alteration"
+    }
+  },
+  {
+    "id": "regal_orb",
+    "name": "Regal Orb",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 10,
+    "currency": {
+      "effect": "Upgrades a magic item to a rare item and adds a random modifier",
+      "action": "regal"
+    }
+  },
+  {
+    "id": "chaos_orb",
+    "name": "Chaos Orb",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 10,
+    "currency": {
+      "effect": "Rerolls the modifiers on a rare item",
+      "action": "chaos"
+    }
+  },
+  {
+    "id": "exalted_orb",
+    "name": "Exalted Orb",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 10,
+    "currency": {
+      "effect": "Adds a random modifier to a rare item",
+      "action": "exalted"
+    }
+  },
+  {
+    "id": "divine_orb",
+    "name": "Divine Orb",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 10,
+    "currency": {
+      "effect": "Randomizes the numeric values of the modifiers on an item",
+      "action": "divine"
+    }
+  },
+  {
+    "id": "blessed_orb",
+    "name": "Blessed Orb",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 20,
+    "currency": {
+      "effect": "Randomizes the numeric values of the implicit modifiers",
+      "action": "blessed"
+    }
+  },
+  {
+    "id": "orb_of_scouring",
+    "name": "Orb of Scouring",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 30,
+    "currency": {
+      "effect": "Removes all modifiers from an item",
+      "action": "scouring"
+    }
+  },
+  {
+    "id": "orb_of_annulment",
+    "name": "Orb of Annulment",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 20,
+    "currency": {
+      "effect": "Removes a random modifier from an item",
+      "action": "annulment"
+    }
+  },
+  {
+    "id": "mirror_of_kalandra",
+    "name": "Mirror of Kalandra",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🪞",
+    "stackable": true,
+    "maxStack": 1,
+    "currency": {
+      "effect": "Creates a mirrored copy of an item",
+      "action": "reroll"
+    }
+  },
+  {
+    "id": "eternal_orb",
+    "name": "Eternal Orb",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 1,
+    "currency": {
+      "effect": "Creates an item with random modifiers",
+      "action": "reroll"
+    }
+  },
+  {
+    "id": "orb_of_horizons",
+    "name": "Orb of Horizons",
+    "class": "currency",
+    "slot": "currency",
+    "size": { "w": 1, "h": 1 },
+    "icon": "🔮",
+    "stackable": true,
+    "maxStack": 10,
+    "currency": {
+      "effect": "Refreshes a map, creating a new layout and monsters",
+      "action": "reroll"
+    }
+  }
+]

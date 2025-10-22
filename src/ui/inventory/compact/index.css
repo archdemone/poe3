@@ -12,6 +12,31 @@
   overflow: hidden;
 }
 
+/* Clear button positioned absolutely */
+#inventoryCompact .clear-btn {
+  position: absolute !important;
+  right: 50px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  background: rgba(255, 0, 0, 0.9) !important; /* Bright red background */
+  border: 3px solid #ffffff !important;
+  color: #ffffff !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5) !important;
+}
+
+
+#inventoryCompact .clear-btn:hover {
+  background: rgba(100, 50, 50, 0.9);
+  border-color: rgba(200, 100, 100, 0.8);
+  color: #ffcccc;
+}
+
 /* Body should not scroll - content fits */
 #inventoryCompact .ui-panel__body {
   overflow: hidden;
@@ -74,7 +99,7 @@
     "ring1  .    .    ring2";
   grid-template-columns: repeat(4, 46px);
   grid-template-rows: repeat(5, 46px);
-  gap: 2px;
+  gap: 0px;
   justify-content: center;
   margin-bottom: auto;
   flex: 1;
@@ -130,32 +155,31 @@
   font-size: 1.5rem;
 }
 
-/* Grid - using fr units to fill all available space */
+/* Grid - fixed cell sizing to match standalone */
 #inventoryCompact .invc-grid {
+  --cell: 46px;
   --gap: 2px;
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(6, 1fr);
+  grid-template-columns: repeat(var(--cols, 10), var(--cell));
+  grid-template-rows: repeat(var(--rows, 7), var(--cell));
   gap: var(--gap);
   position: relative; /* allows absolutely positioned items */
   background: rgba(15, 15, 20, 0.9);
-  padding: 5px;
+  padding: 10px;
   border: 2px solid rgba(120, 120, 130, 0.4);
   border-radius: 6px;
-  position: relative;
   box-sizing: border-box;
-  height: 100%;
-  align-self: stretch;
-  width: 100%;
+  width: calc(var(--cols, 10) * var(--cell) + (var(--cols, 10) - 1) * var(--gap) + 20px);
+  height: calc(var(--rows, 7) * var(--cell) + (var(--rows, 7) - 1) * var(--gap) + 20px);
+  min-width: calc(var(--cols, 10) * var(--cell) + (var(--cols, 10) - 1) * var(--gap) + 20px);
+  min-height: calc(var(--rows, 7) * var(--cell) + (var(--rows, 7) - 1) * var(--gap) + 20px);
   overflow: visible;
 }
 
 /* Grid cells */
 #inventoryCompact .inv-cell {
-  width: 100%;
-  height: 100%;
-  min-width: 48px;
-  min-height: 48px;
+  width: var(--cell, 46px);
+  height: var(--cell, 46px);
   box-sizing: border-box;
   background: rgba(30, 30, 35, 0.8);
   border: 1px solid rgba(80, 80, 90, 0.5);

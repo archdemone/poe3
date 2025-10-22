@@ -1,0 +1,600 @@
+[
+  {
+    "id": "small_life_flask",
+    "name": "Small Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.25,
+      "instantHeal": 500,
+      "effect": []
+    }
+  },
+  {
+    "id": "medium_life_flask",
+    "name": "Medium Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 3 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.33,
+      "instantHeal": 800,
+      "effect": []
+    }
+  },
+  {
+    "id": "large_life_flask",
+    "name": "Large Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 6 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.4,
+      "instantHeal": 1200,
+      "effect": []
+    }
+  },
+  {
+    "id": "greater_life_flask",
+    "name": "Greater Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 12 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.5,
+      "instantHeal": 1800,
+      "effect": []
+    }
+  },
+  {
+    "id": "grand_life_flask",
+    "name": "Grand Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 18 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.67,
+      "instantHeal": 2400,
+      "effect": []
+    }
+  },
+  {
+    "id": "giant_life_flask",
+    "name": "Giant Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 24 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.83,
+      "instantHeal": 3000,
+      "effect": []
+    }
+  },
+  {
+    "id": "colossal_life_flask",
+    "name": "Colossal Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 30 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.0,
+      "instantHeal": 3600,
+      "effect": []
+    }
+  },
+  {
+    "id": "sacred_life_flask",
+    "name": "Sacred Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 36 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.2,
+      "instantHeal": 4200,
+      "effect": []
+    }
+  },
+  {
+    "id": "hallowed_life_flask",
+    "name": "Hallowed Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 42 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.4,
+      "instantHeal": 4800,
+      "effect": []
+    }
+  },
+  {
+    "id": "sanctified_life_flask",
+    "name": "Sanctified Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 50 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.67,
+      "instantHeal": 5400,
+      "effect": []
+    }
+  },
+  {
+    "id": "divine_life_flask",
+    "name": "Divine Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 60 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 2.0,
+      "instantHeal": 6000,
+      "effect": []
+    }
+  },
+  {
+    "id": "eternal_life_flask",
+    "name": "Eternal Life Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 65 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 2.5,
+      "instantHeal": 6600,
+      "effect": []
+    }
+  },
+  {
+    "id": "small_mana_flask",
+    "name": "Small Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.25,
+      "effect": [{ "stat": "mana_flat", "value": 250 }]
+    }
+  },
+  {
+    "id": "medium_mana_flask",
+    "name": "Medium Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 3 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.33,
+      "effect": [{ "stat": "mana_flat", "value": 350 }]
+    }
+  },
+  {
+    "id": "large_mana_flask",
+    "name": "Large Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 6 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.4,
+      "effect": [{ "stat": "mana_flat", "value": 450 }]
+    }
+  },
+  {
+    "id": "greater_mana_flask",
+    "name": "Greater Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 12 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.5,
+      "effect": [{ "stat": "mana_flat", "value": 550 }]
+    }
+  },
+  {
+    "id": "grand_mana_flask",
+    "name": "Grand Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 18 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.67,
+      "effect": [{ "stat": "mana_flat", "value": 650 }]
+    }
+  },
+  {
+    "id": "giant_mana_flask",
+    "name": "Giant Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 24 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 0.83,
+      "effect": [{ "stat": "mana_flat", "value": 750 }]
+    }
+  },
+  {
+    "id": "colossal_mana_flask",
+    "name": "Colossal Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 30 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.0,
+      "effect": [{ "stat": "mana_flat", "value": 850 }]
+    }
+  },
+  {
+    "id": "sacred_mana_flask",
+    "name": "Sacred Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 36 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.2,
+      "effect": [{ "stat": "mana_flat", "value": 950 }]
+    }
+  },
+  {
+    "id": "hallowed_mana_flask",
+    "name": "Hallowed Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 42 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.4,
+      "effect": [{ "stat": "mana_flat", "value": 1050 }]
+    }
+  },
+  {
+    "id": "sanctified_mana_flask",
+    "name": "Sanctified Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 50 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 1.67,
+      "effect": [{ "stat": "mana_flat", "value": 1150 }]
+    }
+  },
+  {
+    "id": "divine_mana_flask",
+    "name": "Divine Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 60 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 2.0,
+      "effect": [{ "stat": "mana_flat", "value": 1250 }]
+    }
+  },
+  {
+    "id": "eternal_mana_flask",
+    "name": "Eternal Mana Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 65 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 3,
+      "chargeTime": 2.5,
+      "effect": [{ "stat": "mana_flat", "value": 1350 }]
+    }
+  },
+  {
+    "id": "quicksilver_flask",
+    "name": "Quicksilver Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 4 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.3,
+      "duration": 6.0,
+      "effect": [{ "stat": "movement_speed_pct", "value": 40 }]
+    }
+  },
+  {
+    "id": "basalt_flask",
+    "name": "Basalt Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 8 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.4,
+      "duration": 8.0,
+      "effect": [{ "stat": "armor", "value": 200 }]
+    }
+  },
+  {
+    "id": "aquamarine_flask",
+    "name": "Aquamarine Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 12 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.5,
+      "duration": 8.0,
+      "effect": [{ "stat": "cold_res", "value": 30 }]
+    }
+  },
+  {
+    "id": "stibnite_flask",
+    "name": "Stibnite Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 16 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.67,
+      "duration": 8.0,
+      "effect": [{ "stat": "attack_speed_pct", "value": 20 }]
+    }
+  },
+  {
+    "id": "sulphur_flask",
+    "name": "Sulphur Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 20 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.83,
+      "duration": 8.0,
+      "effect": [{ "stat": "fire_damage_pct", "value": 25 }]
+    }
+  },
+  {
+    "id": "silver_flask",
+    "name": "Silver Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 22 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.83,
+      "duration": 8.0,
+      "effect": [{ "stat": "movement_speed_pct", "value": 30 }]
+    }
+  },
+  {
+    "id": "ruby_flask",
+    "name": "Ruby Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 18 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.67,
+      "duration": 8.0,
+      "effect": [{ "stat": "fire_res", "value": 35 }]
+    }
+  },
+  {
+    "id": "granite_flask",
+    "name": "Granite Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 27 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 1.0,
+      "duration": 6.0,
+      "effect": [{ "stat": "damage_reduction_pct", "value": 20 }]
+    }
+  },
+  {
+    "id": "jade_flask",
+    "name": "Jade Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 27 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 1.0,
+      "duration": 6.0,
+      "effect": [{ "stat": "evasion", "value": 500 }]
+    }
+  },
+  {
+    "id": "topaz_flask",
+    "name": "Topaz Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 18 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.67,
+      "duration": 8.0,
+      "effect": [{ "stat": "lightning_res", "value": 35 }]
+    }
+  },
+  {
+    "id": "sapphire_flask",
+    "name": "Sapphire Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 18 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 0.67,
+      "duration": 8.0,
+      "effect": [{ "stat": "mana_regen", "value": 100 }]
+    }
+  },
+  {
+    "id": "corundum_flask",
+    "name": "Corundum Flask",
+    "class": "flask",
+    "slot": "flask",
+    "size": { "w": 1, "h": 2 },
+    "icon": "🧪",
+    "req": { "level": 27 },
+    "stackable": true,
+    "maxStack": 1,
+    "flask": {
+      "maxCharges": 6,
+      "chargeTime": 1.0,
+      "duration": 6.0,
+      "effect": [{ "stat": "physical_damage_reduction_pct", "value": 20 }]
+    }
+  }
+]

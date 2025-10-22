@@ -4,6 +4,7 @@ import type { ItemInstance, EquipmentState, InventoryGrid, ItemSlot } from '../.
 import { getItemBase, canPlaceItem, addItemToGrid, removeItemFromGrid, getItemAtPosition, RarityColors } from '../../../systems/items';
 import { sellItemToVendor, priceOf } from '../../../gameplay/loot/vendor';
 import { isVendorOpen } from '../../../../ui/layout';
+import { readGridMetrics, type GridMetrics } from '../gridMetrics';
 
 let currentEquipment: EquipmentState = {};
 const EXTRA_ROWS = 0; // no extra rows
@@ -11,34 +12,29 @@ const EXTRA_ROWS = 0; // no extra rows
 const DEBUG_DRAG = true;
 let currentInventory: InventoryGrid = {
   width: 10,
-  height: 6,
+  height: 7,
   items: [],
 };
 
 let draggedItem: { item: ItemInstance; fromSlot?: ItemSlot; fromGridPos?: { x: number; y: number } } | null = null;
+let isProcessingDrop = false;
 let onInventoryChange: (() => void) | null = null;
 
-/** Helper: get grid metrics from CSS so math stays in sync */
-function getGridMetrics(gridContainer: HTMLElement) {
-  const styles = getComputedStyle(gridContainer);
-  const cell = parseInt(styles.getPropertyValue('--cell')) || 54;
-  const gap = parseInt(styles.getPropertyValue('--gap')) || 2;
-  const padLeft = parseInt(styles.paddingLeft) || 10;
-  const padTop = parseInt(styles.paddingTop) || 10;
-  return { cell, gap, padLeft, padTop };
-}
+const DEFAULT_GRID_METRICS: GridMetrics = { cell: 54, gap: 2, padLeft: 10, padTop: 10 };
+let gridMetrics: GridMetrics = { ...DEFAULT_GRID_METRICS };
 
-// Fixed cell constants matching createGridItemElement hardcoded values
-const CELL = 54;
-const GAP = 2;
-const PAD = 10;
+function syncMetrics(container: HTMLElement | null): void {
+  if (!container) return;
+  gridMetrics = readGridMetrics(container, gridMetrics);
+}
 
 /** Helper: map mouse position to grid coordinates */
 function pointToCell(gridContainer: HTMLElement, clientX: number, clientY: number) {
+  syncMetrics(gridContainer);
   const rect = gridContainer.getBoundingClientRect();
-  const relX = clientX - rect.left - PAD;
-  const relY = clientY - rect.top - PAD;
-  const stride = CELL + GAP;
+  const relX = clientX - rect.left - gridMetrics.padLeft;
+  const relY = clientY - rect.top - gridMetrics.padTop;
+  const stride = gridMetrics.cell + gridMetrics.gap;
   let x = Math.floor(relX / stride);
   let y = Math.floor(relY / stride);
   x = Math.max(0, Math.min(x, currentInventory.width - 1));
@@ -55,16 +51,25 @@ export function initInventoryStandalone(
   currentEquipment = equipment;
   currentInventory = inventory;
   onInventoryChange = onChange;
-  
+
   renderGrid();
   renderEquipment();
   setupDragAndDrop();
+  setupClearButton();
 }
 
 /** Render the inventory grid */
 function renderGrid(): void {
   const gridContainer = document.getElementById('inventory-grid');
   if (!gridContainer) return;
+
+  gridContainer.style.removeProperty('transform');
+  gridContainer.style.removeProperty('width');
+  gridContainer.style.removeProperty('height');
+  gridContainer.style.removeProperty('minWidth');
+  gridContainer.style.removeProperty('minHeight');
+
+  syncMetrics(gridContainer);
   
   // Set grid dimensions
   gridContainer.style.setProperty('--cols', String(currentInventory.width));
@@ -73,6 +78,66 @@ function renderGrid(): void {
   gridContainer.dataset.cols = String(currentInventory.width);
   const visualRowsDataset = currentInventory.height + EXTRA_ROWS;
   gridContainer.dataset.rows = String(visualRowsDataset);
+  const totalWidth = currentInventory.width * gridMetrics.cell + (currentInventory.width - 1) * gridMetrics.gap + gridMetrics.padLeft * 2;
+  const totalHeight = visualRows * gridMetrics.cell + (visualRows - 1) * gridMetrics.gap + gridMetrics.padTop * 2;
+  gridContainer.style.width = `${totalWidth}px`;
+  gridContainer.style.minWidth = gridContainer.style.width;
+  gridContainer.style.height = `${totalHeight}px`;
+  gridContainer.style.minHeight = gridContainer.style.height;
+  const panel = gridContainer.closest('#inventoryStandalone') as HTMLElement | null;
+  if (panel) {
+    const parentId = panel.parentElement?.id;
+    if (parentId !== 'ui-two-dock') {
+      const equipment = panel.querySelector('#equipmentRoot') as HTMLElement | null;
+      const equipmentWidth = equipment ? equipment.offsetWidth : 320;
+      const root = gridContainer.closest('.inventory-root') as HTMLElement | null;
+      let gap = 24;
+      if (root) {
+        const rootStyles = getComputedStyle(root);
+        gap = parseFloat(rootStyles.columnGap || rootStyles.gap || '24');
+      }
+      const body = panel.querySelector('.ui-panel__body') as HTMLElement | null;
+      let paddingX = 32;
+      let paddingY = 48;
+      if (body) {
+        const bodyStyles = getComputedStyle(body);
+        paddingX =
+          (parseFloat(bodyStyles.paddingLeft || '16') || 0) +
+          (parseFloat(bodyStyles.paddingRight || '16') || 0);
+        paddingY =
+          (parseFloat(bodyStyles.paddingTop || '16') || 0) +
+          (parseFloat(bodyStyles.paddingBottom || '16') || 0);
+      }
+      const desiredWidth = totalWidth + equipmentWidth + gap + paddingX;
+      const desiredHeight = totalHeight + paddingY;
+      const viewportWidth = window.innerWidth - 32;
+      const finalWidth = Math.min(desiredWidth, viewportWidth);
+      const finalHeight = Math.min(desiredHeight, window.innerHeight - 120);
+      panel.style.width = `${finalWidth}px`;
+      panel.style.minWidth = panel.style.width;
+      panel.style.maxWidth = `${viewportWidth}px`;
+      panel.style.height = `${finalHeight}px`;
+      panel.style.maxHeight = `${window.innerHeight - 80}px`;
+      if (DEBUG_DRAG) {
+        console.log(
+          '[InventoryStandalone] panel sizing',
+          { equipmentWidth, gap, paddingX, paddingY, desiredWidth, desiredHeight, finalWidth, finalHeight }
+        );
+      }
+    }
+  }
+  if (DEBUG_DRAG) {
+    const rect = gridContainer.getBoundingClientRect();
+    console.log(
+      '[InventoryStandalone] grid sizing',
+      `cols=${currentInventory.width}`,
+      `rows=${visualRows}`,
+      `cell=${gridMetrics.cell}`,
+      `gap=${gridMetrics.gap}`,
+      `total=${totalWidth}x${totalHeight}`,
+      `rect=${rect.width}x${rect.height}`
+    );
+  }
   
   // Clear existing
   gridContainer.innerHTML = '';
@@ -192,7 +257,7 @@ function renderGrid(): void {
   
   // Render items appended so they overlay cells
   for (const gridItem of currentInventory.items) {
-    const itemEl = createGridItemElement(gridItem.item, gridItem.x, gridItem.y);
+    const itemEl = createGridItemElement(gridContainer, gridItem.item, gridItem.x, gridItem.y);
     gridContainer.appendChild(itemEl);
   }
   
@@ -205,27 +270,25 @@ function renderGrid(): void {
 }
 
 /** Create a grid item element */
-function createGridItemElement(item: ItemInstance, gridX: number, gridY: number): HTMLElement {
+function createGridItemElement(gridContainer: HTMLElement, item: ItemInstance, gridX: number, gridY: number): HTMLElement {
   const base = getItemBase(item.baseId);
   if (!base) throw new Error(`Unknown item base: ${item.baseId}`);
-  
+
+  syncMetrics(gridContainer);
+  const { cell, gap, padLeft, padTop } = gridMetrics;
+
   const el = document.createElement('div');
   el.className = `inventory-item ${item.rarity}`;
   el.dataset.uid = item.uid;
   el.dataset.itemId = item.uid;
   
   // Size the element to match its logical dimensions in the inventory
-  const CELL = 54;
-  const GAP = 2;
-  const PAD = 10;
-  
-  // Calculate width and height based on item size
   const itemWidth = base.size?.w || 1;
   const itemHeight = base.size?.h || 1;
   
   // Width and height including gaps between cells
-  const w = itemWidth * CELL + (itemWidth - 1) * GAP;
-  const h = itemHeight * CELL + (itemHeight - 1) * GAP;
+  const w = itemWidth * cell + (itemWidth - 1) * gap;
+  const h = itemHeight * cell + (itemHeight - 1) * gap;
   
   // Debug size
   console.log(`Item ${base.name} size: ${itemWidth}x${itemHeight}, rendering at ${w}x${h}px`);
@@ -238,8 +301,8 @@ function createGridItemElement(item: ItemInstance, gridX: number, gridY: number)
     position: absolute !important;
     width: ${w}px !important;
     height: ${h}px !important;
-    left: ${PAD + gridX * (CELL + GAP)}px !important;
-    top: ${PAD + gridY * (CELL + GAP)}px !important;
+    left: ${padLeft + gridX * (cell + gap)}px !important;
+    top: ${padTop + gridY * (cell + gap)}px !important;
     z-index: 10 !important;
   `;
   
@@ -322,22 +385,43 @@ function setupDragAndDrop(): void {
   });
   
   document.addEventListener('drop', (e) => {
-    // Only trigger if we have a dragged item
-    if (!draggedItem) return;
-    
+    // Only trigger if we have a dragged item and not already processing
+    if (!draggedItem || isProcessingDrop) return;
+
     console.log('Document drop event detected with dragged item in standalone inventory');
+
+    // Check if drop target is the map device modal or any other valid drop zone
+    const target = e.target as HTMLElement;
+    const mapDeviceModal = document.getElementById('map-device-modal');
+    const mapDeviceSlot = document.getElementById('map-device-slot');
+    const vendorPanel = document.getElementById('vendorPanel');
     
+    // If dropped on map device modal, slot, or vendor, don't destroy
+    if (mapDeviceModal && mapDeviceModal.contains(target)) {
+      console.log('Dropped on map device modal - ignoring destroy');
+      return;
+    }
+    if (mapDeviceSlot && (mapDeviceSlot === target || mapDeviceSlot.contains(target))) {
+      console.log('Dropped on map device slot - ignoring destroy');
+      return;
+    }
+    if (vendorPanel && vendorPanel.contains(target)) {
+      console.log('Dropped on vendor panel - ignoring destroy');
+      return;
+    }
+
     // Check if we're outside the inventory panel
     // Try multiple possible panel IDs
-    const panel = document.getElementById('inventoryStandalone') || 
+    const panel = document.getElementById('inventoryStandalone') ||
                   document.getElementById('inventory-grid')?.closest('.panel');
-    
+
     if (!panel) {
       console.error('Could not find inventory panel element');
       // If we can't find the panel, assume we're outside and destroy the item
       e.preventDefault();
       e.stopPropagation();
-      
+      isProcessingDrop = true;
+
       // Add a direct destroy option as a fallback
       const shouldConfirm = true; // Set to false to bypass confirmation
       if (shouldConfirm) {
@@ -347,25 +431,26 @@ function setupDragAndDrop(): void {
       }
       return;
     }
-    
+
     console.log('Found panel with ID:', panel.id);
-    
+
     const panelRect = panel.getBoundingClientRect();
-    const isOutside = 
-      e.clientX < panelRect.left || 
-      e.clientX > panelRect.right || 
-      e.clientY < panelRect.top || 
+    const isOutside =
+      e.clientX < panelRect.left ||
+      e.clientX > panelRect.right ||
+      e.clientY < panelRect.top ||
       e.clientY > panelRect.bottom;
-    
+
     console.log('Drop position:', e.clientX, e.clientY);
     console.log('Panel bounds:', panelRect.left, panelRect.right, panelRect.top, panelRect.bottom);
     console.log('Is outside panel:', isOutside);
-    
+
     // If outside the panel, destroy the item
     if (isOutside) {
       e.preventDefault();
       e.stopPropagation();
-      
+      isProcessingDrop = true;
+
       // Add a direct destroy option as a fallback
       const shouldConfirm = true; // Set to false to bypass confirmation
       if (shouldConfirm) {
@@ -376,19 +461,19 @@ function setupDragAndDrop(): void {
     }
   });
   
-  // Grid click (including Ctrl+Click for selling)
+  // Grid click (including Ctrl+Click for selling and Double-Click for equipping)
   gridContainer?.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const itemEl = target.closest('.inventory-item, .grid-item') as HTMLElement;
     if (!itemEl) return;
-    
+
     const uid = itemEl.dataset.uid || itemEl.dataset.itemId;
     if (!uid) return;
-    
+
     // Find item in grid
     const gridItem = currentInventory.items.find(i => i.item.uid === uid);
     if (!gridItem) return;
-    
+
     // Handle Ctrl+Click for selling
     if (e.ctrlKey) {
       e.preventDefault();
@@ -397,16 +482,43 @@ function setupDragAndDrop(): void {
       return;
     }
   });
+
+  // Double-click to equip items
+  gridContainer?.addEventListener('dblclick', (e) => {
+    const target = e.target as HTMLElement;
+    const itemEl = target.closest('.inventory-item, .grid-item') as HTMLElement;
+    if (!itemEl) return;
+
+    const uid = itemEl.dataset.uid || itemEl.dataset.itemId;
+    if (!uid) return;
+
+    // Find item in grid
+    const gridItem = currentInventory.items.find(i => i.item.uid === uid);
+    if (!gridItem) return;
+
+    // Check if item is a map - don't try to equip maps
+    const base = getItemBase(gridItem.item.baseId);
+    if (base && base.slot === 'map') {
+      console.log('[Inventory] Cannot equip maps via double-click');
+      return; // Maps are not equippable
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Try to equip the item
+    handleDoubleClickEquip(gridItem.item);
+  });
   
   // Grid drag start
   gridContainer?.addEventListener('dragstart', (e) => {
     const target = e.target as HTMLElement;
     const itemEl = target.closest('.inventory-item, .grid-item') as HTMLElement;
     if (!itemEl) return;
-    
+
     const uid = itemEl.dataset.uid || itemEl.dataset.itemId;
     if (!uid) return;
-    
+
     // Find item in grid
     const gridItem = currentInventory.items.find(i => i.item.uid === uid);
     if (gridItem) {
@@ -415,6 +527,15 @@ function setupDragAndDrop(): void {
         fromGridPos: { x: gridItem.x, y: gridItem.y },
       };
       itemEl.classList.add('dragging');
+
+      // Set drag data for external drops (like map device)
+      const dragData = {
+        type: 'inventory-item',
+        item: gridItem.item,
+        fromInventory: true
+      };
+      e.dataTransfer!.setData('application/json', JSON.stringify(dragData));
+      e.dataTransfer!.effectAllowed = 'move';
     }
   });
   
@@ -450,22 +571,32 @@ function setupDragAndDrop(): void {
   // Equipment slot drag start
   equipSlots.forEach((slotEl) => {
     slotEl.addEventListener('dragstart', (e) => {
-      const target = e.target as HTMLElement;
-      if (!target.classList.contains('grid-item')) return;
-      
-      const uid = target.dataset.uid;
-      const slot = (slotEl as HTMLElement).dataset.slot as ItemSlot;
-      if (!uid || !slot) return;
-      
-      const item = currentEquipment[slot];
-      if (item && item.uid === uid) {
-        draggedItem = {
-          item,
-          fromSlot: slot,
-        };
-        target.classList.add('dragging');
-      }
-    });
+    const target = e.target as HTMLElement;
+    if (!target.classList.contains('grid-item')) return;
+
+    const uid = target.dataset.uid;
+    const slot = (slotEl as HTMLElement).dataset.slot as ItemSlot;
+    if (!uid || !slot) return;
+
+    const item = currentEquipment[slot];
+    if (item && item.uid === uid) {
+      draggedItem = {
+        item,
+        fromSlot: slot,
+      };
+      target.classList.add('dragging');
+
+      // Set drag data for external drops (like map device)
+      const dragData = {
+        type: 'inventory-item',
+        item: item,
+        fromEquipment: true,
+        slot: slot
+      };
+      e.dataTransfer!.setData('application/json', JSON.stringify(dragData));
+      e.dataTransfer!.effectAllowed = 'move';
+    }
+  });
     
     slotEl.addEventListener('dragend', (e) => {
       console.log('Equipment slot drag end event fired in standalone inventory');
@@ -495,10 +626,30 @@ function setupDragAndDrop(): void {
       e.preventDefault();
       handleEquipDrop(slotEl as HTMLElement);
     });
+
+    // Double-click to unequip items
+    slotEl.addEventListener('dblclick', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.classList.contains('grid-item')) return;
+
+      const uid = target.dataset.uid;
+      const slot = (slotEl as HTMLElement).dataset.slot as ItemSlot;
+      if (!uid || !slot) return;
+
+      const item = currentEquipment[slot];
+      if (item && item.uid === uid) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleDoubleClickUnequip(slot);
+      }
+    });
   });
   
   // Setup tooltips
   setupTooltips();
+
+  // Setup dynamic tooltip updates for Shift key
+  setupTooltipKeyListeners();
 }
 
 function handleGridDragOver(e: DragEvent): void {
@@ -646,12 +797,26 @@ function handleEquipDrop(slotEl: HTMLElement): void {
   } else if (draggedItem.fromGridPos) {
     // Equip from grid
     const existing = currentEquipment[slot];
-    removeItemFromGrid(currentInventory, draggedItem.item.uid);
+    const removed = removeItemFromGrid(currentInventory, draggedItem.item.uid);
+    if (!removed) {
+      console.error(`Failed to remove item ${draggedItem.item.uid} from grid during equip`);
+      clearHoverStates();
+      return;
+    }
     currentEquipment[slot] = draggedItem.item;
-    
+
     // Put existing item back in grid if there was one
-    if (existing && draggedItem.fromGridPos) {
-      addItemToGrid(currentInventory, existing, draggedItem.fromGridPos.x, draggedItem.fromGridPos.y);
+    if (existing) {
+      // Find any available space in inventory
+      if (!addItem(existing)) {
+        console.error('Failed to place existing equipped item back in inventory - inventory may be full');
+        // Put it back in equipment slot (swap failed)
+        currentEquipment[slot] = existing;
+        clearHoverStates();
+        renderGrid();
+        renderEquipment();
+        return;
+      }
     }
   }
   
@@ -670,6 +835,12 @@ function highlightGridCells(x: number, y: number, item: ItemInstance, valid: boo
   
   const gridContainer = document.getElementById('inventory-grid');
   if (!gridContainer) return;
+
+  gridContainer.style.removeProperty('transform');
+  gridContainer.style.removeProperty('width');
+  gridContainer.style.removeProperty('height');
+  gridContainer.style.removeProperty('minWidth');
+  gridContainer.style.removeProperty('minHeight');
   const cells = gridContainer.querySelectorAll('.grid-cell, .inv-cell');
   cells.forEach((cell, idx) => {
     const cx = idx % currentInventory.width;
@@ -751,22 +922,33 @@ function setupTooltips(): void {
 function showItemTooltip(e: MouseEvent, item: ItemInstance): void {
   const tooltip = document.getElementById('item-tooltip');
   if (!tooltip) return;
-  
+
   const base = getItemBase(item.baseId);
   if (!base) return;
-  
+
   const nameEl = tooltip.querySelector('.tooltip-item-name');
   const typeEl = tooltip.querySelector('.tooltip-item-type');
   const affixesEl = tooltip.querySelector('.tooltip-affixes');
-  
+
   if (!nameEl || !typeEl || !affixesEl) return;
-  
+
+  // Check if Shift is held for comparison tooltip
+  const isShiftPressed = e.shiftKey;
+  const equippedItem = isShiftPressed ? getEquippedItemForComparison(item) : null;
+
   // Set content
-  nameEl.textContent = base.name;
-  (nameEl as HTMLElement).style.color = RarityColors[item.rarity];
-  
-  typeEl.textContent = base.slot;
-  
+  if (equippedItem && equippedItem.equipped) {
+    // Comparison tooltip
+    nameEl.textContent = `${base.name} (vs ${equippedItem.equippedName})`;
+    (nameEl as HTMLElement).style.color = RarityColors[item.rarity];
+    typeEl.textContent = `Comparing: ${base.slot}`;
+  } else {
+    // Regular tooltip
+    nameEl.textContent = base.name;
+    (nameEl as HTMLElement).style.color = RarityColors[item.rarity];
+    typeEl.textContent = base.slot;
+  }
+
   // Format affixes
   const statLabels: Record<string, string> = {
     str: 'Strength',
@@ -779,21 +961,61 @@ function showItemTooltip(e: MouseEvent, item: ItemInstance): void {
     armor: 'Armor',
     evasion: 'Evasion',
   };
-  
+
   const affixLines: string[] = [];
-  for (const affix of item.affixes) {
-    const label = statLabels[affix.stat] || affix.stat;
-    const isPercent = affix.stat.endsWith('_pct');
-    const formatted = isPercent ? `+${affix.value}%` : `+${affix.value}`;
-    affixLines.push(`${formatted} ${label}`);
+  
+  // Check if this is a map item and show map modifiers
+  if (base.slot === 'map' && base.mapMods) {
+    const mods = base.mapMods;
+    
+    if (mods.areaLevel) {
+      affixLines.push(`<span style="color: #88f">Area Level: ${mods.areaLevel}</span>`);
+    }
+    if (mods.monsterPackSize && mods.monsterPackSize !== 1.0) {
+      const pct = Math.round((mods.monsterPackSize - 1) * 100);
+      affixLines.push(`<span style="color: #f88">${pct > 0 ? '+' : ''}${pct}% Monster Pack Size</span>`);
+    }
+    if (mods.monsterRarity && mods.monsterRarity > 0) {
+      const pct = Math.round(mods.monsterRarity * 100);
+      affixLines.push(`<span style="color: #f88">${pct}% Rare Monsters</span>`);
+    }
+    if (mods.monsterLevel && mods.monsterLevel !== 0) {
+      affixLines.push(`<span style="color: #f88">${mods.monsterLevel > 0 ? '+' : ''}${mods.monsterLevel} Monster Level</span>`);
+    }
+    if (mods.itemQuantity && mods.itemQuantity !== 1.0) {
+      const pct = Math.round((mods.itemQuantity - 1) * 100);
+      affixLines.push(`<span style="color: #8f8">${pct > 0 ? '+' : ''}${pct}% Item Quantity</span>`);
+    }
+    if (mods.itemRarity && mods.itemRarity > 0) {
+      const pct = Math.round(mods.itemRarity * 100);
+      affixLines.push(`<span style="color: #8f8">${pct}% Item Rarity</span>`);
+    }
+    if (mods.bossChance && mods.bossChance > 0) {
+      const pct = Math.round(mods.bossChance * 100);
+      affixLines.push(`<span style="color: #f8f">${pct}% Boss Chance</span>`);
+    }
+  } else if (equippedItem && equippedItem.equipped) {
+    // Show comparison format for equipment
+    const comparison = generateStatComparison(item, equippedItem.equipped);
+    for (const line of comparison) {
+      affixLines.push(line);
+    }
+  } else {
+    // Regular format for equipment/weapons
+    for (const affix of item.affixes) {
+      const label = statLabels[affix.stat] || affix.stat;
+      const isPercent = affix.stat.endsWith('_pct');
+      const formatted = isPercent ? `+${affix.value}%` : `+${affix.value}`;
+      affixLines.push(`${formatted} ${label}`);
+    }
   }
-  
+
   affixesEl.innerHTML = affixLines.map(line => `<div>${line}</div>`).join('');
-  
+
   // Set border color based on rarity
   tooltip.className = `item-tooltip ${item.rarity}`;
   tooltip.classList.remove('hidden');
-  
+
   // Fixed positioning inside parent
   const panel = document.getElementById('inventoryStandalone');
   if (!panel) return;
@@ -833,6 +1055,202 @@ function hideItemTooltip(): void {
   if (tooltip) {
     tooltip.classList.add('hidden');
   }
+}
+
+/** Get the equipped item for comparison with the given item */
+function getEquippedItemForComparison(item: ItemInstance): { equipped: ItemInstance | null; equippedName: string } | null {
+  const base = getItemBase(item.baseId);
+  if (!base) return null;
+
+  let targetSlot: ItemSlot = base.slot as ItemSlot;
+
+  // Handle ring slots - check both ring slots
+  if (targetSlot === 'ring') {
+    const ring1 = currentEquipment.ring;
+    const ring2 = currentEquipment.ring2;
+
+    // If hovering over ring, compare with ring, otherwise compare with ring2
+    // For simplicity, we'll compare with the first occupied ring slot
+    if (ring1) {
+      const ring1Base = getItemBase(ring1.baseId);
+      return { equipped: ring1, equippedName: ring1Base?.name || 'Ring' };
+    } else if (ring2) {
+      const ring2Base = getItemBase(ring2.baseId);
+      return { equipped: ring2, equippedName: ring2Base?.name || 'Ring' };
+    }
+    return { equipped: null, equippedName: 'Ring' };
+  }
+
+  // For other slots, get the equipped item
+  const equipped = currentEquipment[targetSlot];
+  if (equipped) {
+    const equippedBase = getItemBase(equipped.baseId);
+    return { equipped, equippedName: equippedBase?.name || targetSlot };
+  }
+
+  return { equipped: null, equippedName: targetSlot };
+}
+
+/** Generate stat comparison between two items */
+function generateStatComparison(item1: ItemInstance, item2: ItemInstance): string[] {
+  const statLabels: Record<string, string> = {
+    str: 'Strength',
+    dex: 'Dexterity',
+    int: 'Intelligence',
+    hp_flat: 'Maximum Life',
+    mp_flat: 'Maximum Mana',
+    melee_pct: 'Melee Damage',
+    bow_pct: 'Bow Damage',
+    armor: 'Armor',
+    evasion: 'Evasion',
+  };
+
+  // Collect all unique stats from both items
+  const allStats = new Set<string>();
+  item1.affixes.forEach(affix => allStats.add(affix.stat));
+  item2.affixes.forEach(affix => allStats.add(affix.stat));
+
+  const comparisonLines: string[] = [];
+
+  for (const stat of allStats) {
+    const item1Affix = item1.affixes.find(a => a.stat === stat);
+    const item2Affix = item2.affixes.find(a => a.stat === stat);
+
+    const item1Value = item1Affix?.value || 0;
+    const item2Value = item2Affix?.value || 0;
+    const diff = item1Value - item2Value;
+
+    const label = statLabels[stat] || stat;
+    const isPercent = stat.endsWith('_pct');
+
+    // Format values
+    const formatValue = (val: number) => isPercent ? `${val}%` : val.toString();
+
+    let line = '';
+    if (diff > 0) {
+      line = `<span style="color: #00ff00">+${formatValue(item1Value)} ${label} (+${formatValue(diff)})</span>`;
+    } else if (diff < 0) {
+      line = `<span style="color: #ff0000">+${formatValue(item1Value)} ${label} (${formatValue(diff)})</span>`;
+    } else {
+      line = `<span style="color: #ffff00">+${formatValue(item1Value)} ${label} (same)</span>`;
+    }
+
+    comparisonLines.push(line);
+  }
+
+  return comparisonLines;
+}
+
+/** Setup key listeners for dynamic tooltip updates */
+function setupTooltipKeyListeners(): void {
+  // Track currently hovered item for tooltip updates
+  let hoveredItem: { element: HTMLElement; item: ItemInstance } | null = null;
+
+  // Store original mouseover handler references to update tooltips dynamically
+  const originalGridMouseOver = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const itemEl = target.closest('.inventory-item, .grid-item') as HTMLElement;
+    if (!itemEl) return;
+
+    const uid = itemEl.dataset.uid || itemEl.dataset.itemId;
+    if (!uid) return;
+
+    const gridItem = currentInventory.items.find(i => i.item.uid === uid);
+    if (gridItem) {
+      hoveredItem = { element: itemEl, item: gridItem.item };
+      showItemTooltip(e, gridItem.item);
+    }
+  };
+
+  const originalEquipMouseOver = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (!target.classList.contains('grid-item')) return;
+
+    const uid = target.dataset.uid;
+    const slot = (target.closest('.equip-slot') as HTMLElement)?.dataset.slot as ItemSlot;
+    if (!uid || !slot) return;
+
+    const item = currentEquipment[slot];
+    if (item && item.uid === uid) {
+      hoveredItem = { element: target, item };
+      showItemTooltip(e, item);
+    }
+  };
+
+  // Override the existing mouseover handlers to track hovered items
+  const gridContainer = document.getElementById('inventory-grid');
+  const equipSlots = document.querySelectorAll('.equip-slot');
+
+  // Remove existing mouseover handlers and add our tracking versions
+  gridContainer?.addEventListener('mouseover', (e) => {
+    const target = e.target as HTMLElement;
+    const itemEl = target.closest('.inventory-item, .grid-item') as HTMLElement;
+    if (!itemEl) return;
+
+    const uid = itemEl.dataset.uid || itemEl.dataset.itemId;
+    if (!uid) return;
+
+    const gridItem = currentInventory.items.find(i => i.item.uid === uid);
+    if (gridItem) {
+      hoveredItem = { element: itemEl, item: gridItem.item };
+      showItemTooltip(e, gridItem.item);
+    }
+  });
+
+  equipSlots.forEach((slotEl) => {
+    slotEl.addEventListener('mouseover', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.classList.contains('grid-item')) return;
+
+      const uid = target.dataset.uid;
+      const slot = (slotEl as HTMLElement).dataset.slot as ItemSlot;
+      if (!uid || !slot) return;
+
+      const item = currentEquipment[slot];
+      if (item && item.uid === uid) {
+        hoveredItem = { element: target, item };
+        showItemTooltip(e, item);
+      }
+    });
+  });
+
+  // Add key listeners to update tooltip when Shift is pressed/released
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Shift' && hoveredItem) {
+      // Create a synthetic mouse event to pass to showItemTooltip
+      const syntheticEvent = {
+        target: hoveredItem.element,
+        shiftKey: true,
+        clientX: 0,
+        clientY: 0
+      } as MouseEvent;
+      showItemTooltip(syntheticEvent, hoveredItem.item);
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'Shift' && hoveredItem) {
+      // Create a synthetic mouse event to pass to showItemTooltip
+      const syntheticEvent = {
+        target: hoveredItem.element,
+        shiftKey: false,
+        clientX: 0,
+        clientY: 0
+      } as MouseEvent;
+      showItemTooltip(syntheticEvent, hoveredItem.item);
+    }
+  });
+
+  // Clear hovered item on mouseout
+  gridContainer?.addEventListener('mouseout', () => {
+    hoveredItem = null;
+  });
+
+  equipSlots.forEach((slotEl) => {
+    slotEl.addEventListener('mouseout', () => {
+      hoveredItem = null;
+    });
+  });
 }
 
 /** Show confirmation dialog for destroying an item */
@@ -1082,8 +1500,9 @@ function destroyItem(): void {
     console.warn('No onInventoryChange callback registered');
   }
   
-  // Clear the dragged item reference
+  // Clear the dragged item reference and reset processing flag
   draggedItem = null;
+  isProcessingDrop = false;
 }
 
 /** Get current equipment state */
@@ -1116,6 +1535,82 @@ export function addItem(item: ItemInstance): boolean {
   return false; // Inventory full
 }
 
+/** Handle double-click equipping */
+function handleDoubleClickEquip(item: ItemInstance): void {
+  const base = getItemBase(item.baseId);
+  if (!base) return;
+
+  // Determine the target slot for this item
+  let targetSlot: ItemSlot = base.slot as ItemSlot;
+
+  // Handle ring slots - prefer ring if empty, otherwise ring2
+  if (targetSlot === 'ring') {
+    if (!currentEquipment.ring) {
+      targetSlot = 'ring';
+    } else if (!currentEquipment.ring2) {
+      targetSlot = 'ring2';
+    } else {
+      targetSlot = 'ring'; // Default to ring if both are occupied
+    }
+  }
+
+  // Try to equip the item
+  const existing = currentEquipment[targetSlot];
+  const removed = removeItemFromGrid(currentInventory, item.uid);
+  if (!removed) {
+    console.error(`Failed to remove item ${item.uid} from grid during double-click equip`);
+    return;
+  }
+
+  currentEquipment[targetSlot] = item;
+
+  // Put existing item back in grid if there was one
+  if (existing) {
+    // Find any available space in inventory
+    if (!addItem(existing)) {
+      console.error('Failed to place existing equipped item back in inventory - inventory may be full');
+      // Put it back in equipment slot (swap failed)
+      currentEquipment[targetSlot] = existing;
+      renderGrid();
+      renderEquipment();
+      return;
+    }
+  }
+
+  // Update UI
+  renderGrid();
+  renderEquipment();
+
+  if (onInventoryChange) {
+    onInventoryChange();
+  }
+}
+
+/** Handle double-click unequipping */
+function handleDoubleClickUnequip(slot: ItemSlot): void {
+  const item = currentEquipment[slot];
+  if (!item) return;
+
+  // Remove item from equipment slot
+  currentEquipment[slot] = undefined;
+
+  // Try to add item back to inventory
+  if (!addItem(item)) {
+    console.error('Failed to unequip item - inventory may be full');
+    // Put it back in equipment slot if inventory is full
+    currentEquipment[slot] = item;
+    return;
+  }
+
+  // Update UI
+  renderGrid();
+  renderEquipment();
+
+  if (onInventoryChange) {
+    onInventoryChange();
+  }
+}
+
 /** Handle Ctrl+Click quick sell functionality */
 function handleQuickSell(item: ItemInstance): void {
   if (!isVendorOpen()) {
@@ -1140,11 +1635,79 @@ function handleQuickSell(item: ItemInstance): void {
   console.log(`Sold ${getItemBase(item.baseId)?.name || 'item'} for ${actualGold} gold`);
 }
 
+/** Setup the clear inventory button */
+function setupClearButton(): void {
+  console.log('Setting up clear inventory button (standalone)...');
+
+  // Try to find existing button first
+  let clearBtn = document.getElementById('clear-inventory-btn-standalone');
+
+  if (!clearBtn) {
+    console.log('Button not found in HTML, creating it dynamically...');
+
+    // Create the button dynamically
+    clearBtn = document.createElement('button');
+    clearBtn.id = 'clear-inventory-btn-standalone';
+    clearBtn.className = 'clear-btn';
+    clearBtn.title = 'Clear all unequipped items';
+    clearBtn.innerHTML = '🗑️ Clear';
+    clearBtn.style.cssText = `
+      position: absolute !important;
+      right: 50px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      z-index: 1000 !important;
+      background: red !important;
+      color: white !important;
+      border: 3px solid white !important;
+      font-weight: bold !important;
+      font-size: 16px !important;
+      padding: 10px 15px !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      box-shadow: 0 0 20px red !important;
+    `;
+
+    // Add to the header
+    const header = document.querySelector('#inventoryStandalone .ui-panel__header');
+    if (header) {
+      header.appendChild(clearBtn);
+      console.log('Button created and added to header (standalone)');
+    } else {
+      console.error('Header not found (standalone)!');
+      return;
+    }
+  } else {
+    console.log('Button found in HTML (standalone)');
+  }
+
+  // Add click handler
+  clearBtn.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all unequipped items from your inventory?')) {
+      clearInventory();
+    }
+  });
+
+  console.log('Clear inventory button (standalone) setup complete');
+}
+
+/** Clear all unequipped items from inventory */
+export function clearInventory(): void {
+  // Filter out all items from the inventory (keep equipped items)
+  currentInventory.items = [];
+
+  renderGrid();
+
+  if (onInventoryChange) {
+    onInventoryChange();
+  }
+}
+
 /** Refresh the entire inventory display */
 export function refreshInventory(): void {
   renderGrid();
   renderEquipment();
-  
+
   // Re-enable selling hooks after re-rendering
   if (typeof (window as any).enableInventorySelling === 'function') {
     (window as any).enableInventorySelling();
@@ -1158,4 +1721,3 @@ export function updateInventoryData(equipment: EquipmentState, inventory: Invent
   renderGrid();
   renderEquipment();
 }
-

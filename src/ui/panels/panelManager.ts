@@ -1,7 +1,7 @@
 // Panel Manager - Toggles between standalone and compact inventory UIs
 // Ensures only one inventory DOM is visible at a time
 
-import { ensureTwoDock } from '../../../ui/mount';
+import { ensureTwoDock, ensureUiLayer } from '../../../ui/mount';
 
 /** Show a panel by ID */
 function show(id: string): void {
@@ -33,7 +33,22 @@ export function openInventoryStandalone(): void {
   // Center the standalone inventory
   const standalone = document.getElementById('inventoryStandalone');
   if (standalone) {
+    const layer = ensureUiLayer();
+    if (standalone.parentElement !== layer) {
+      layer.appendChild(standalone);
+    }
+    standalone.style.removeProperty('width');
+    standalone.style.removeProperty('minWidth');
     standalone.classList.add('centered');
+    
+    // FORCE z-index to be above map device modal (1200)
+    standalone.style.zIndex = '1300';
+    
+    requestAnimationFrame(() => {
+      const rect = standalone.getBoundingClientRect();
+      console.log('[PanelManager] standalone rect', rect);
+      console.log('[PanelManager] z-index:', window.getComputedStyle(standalone).zIndex);
+    });
   }
   
   // Refresh the standalone inventory display
@@ -60,6 +75,9 @@ export function openInventoryCompact(): void {
   // Remove centered class from standalone
   const standalone = document.getElementById('inventoryStandalone');
   if (standalone) {
+    standalone.style.removeProperty('width');
+    standalone.style.removeProperty('minWidth');
+    standalone.style.removeProperty('zIndex');
     standalone.classList.remove('centered');
   }
   

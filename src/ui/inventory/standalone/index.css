@@ -48,10 +48,54 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
 }
 
+#inventoryStandalone .clear-btn {
+  position: absolute !important;
+  right: 50px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  background: rgba(255, 0, 0, 0.9) !important; /* Bright red background */
+  border: 3px solid #ffffff !important;
+  color: #ffffff !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5) !important;
+}
+
+
+.clear-btn:hover {
+  background: rgba(100, 50, 50, 0.9);
+  border-color: rgba(200, 100, 100, 0.8);
+  color: #ffcccc;
+}
+
 .inventory-main {
   display: flex;
   gap: 25px;
   padding: 25px;
+}
+
+#inventoryStandalone .ui-panel__body {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+}
+
+.inventory-root {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.equipment-root {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* Equipment Paper Doll */
@@ -129,37 +173,23 @@
 }
 
 /* Inventory Grid */
-.inventory-grid-panel {
-  flex: 1;
-}
-
-.inventory-grid-panel h3 {
-  color: #b8b8c0;
-  font-size: 1.2rem;
-  margin: 0 0 15px 0;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-align: center;
-}
-
-/* inventory-root now uses grid layout - see drop-in CSS in styles.css */
-
-/* inventory-grid sizing is controlled by drop-in CSS in styles.css */
 .inventory-grid {
-  --cell: 54px; /* bigger cells */
-  --gap: 2px;
-  overflow: hidden; /* keep items inside */
-  display: grid;
-  grid-template-columns: repeat(10, var(--cell));
-  grid-template-rows: repeat(6, var(--cell));
-  gap: var(--gap);
-  background: rgba(15,15,20,0.9);
-  padding: 10px;
-  border: 2px solid rgba(120,120,130,0.4);
+  background: rgba(15, 15, 20, 0.9);
+  border: 2px solid rgba(120, 120, 130, 0.4);
   border-radius: 6px;
   position: relative;
-  transform-origin: top left;
   box-sizing: border-box;
+  padding: 12px;
+  --cell: 54px;
+  --gap: 2px;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 10), var(--cell));
+  grid-template-rows: repeat(var(--rows, 6), var(--cell));
+  gap: var(--gap);
+  width: calc(var(--cols, 10) * var(--cell) + (var(--cols, 10) - 1) * var(--gap) + 24px);
+  height: calc(var(--rows, 6) * var(--cell) + (var(--rows, 6) - 1) * var(--gap) + 24px);
+  min-width: calc(var(--cols, 10) * var(--cell) + (var(--cols, 10) - 1) * var(--gap) + 24px);
+  min-height: calc(var(--rows, 6) * var(--cell) + (var(--rows, 6) - 1) * var(--gap) + 24px);
 }
 
 /* inv-cell and inventory-item sizing controlled by drop-in CSS in styles.css */

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "leather_boots",
+    "name": "Leather Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 1 },
+    "implicit": [{ "stat": "armor", "value": [3, 6] }]
+  },
+  {
+    "id": "chain_boots",
+    "name": "Chain Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 5, "str": 15 },
+    "implicit": [{ "stat": "armor", "value": [8, 15] }]
+  },
+  {
+    "id": "plate_boots",
+    "name": "Plate Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 12, "str": 25 },
+    "implicit": [{ "stat": "armor", "value": [15, 25] }]
+  },
+  {
+    "id": "greaves",
+    "name": "Greaves",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 20, "str": 35 },
+    "implicit": [{ "stat": "armor", "value": [25, 40] }]
+  },
+  {
+    "id": "soldier_boots",
+    "name": "Soldier Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 30, "str": 45 },
+    "implicit": [{ "stat": "armor", "value": [40, 60] }]
+  },
+  {
+    "id": "wrapped_boots",
+    "name": "Wrapped Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 1, "dex": 10 },
+    "implicit": [{ "stat": "armor", "value": [4, 7] }]
+  },
+  {
+    "id": "strapped_boots",
+    "name": "Strapped Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 8, "dex": 20 },
+    "implicit": [{ "stat": "armor", "value": [10, 18] }]
+  },
+  {
+    "id": "clasped_boots",
+    "name": "Clasped Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 15, "dex": 30 },
+    "implicit": [{ "stat": "armor", "value": [18, 30] }]
+  },
+  {
+    "id": "wool_shoes",
+    "name": "Wool Shoes",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 1, "int": 10 },
+    "implicit": [{ "stat": "energy_shield", "value": [4, 7] }]
+  },
+  {
+    "id": "velvet_slippers",
+    "name": "Velvet Slippers",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 12, "int": 25 },
+    "implicit": [{ "stat": "energy_shield", "value": [15, 25] }]
+  },
+  {
+    "id": "silk_slippers",
+    "name": "Silk Slippers",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 20, "int": 35 },
+    "implicit": [{ "stat": "energy_shield", "value": [25, 35] }]
+  },
+  {
+    "id": "scholar_boots",
+    "name": "Scholar Boots",
+    "class": "boots",
+    "slot": "boots",
+    "req": { "level": 8, "int": 20 },
+    "implicit": [{ "stat": "energy_shield", "value": [10, 18] }]
+  }
+]

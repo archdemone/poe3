@@ -64,6 +64,78 @@
       ]
     },
     {
+      "group": "spell_damage",
+      "stat": "spell_damage_pct",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
+      "group": "cast_speed",
+      "stat": "cast_speed_pct",
+      "tiers": [
+        { "tier": 3, "min": 16, "max": 25 },
+        { "tier": 2, "min": 8, "max": 15 },
+        { "tier": 1, "min": 3, "max": 7 }
+      ]
+    },
+    {
+      "group": "spell_critical",
+      "stat": "spell_crit_chance",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
+      "group": "lightning_damage_flat",
+      "stat": "lightning_damage_flat",
+      "tiers": [
+        { "tier": 3, "min": 8, "max": 15 },
+        { "tier": 2, "min": 4, "max": 7 },
+        { "tier": 1, "min": 1, "max": 3 }
+      ]
+    },
+    {
+      "group": "life_leech",
+      "stat": "life_leech_pct",
+      "tiers": [
+        { "tier": 3, "min": 8, "max": 12 },
+        { "tier": 2, "min": 4, "max": 7 },
+        { "tier": 1, "min": 2, "max": 3 }
+      ]
+    },
+    {
+      "group": "gold_find",
+      "stat": "gold_find_pct",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
+      "group": "bleed_chance",
+      "stat": "bleed_chance",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
+      "group": "poison_chance",
+      "stat": "poison_chance",
+      "tiers": [
+        { "tier": 3, "min": 21, "max": 35 },
+        { "tier": 2, "min": 11, "max": 20 },
+        { "tier": 1, "min": 5, "max": 10 }
+      ]
+    },
+    {
       "group": "physical_damage",
       "stat": "phys_damage_pct",
       "tiers": [
