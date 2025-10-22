@@ -17,3 +17,7 @@
 .stat-list span{color:var(--muted)}
 .validation{min-height:18px;color:#ffb4b4;margin:6px 0}
 .actions{display:flex;gap:8px;justify-content:flex-end}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1010}
+.modal.hidden{display:none}
+.modal-content{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px;min-width:320px;max-width:480px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}

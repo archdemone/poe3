@@ -15,3 +15,7 @@ Implementation notes (ours):
 - Generic class names: Sentinel (Str), Huntress (Dex). Generic ascendancies: Warden, Champion, Pathfinder, Marksman.
 - Data-driven JSON for classes and ascendancies; derived stats preview shows bonuses before confirm.
 - HTML overlay preferred for a11y. Babylon scene provides ambience and avatar silhouette; art can be replaced later.
+
+Keyboard-only & confirmation:
+- Class/Ascendancy tiles are focusable; arrow keys/tabbing supported; Enter activates selection.
+- Confirm button opens a modal asking “Create this character?” with Cancel/Yes.

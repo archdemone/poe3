@@ -23,6 +23,9 @@ export async function init() {
   const nextBtn = document.getElementById('creator-next') as HTMLButtonElement;
   const confirmBtn = document.getElementById('creator-confirm') as HTMLButtonElement;
   const validation = document.getElementById('validation') as HTMLDivElement;
+  const confirmModal = document.getElementById('creator-confirm-modal') as HTMLDivElement;
+  const confirmYes = document.getElementById('confirm-yes') as HTMLButtonElement;
+  const confirmNo = document.getElementById('confirm-no') as HTMLButtonElement;
 
   const engine = (window as any).__gameEngine;
   const canvas = document.getElementById('renderCanvas') as unknown as HTMLCanvasElement;
@@ -112,19 +115,26 @@ export async function init() {
   confirmBtn.addEventListener('click', () => {
     const v = store.isValid();
     if (!v.valid) return;
+    confirmModal.classList.remove('hidden');
+    confirmNo.focus();
+  });
+
+  function finalizeCreate() {
     const slot: 0 | 1 | 2 = (window as any).__charCreateSlot ?? 0;
     const selectedClass = store.getSelectedClass()!;
     const name = nameInput.value.trim() || 'Adventurer';
-
     const saveData = createNewSave(slot, name, selectedClass.saveClass);
     const stats = store.getDerivedStats();
-    if (stats) {
-      saveData.character.stats = stats as any;
-    }
-
+    if (stats) saveData.character.stats = stats as any;
     saveGame(slot, saveData);
     stateManager.transitionTo(GameState.HIDEOUT, { saveData, slot });
+  }
+
+  confirmYes.addEventListener('click', () => {
+    confirmModal.classList.add('hidden');
+    finalizeCreate();
   });
+  confirmNo.addEventListener('click', () => confirmModal.classList.add('hidden'));
 
   document.getElementById('pose-a')?.addEventListener('click', () => scene?.setAppearance({ pose: 'a' }));
   document.getElementById('pose-b')?.addEventListener('click', () => scene?.setAppearance({ pose: 'b' }));
