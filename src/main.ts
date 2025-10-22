@@ -19,6 +19,7 @@ import {
   Color4,
   StandardMaterial,
 } from 'babylonjs';
+import { applyPolish } from './features/polish';
 
 import {
   World,
@@ -1958,6 +1959,20 @@ async function initializeGame(saveData: SaveData): Promise<void> {
   // Setup hideout scene
   setupHideout();
   console.log('Hideout setup');
+
+  // Apply visual polish (feature-flagged)
+  try {
+    const handles = applyPolish(scene, camera, engine, {
+      playerGetter: () => {
+        const t = world.getComponent<Transform>(playerEntity, 'transform');
+        return t && t.position ? { position: t.position } as any : null;
+      },
+    });
+    // Store for cleanup
+    (window as any).__polishHandles = handles;
+  } catch (err) {
+    console.warn('Polish apply failed:', err);
+  }
   
   // Initialize ground items system
   initGroundItems((item: ItemInstance) => {

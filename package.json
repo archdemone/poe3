@@ -10,6 +10,10 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test tests/e2e",
+    "e2e": "playwright test",
+    "e2e:headless": "playwright test --headed=false",
+    "smoke:polish": "node scripts/smoke-polish.js",
+    "qa:polish": "npm run e2e:headless && npm run smoke:polish",
     "lint": "eslint . --ext .js,.ts",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"

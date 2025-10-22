@@ -14,6 +14,10 @@
          entire viewport. -->
     <canvas id="renderCanvas"></canvas>
     <div id="ui-layer"></div>
+    <style>
+      :root { --ui-scale: clamp(0.8, 1.2vw, 1.4); }
+      .hud { transform: scale(var(--ui-scale)); transform-origin: bottom; }
+    </style>
 
     <!-- Dynamic UI container for menu overlays (main menu, character creation, etc.) -->
     <div id="dynamic-ui"></div>
@@ -451,6 +455,6 @@
 
     <!-- Main entry point for our Babylon.js game. Vite automatically
          resolves TypeScript modules. -->
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/bootstrap.ts"></script>
   </body>
 </html>
