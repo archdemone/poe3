@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /*
  Headless smoke test to boot /#__polish and fail on console errors.
+ Uses ESM imports because package.json has type: module.
 */
-const { chromium } = require('playwright');
+import { chromium } from '@playwright/test';
 
 async function main() {
   const url = process.env.PREVIEW_URL || 'http://localhost:5173/#/__polish?overlay=1';

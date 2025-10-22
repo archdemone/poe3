@@ -1834,6 +1834,13 @@ function initializeSkillBarHandlers(): void {
 /** Clean up the game world when returning to main menu */
 function cleanupGameWorld(): void {
   console.log('[CLEANUP] Cleaning up game world...');
+  try {
+    const ph = (window as any).__polishHandles;
+    if (ph && typeof ph.dispose === 'function') {
+      ph.dispose();
+      (window as any).__polishHandles = null;
+    }
+  } catch {}
   
   // Stop game loop if running
   stopGameLoop();
