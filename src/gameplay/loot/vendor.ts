@@ -1,7 +1,10 @@
 // Vendor system - buy and sell items
 
 import type { ItemInstance } from '../../systems/items';
+
 import { generateItem } from './itemGen';
+// Import playerGold and addGold function from main.ts
+import { playerGold, addGold } from '../../main';
 
 export interface VendorState {
   items: ItemInstance[];
@@ -9,7 +12,7 @@ export interface VendorState {
   lastRefresh: number;
 }
 
-let vendorState: VendorState = {
+const vendorState: VendorState = {
   items: [],
   gold: 100, // Starting gold
   lastRefresh: 0,
@@ -148,7 +151,7 @@ export function priceOf(item: ItemInstance): number {
 
 export function sellItemToVendor(item: ItemInstance): number {
   const gold = priceOf(item);
-  playerGold += gold;
+  addGold(gold);
   console.log(`Sold ${item.baseId} for ${gold} gold. Total gold: ${playerGold}`);
   return gold;
 }

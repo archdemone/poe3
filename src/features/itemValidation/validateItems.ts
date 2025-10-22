@@ -1,7 +1,9 @@
 // Item data validation system
-import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
+
+import { z } from 'zod';
+
 import {
   ItemBaseSchema,
   AffixDefinitionSchema,

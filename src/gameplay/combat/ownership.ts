@@ -1,7 +1,7 @@
 // Ownership and attribution helpers for damage tracking
 
-import type { World, Entity } from '../../ecs/world';
 import type { COwner } from '../../ecs/components';
+import type { World, Entity } from '../../ecs/world';
 
 /**
  * Set ownership information for an entity (projectile, hitbox, minion, etc.)

@@ -5,24 +5,20 @@
 // numbers when enemies take hits. It preserves the existing HTML UI
 // behaviour for the skill bar modal and G‑menu.
 
-import {
-  Engine,
-  Scene,
-  ArcRotateCamera,
-  Vector3,
-  HemisphericLight,
-  PointLight,
-  MeshBuilder,
-  Matrix,
-  Viewport,
-  PointerEventTypes,
-  Color3,
-  Color4,
-  StandardMaterial,
-  AbstractMesh,
-  Texture,
-  ParticleSystem,
-} from 'babylonjs';
+import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
+import { Engine } from '@babylonjs/core/Engines/engine';
+import { PointerEventTypes } from '@babylonjs/core/Events/pointerEvents';
+import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
+import { PointLight } from '@babylonjs/core/Lights/pointLight';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
+import { Vector3, Matrix } from '@babylonjs/core/Maths/math.vector';
+import { Viewport } from '@babylonjs/core/Maths/math.viewport';
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
+import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
+import { Scene } from '@babylonjs/core/scene';
 
 import {
   World,
@@ -45,22 +41,36 @@ import {
   EnemyAISystem,
   CombatSystem,
 } from './ecs';
-
 import { stateManager, GameState } from './state/gameState';
 import { loadUI, unloadUI } from './ui/loader';
 import type { SaveData } from './state/save';
-import { saveGame, updatePlaytime } from './state/save';
+import { saveGame, updatePlaytime, createNewSave } from './state/save';
 import type { CharacterStats } from './gameplay/stats';
 import { calculateSkillDamage, calculateDerivedStats } from './gameplay/stats';
-import { getAssetLoader, disposeAssetLoader } from './systems/assetManager';
-import { getModelManager, disposeModelManager } from './systems/assetManager';
+import { getAssetLoader, disposeAssetLoader , getModelManager, disposeModelManager } from './systems/assetManager';
 import { createTorchFlame, createMagicalAura, createPortalEffect, createAmbientDust } from './systems/particleEffects';
+
+// Feature flags
+const ENABLE_POE_STYLE_CREATOR = import.meta.env.DEV; // Enable Path of Exile-style character creator (dev only)
+
+  // Diagnostic modules (only active in debug mode)
+import { logRouteChange, logFeatureFlag, logError } from './devtools/routeDebug';
+import { logSceneEvent } from './devtools/sceneDebug';
+import { installWatchdog } from './features/characterCreation/guard';
+
+// Watchdog telemetry for CI - should be 0 in happy path
+(window as any).__ccDebug = (window as any).__ccDebug || {};
+(window as any).__ccDebug.watchdogHits = 0;
 import { installParticleDebugCommands } from './systems/particleDebug';
 import { createStoneTexture, createWoodTexture, createMetalTexture, createCrystalTexture, createGroundTileTexture, createDirtTexture } from './systems/proceduralTextures';
+
 import { updateCharacterSheet, initDebugSliders } from '../ui/charSheet';
+
 import { loadSkillTree, setAllocatedNodes, getAllocatedNodeIds, computePassiveBonuses, getSkillTree, setPassivePoints, getTreeState } from './gameplay/skillTree';
 import type { DerivedBonuses } from './gameplay/skillTree';
+
 import { initSkillTree, refreshTree } from '../ui/skillTree';
+
 import type { ItemInstance, EquipmentState, InventoryGrid, MapModifiers } from './systems/items';
 import { createItem, getItemBase, removeItemFromGrid, updateFlaskCharges, useFlask, canUseFlask, applyCurrencyToItem } from './systems/items';
 import { computeEquipBonuses, zeroEquip } from './gameplay/equipBonuses';
@@ -100,20 +110,92 @@ function updateInventoryData(equipment: EquipmentState, inventory: InventoryGrid
   updateInventoryDataStandalone(equipment, inventory);
   updateInventoryDataCompact(equipment, inventory);
 }
-import { spawnMeleeHitbox } from './gameplay/combat/spawnHitbox';
-import { generateItem } from './gameplay/loot/itemGen';
-import { initGroundItems, spawnGroundItem, updateLabels, toggleLabels, cleanupGroundItems, getAllGroundItems, restoreGroundItems } from './gameplay/loot/groundItems';
-import { initVendorUI, showVendor, hideVendor } from '../ui/vendor';
+
+// Save current game state to the active slot
+function saveState(): void {
+  try {
+    // Get current game state
+    const equipment = getEquipment();
+    const inventory = getInventory();
+
+    // Create basic save data structure
+    const saveData = {
+      meta: {
+        slot: 0, // Use slot 0 as default for now
+        name: "Current Game",
+        class: "warrior" as const, // TODO: get from character state
+        level: 1, // TODO: get from character stats
+        playtime: 0, // TODO: implement playtime tracking
+        lastPlayed: Date.now()
+      },
+      character: {
+        name: "Player",
+        class: "warrior" as const, // TODO: get from actual character
+        stats: {
+          strength: 10,
+          dexterity: 10,
+          intelligence: 10,
+          hp: 100,
+          maxHp: 100,
+          mp: 50,
+          maxMp: 50,
+          armor: 0,
+          evasion: 0
+        }
+      },
+      inventory: {
+        grid: inventory
+      },
+      equipment: equipment,
+      gold: playerGold,
+      world: {
+        portals: mapDeviceState.portals,
+        activePortals: mapDeviceState.activePortals
+      }
+    };
+
+    // Import and use saveGame function
+    import('./state/save').then(({ saveGame }) => {
+      saveGame(0, saveData as any); // TODO: fix typing
+      console.log('Game saved successfully');
+    }).catch(error => {
+      console.error('Failed to import save functions:', error);
+    });
+  } catch (error) {
+    console.error('Failed to save game:', error);
+  }
+}
+
+// Player gold variable (TODO: implement proper currency system)
+export let playerGold = 0;
+
+// Function to add gold (used by vendor system)
+export function addGold(amount: number): void {
+  playerGold += amount;
+}
+
+// Alias for addItem function (calls addItemToInventory)
+function addItem(item: ItemInstance): boolean {
+  return addItemToInventory(item);
+}
 import { openVendorAndInventory, attachPanelClosers } from '../ui/layout';
 import { ensureTwoDock } from '../ui/mount';
 import { setupIndependentToggles } from '../ui/toggles';
-import { initVendor as initVendorData, setGold, getGold, saveVendorState, loadVendorState } from './gameplay/loot/vendor';
-import { pickRandomBase } from './gameplay/loot/dropTables';
-import { rollAffixes } from './gameplay/loot/affixes';
+import { initVendorUI, showVendor, hideVendor } from '../ui/vendor';
+
 import { DeathSystem } from './ecs/systems/deathSystem';
+import { spawnMeleeHitbox } from './gameplay/combat/spawnHitbox';
+import { rollAffixes } from './gameplay/loot/affixes';
+import { pickRandomBase } from './gameplay/loot/dropTables';
+import { initGroundItems, spawnGroundItem, updateLabels, toggleLabels, cleanupGroundItems, getAllGroundItems, restoreGroundItems } from './gameplay/loot/groundItems';
+import { generateItem } from './gameplay/loot/itemGen';
+import { initVendor as initVendorData, setGold, getGold, saveVendorState, loadVendorState } from './gameplay/loot/vendor';
 
 // Grab the canvas and set up the engine and scene.
-const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
+const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement | null;
+if (!canvas) {
+  throw new Error('Canvas element not found');
+}
 const engine = new Engine(canvas, true);
 const scene = new Scene(engine);
 scene.clearColor = new Color3(0.1, 0.1, 0.15).toColor4();
@@ -216,7 +298,7 @@ interface MapDeviceState {
   activePortals: number;
 }
 
-let mapDeviceState: MapDeviceState = {
+const mapDeviceState: MapDeviceState = {
   insertedMap: null,
   portals: [],
   activePortals: 0
@@ -1868,7 +1950,7 @@ const skills: Record<string, SkillDef> = {
 
 /** The id of the skill gem currently equipped into the active weapon
  *  socket. Defaults to Heavy Strike. */
-let equippedActiveSkill: string = 'heavyStrike';
+let equippedActiveSkill = 'heavyStrike';
 
 /** Mapping from skill bar slots to skill ids or special values. The
  *  left mouse button (lmb) can be bound to 'auto' (basic attack),
@@ -1910,7 +1992,7 @@ let playerClass: 'warrior' | 'archer' = 'warrior';
 // Timestamp of the last use of the basic auto‑attack in seconds.
 // Used to enforce cooldowns on the default attack when lmb is bound
 // to 'auto'. Each skill may implement its own cooldown later.
-let lastAutoAttack = 0;
+const lastAutoAttack = 0;
 
 /** Update the weapon gem panel and skills list in the G menu. The
  *  active socket displays the currently equipped skill gem and the
@@ -2498,7 +2580,7 @@ function openGenericAssignModal(slotKey: string): void {
 }
 
 // Camera and player entity - initialized when game starts
-let camera: ArcRotateCamera;
+let camera: ArcRotateCamera | null = null;
 let playerEntity: Entity;
 
 // Ground picking on left click. This currently logs the clicked
@@ -2632,6 +2714,7 @@ function handlePlayerMovement(dt: number) {
   } else {
     // Compute camera‑relative basis vectors. Forward is the vector from
     // the camera to its target projected onto the horizontal plane.
+    if (!camera) return;
     const forwardVec = camera.target.subtract(camera.position);
     forwardVec.y = 0;
     forwardVec.normalize();
@@ -2696,7 +2779,7 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
     // Calculate forward direction toward target
     let forwardVec = targetPoint.subtract(origin);
     forwardVec.y = 0;
-    if (forwardVec.length() === 0) {
+    if (forwardVec.length() === 0 && camera) {
       forwardVec = camera.target.subtract(camera.position);
     }
     forwardVec.y = 0;
@@ -2724,7 +2807,7 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
     
     // Fire three projectiles in a small cone towards the target. Compute
     // forward direction on the XZ plane.
-    let dir = targetPoint.subtract(origin);
+    const dir = targetPoint.subtract(origin);
     dir.y = 0;
     if (dir.length() === 0) return;
     dir.normalize();
@@ -2742,7 +2825,7 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
     // Launch a slower spell projectile. For now it behaves like a
     // single arrow with higher damage. In a full implementation this
     // would chain between enemies.
-    let dir = targetPoint.subtract(origin);
+    const dir = targetPoint.subtract(origin);
     dir.y = 0;
     if (dir.length() === 0) return;
     dir.normalize();
@@ -2752,7 +2835,7 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
 
 /** Helper to spawn a projectile entity travelling in the given
  *  direction. Damage and speed can be customised. */
-function spawnProjectile(origin: Vector3, direction: Vector3, damage: number, lifeTime: number = 3): void {
+function spawnProjectile(origin: Vector3, direction: Vector3, damage: number, lifeTime = 3): void {
   const speed = 10;
   const vel = direction.scale(speed);
   const projEntity = world.createEntity();
@@ -2778,7 +2861,7 @@ function performAutoAttack(targetPoint: Vector3): void {
     const playerTransform = world.getComponent<Transform>(playerEntity, 'transform');
     if (!playerTransform) return;
     const origin = playerTransform.position.clone();
-    let dir = targetPoint.subtract(origin);
+    const dir = targetPoint.subtract(origin);
     dir.y = 0;
     if (dir.length() === 0) return;
     dir.normalize();
@@ -3076,7 +3159,7 @@ function update() {
   // Update camera target before updating damage numbers so numbers
   // project correctly relative to the new view.
   const playerTransform = world.getComponent<Transform>(playerEntity, 'transform');
-  if (playerTransform) {
+  if (playerTransform && camera) {
     camera.setTarget(playerTransform.position);
   }
   damageNumbers.update();
@@ -3395,13 +3478,16 @@ function initializeSkillBarHandlers(): void {
         let target: Vector3;
         if (lastMouseWorldPos) {
           target = lastMouseWorldPos;
-        } else {
+        } else if (camera) {
           // Fallback: compute a target point 5 units ahead of the player
           const forwardVec = camera.target.subtract(camera.position);
           forwardVec.y = 0;
           if (forwardVec.length() === 0) return;
           forwardVec.normalize();
           target = transform.position.add(forwardVec.scale(5));
+        } else {
+          // No camera available, use forward direction
+          target = transform.position.add(new Vector3(0, 0, 5));
         }
         
         if (binding === 'move') {
@@ -3780,12 +3866,38 @@ stateManager.on(GameState.MAIN_MENU, async () => {
 
 stateManager.on(GameState.CHARACTER_CREATE, async (data) => {
   console.log('Entering CHARACTER_CREATE state');
+  logFeatureFlag('ENABLE_POE_STYLE_CREATOR', ENABLE_POE_STYLE_CREATOR);
+
   if (data?.slot !== undefined) {
     currentSlot = data.slot;
     // Store slot in window for the char create module to access
     (window as any).__charCreateSlot = data.slot;
   }
-  await loadUI('/ui/charCreate.html');
+
+  try {
+    if (ENABLE_POE_STYLE_CREATOR) {
+      logRouteChange('#/character/create');
+      await loadUI('/src/features/characterCreation/ui/index.html');
+      logSceneEvent('CharacterCreationScene UI loaded');
+    } else {
+      // Fallback to legacy character creation or direct game start
+      console.log('PoE-style creator disabled, using legacy flow');
+      // For now, just transition to hideout - this would need legacy creator implementation
+      const saveData = await createNewSave(currentSlot, 'Adventurer', 'warrior');
+      stateManager.transitionTo(GameState.HIDEOUT, { saveData, slot: currentSlot });
+    }
+  } catch (error) {
+    logError(error as Error);
+    console.error('Failed to load character creation:', error);
+    // Fallback to hideout on error
+    try {
+      const saveData = await createNewSave(currentSlot, 'Adventurer', 'warrior');
+      stateManager.transitionTo(GameState.HIDEOUT, { saveData, slot: currentSlot });
+    } catch (fallbackError) {
+      logError(fallbackError as Error);
+      console.error('Fallback also failed:', fallbackError);
+    }
+  }
 });
 
 stateManager.on(GameState.HIDEOUT, async (data) => {
@@ -3854,10 +3966,12 @@ function initMapDeviceModal(): void {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initMapDeviceModal();
+    installWatchdog(); // Install character creation watchdog
     stateManager.transitionTo(GameState.MAIN_MENU);
   });
 } else {
   // DOM already loaded
   initMapDeviceModal();
+  installWatchdog(); // Install character creation watchdog
   stateManager.transitionTo(GameState.MAIN_MENU);
 }

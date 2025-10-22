@@ -1,9 +1,11 @@
 // Ground items system - spawning, rendering labels, and pickup
 
-import { Vector3, Matrix } from 'babylonjs';
+import { Vector3, Matrix } from '@babylonjs/core/Maths/math.vector';
+import type { ArcRotateCamera } from 'babylonjs';
+
 import type { ItemInstance } from '../../systems/items';
 import { getItemBase, RarityColors } from '../../systems/items';
-import type { ArcRotateCamera } from 'babylonjs';
+
 
 interface GroundItem {
   id: number;

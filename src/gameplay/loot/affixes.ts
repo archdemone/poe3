@@ -1,9 +1,10 @@
 // Affix rolling system
 
-import type { Affix } from '../../systems/items';
-import type { Rarity } from './rarity';
 import prefixesData from '../../../data/affixes/prefixes.json';
 import suffixesData from '../../../data/affixes/suffixes.json';
+import type { Affix } from '../../systems/items';
+
+import type { Rarity } from './rarity';
 
 interface AffixTier {
   tier: number;
@@ -89,7 +90,7 @@ function rollAffix(pool: AffixDef[], allowedTiers: number[], usedGroups: Set<str
  * @param baseType Base item type (not used yet)
  * @returns Array of rolled affixes
  */
-export function rollAffixes(rarity: Rarity, itemLevel: number = 1, baseType?: string): Affix[] {
+export function rollAffixes(rarity: Rarity, itemLevel = 1, baseType?: string): Affix[] {
   const counts = getAffixCount(rarity);
   const allowedTiers = getAllowedTiers(rarity);
   
@@ -114,8 +115,8 @@ export function rollAffixes(rarity: Rarity, itemLevel: number = 1, baseType?: st
     }
   } else if (rarity === 'rare') {
     // For rare, try to balance prefixes and suffixes
-    let prefixCount = Math.floor(totalCount / 2);
-    let suffixCount = totalCount - prefixCount;
+    const prefixCount = Math.floor(totalCount / 2);
+    const suffixCount = totalCount - prefixCount;
     
     // Roll prefixes
     for (let i = 0; i < prefixCount && i < counts.prefixMax; i++) {

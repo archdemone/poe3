@@ -3,12 +3,15 @@
  * High-quality textures created using Babylon.js DynamicTexture
  */
 
-import { DynamicTexture, Scene, Color3, Color4 } from 'babylonjs';
+import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
+import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
+import { Scene } from '@babylonjs/core/scene';
+
 
 /**
  * Creates a high-quality stone texture with realistic details
  */
-export function createStoneTexture(name: string, scene: Scene, size: number = 512): DynamicTexture {
+export function createStoneTexture(name: string, scene: Scene, size = 512): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, true);
   const ctx = texture.getContext();
   
@@ -77,7 +80,7 @@ export function createStoneTexture(name: string, scene: Scene, size: number = 51
 /**
  * Creates a wood texture for chests and objects
  */
-export function createWoodTexture(name: string, scene: Scene, size: number = 512): DynamicTexture {
+export function createWoodTexture(name: string, scene: Scene, size = 512): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, true);
   const ctx = texture.getContext();
   
@@ -131,7 +134,7 @@ export function createWoodTexture(name: string, scene: Scene, size: number = 512
 /**
  * Creates a metal texture for chest decorations
  */
-export function createMetalTexture(name: string, scene: Scene, size: number = 256): DynamicTexture {
+export function createMetalTexture(name: string, scene: Scene, size = 256): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, true);
   const ctx = texture.getContext();
   
@@ -174,7 +177,7 @@ export function createMetalTexture(name: string, scene: Scene, size: number = 25
 /**
  * Creates a magical crystal texture for the map device
  */
-export function createCrystalTexture(name: string, scene: Scene, size: number = 512): DynamicTexture {
+export function createCrystalTexture(name: string, scene: Scene, size = 512): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, true);
   const ctx = texture.getContext();
   
@@ -232,7 +235,7 @@ export function createCrystalTexture(name: string, scene: Scene, size: number = 
 /**
  * Creates a ground tile texture with stone pattern
  */
-export function createGroundTileTexture(name: string, scene: Scene, size: number = 1024): DynamicTexture {
+export function createGroundTileTexture(name: string, scene: Scene, size = 1024): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, true);
   const ctx = texture.getContext();
   
@@ -294,7 +297,7 @@ export function createGroundTileTexture(name: string, scene: Scene, size: number
 /**
  * Creates a dirt/grass texture for outdoor areas
  */
-export function createDirtTexture(name: string, scene: Scene, size: number = 512): DynamicTexture {
+export function createDirtTexture(name: string, scene: Scene, size = 512): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, true);
   const ctx = texture.getContext();
   

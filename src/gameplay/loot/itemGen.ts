@@ -1,13 +1,15 @@
 // Item generation orchestrator
 
-import type { ItemInstance, ItemBase } from '../../systems/items';
-import { ItemSets } from '../../systems/items';
-import { rollRarity, type Rarity } from './rarity';
-import { pickRandomBase } from './dropTables';
-import { rollAffixes } from './affixes';
-import { rollWeaponSupports } from './sockets';
 import uniquesData from '../../../data/items/uniques.json';
-import { ItemBases } from '../../systems/items';
+import type { ItemInstance, ItemBase } from '../../systems/items';
+import { ItemSets , ItemBases } from '../../systems/items';
+
+
+import { rollAffixes } from './affixes';
+import { pickRandomBase } from './dropTables';
+import { rollRarity, type Rarity } from './rarity';
+import { rollWeaponSupports } from './sockets';
+
 
 interface UniqueDef {
   id: string;
@@ -34,7 +36,7 @@ function rollValue(range: number | [number, number]): number {
  * @param allowUnique Whether unique items can drop
  * @returns A complete ItemInstance
  */
-export function generateItem(areaLevel: number, allowUnique: boolean = true): ItemInstance | null {
+export function generateItem(areaLevel: number, allowUnique = true): ItemInstance | null {
   // Roll rarity
   let rarity = rollRarity();
   

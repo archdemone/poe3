@@ -1,19 +1,19 @@
 // Drop tables - manages base item pools and selection
 
-import type { ItemBase } from '../../systems/items';
-import { ItemBases } from '../../systems/items';
-import swordsData from '../../../data/items/bases_one_hand_swords.json';
-import bowsData from '../../../data/items/bases_bows.json';
-import helmetsData from '../../../data/items/bases_helmets.json';
-import chestArmorData from '../../../data/items/bases_chest_armor.json';
-import glovesData from '../../../data/items/bases_gloves.json';
-import bootsData from '../../../data/items/bases_boots.json';
 import amuletsData from '../../../data/items/bases_amulets.json';
-import ringsData from '../../../data/items/bases_rings.json';
 import beltsData from '../../../data/items/bases_belts.json';
-import flasksData from '../../../data/items/bases_flasks.json';
+import bootsData from '../../../data/items/bases_boots.json';
+import bowsData from '../../../data/items/bases_bows.json';
+import chestArmorData from '../../../data/items/bases_chest_armor.json';
 import currencyData from '../../../data/items/bases_currency.json';
+import flasksData from '../../../data/items/bases_flasks.json';
+import glovesData from '../../../data/items/bases_gloves.json';
+import helmetsData from '../../../data/items/bases_helmets.json';
+import swordsData from '../../../data/items/bases_one_hand_swords.json';
+import ringsData from '../../../data/items/bases_rings.json';
 import socketablesData from '../../../data/items/bases_socketables.json';
+import { ItemBases } from '../../systems/items';
+import type { ItemBase } from '../../systems/items';
 
 // Sword base IDs
 const swordBaseIds = [

@@ -3,14 +3,13 @@
  * Creates and manages various particle effects using proper textures
  */
 
-import {
-  ParticleSystem,
-  GPUParticleSystem,
-  Vector3,
-  Color4,
-  Scene,
-  AbstractMesh,
-} from 'babylonjs';
+import { Color4 } from '@babylonjs/core/Maths/math.color';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
+import { GPUParticleSystem } from '@babylonjs/core/Particles/gpuParticleSystem';
+import { Scene } from '@babylonjs/core/scene';
+
 import { createFlameParticleTexture, createMagicGlowTexture, createSoftParticleTexture, createDustTexture } from './particleTextures';
 
 /**

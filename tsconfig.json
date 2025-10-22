@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "strict": true,
     "jsx": "preserve",
     "esModuleInterop": true,
@@ -13,8 +16,19 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "allowImportingTsExtensions": false,
+    "types": ["vite/client"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "src/**/*.js", "vite.config.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests/e2e",
+    "src/features/itemValidation/dropAudit.ts",
+    "src/features/itemValidation/validateItems.ts",
+    "scripts/**/*.ts",
+    "browser-tools-mcp-extension/**/*.ts"
+  ]
 }

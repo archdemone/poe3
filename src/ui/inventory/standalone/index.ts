@@ -1,9 +1,9 @@
 // Inventory UI - Equipment and grid management with drag-and-drop
 
+import { isVendorOpen } from '../../../../ui/layout';
+import { sellItemToVendor, priceOf } from '../../../gameplay/loot/vendor';
 import type { ItemInstance, EquipmentState, InventoryGrid, ItemSlot } from '../../../systems/items';
 import { getItemBase, canPlaceItem, addItemToGrid, removeItemFromGrid, getItemAtPosition, RarityColors } from '../../../systems/items';
-import { sellItemToVendor, priceOf } from '../../../gameplay/loot/vendor';
-import { isVendorOpen } from '../../../../ui/layout';
 import { readGridMetrics, type GridMetrics } from '../gridMetrics';
 
 let currentEquipment: EquipmentState = {};
@@ -1062,7 +1062,7 @@ function getEquippedItemForComparison(item: ItemInstance): { equipped: ItemInsta
   const base = getItemBase(item.baseId);
   if (!base) return null;
 
-  let targetSlot: ItemSlot = base.slot as ItemSlot;
+  const targetSlot: ItemSlot = base.slot as ItemSlot;
 
   // Handle ring slots - check both ring slots
   if (targetSlot === 'ring') {

@@ -1,9 +1,12 @@
 // Hitbox spawning utilities for melee attacks
 
-import type { World, Entity } from '@/ecs/world';
-import type { Transform, Hitbox } from '@/ecs/components';
-import { Vector3 } from 'babylonjs';
+
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+
 import { setOwner } from './ownership';
+
+import type { Transform, Hitbox } from '@/ecs/components';
+import type { World, Entity } from '@/ecs/world';
 
 /**
  * Spawn a melee hitbox entity in front of the attacker.

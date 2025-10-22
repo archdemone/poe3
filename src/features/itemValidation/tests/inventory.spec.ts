@@ -1,5 +1,7 @@
 // Inventory and trading contracts unit tests
 import { describe, it, expect } from 'vitest';
+
+import { calculateBuyPrice, calculateSellPrice, buyItem, sellItem, initVendor, getVendorState, setGold } from '../../../gameplay/loot/vendor';
 import {
   InventoryGrid,
   ItemInstance,
@@ -10,11 +12,11 @@ import {
   getItemAtPosition,
   meetsRequirements,
 } from '../../../systems/items';
-import { calculateBuyPrice, calculateSellPrice, buyItem, sellItem, initVendor, getVendorState, setGold } from '../../../gameplay/loot/vendor';
+
 import { createMockItem } from './statEngine.spec';
 
 // Mock item creation helper
-function createTestItem(id: string, baseId: string, rarity: 'normal' | 'magic' | 'rare' | 'unique' = 'normal', level: number = 1): ItemInstance {
+function createTestItem(id: string, baseId: string, rarity: 'normal' | 'magic' | 'rare' | 'unique' = 'normal', level = 1): ItemInstance {
   return {
     uid: `test-${id}`,
     baseId,

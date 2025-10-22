@@ -1,4 +1,12 @@
-import { Scene, SceneLoader, AssetContainer, AbstractMesh, Texture, Material, StandardMaterial, ParticleSystem } from 'babylonjs';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import { Material } from '@babylonjs/core/Materials/material';
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
+import { Scene } from '@babylonjs/core/scene';
+import { AssetContainer } from '@babylonjs/core/assetContainer';
+import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
+
 
 /**
  * Asset loading system for 3D models, textures, and effects

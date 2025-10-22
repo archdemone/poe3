@@ -1,4 +1,12 @@
-import { Scene, AssetContainer, AbstractMesh, Vector3, Quaternion, AnimationGroup, MeshBuilder, StandardMaterial, Color3, Sphere } from 'babylonjs';
+import { AnimationGroup } from '@babylonjs/core/Animations/animationGroup';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import { Color3 } from '@babylonjs/core/Maths/math.color';
+import { Vector3, Quaternion } from '@babylonjs/core/Maths/math.vector';
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
+import { Scene } from '@babylonjs/core/scene';
+import { AssetContainer } from '@babylonjs/core/assetContainer';
+
 import { AssetLoader } from './assetLoader';
 
 /**
@@ -190,7 +198,7 @@ export class ModelManager {
   /**
    * Play animation on model
    */
-  playAnimation(modelId: string, animationName?: string, loop: boolean = true): void {
+  playAnimation(modelId: string, animationName?: string, loop = true): void {
     const instance = this.activeModels.get(modelId);
     if (instance && instance.animations) {
       // Stop all current animations

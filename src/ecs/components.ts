@@ -1,5 +1,8 @@
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+
 import type { Entity } from './world';
-import { Vector3, AbstractMesh } from 'babylonjs';
+
 
 /** Position and rendering data for an entity. The optional mesh field
  * allows a Babylon.js mesh to be associated with this component. When

@@ -1,5 +1,6 @@
 // Stat engine invariant tests
 import { describe, it, expect } from 'vitest';
+
 import { computeEquipBonuses, zeroEquip, type EquipBonuses } from '../../../gameplay/equipBonuses';
 import { createDefaultStats, calculateDerivedStats, type CharacterStats } from '../../../gameplay/stats';
 import type { EquipmentState, ItemInstance, Affix } from '../../../systems/items';

@@ -1,6 +1,7 @@
 // Drop table auditor - validates item availability in drop tables
 import fs from 'fs';
 import path from 'path';
+
 import type { ItemBase } from '../schemas.js';
 
 interface DropTableAuditResult {

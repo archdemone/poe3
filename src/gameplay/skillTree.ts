@@ -33,7 +33,7 @@ export interface DerivedBonuses {
 
 /** Global skill tree instance loaded from JSON */
 let skillTreeData: SkillTreeData | null = null;
-let treeState: TreeState = {
+const treeState: TreeState = {
   allocated: new Set(['start']),
   passivePoints: 0,
   spent: 0,

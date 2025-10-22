@@ -1,9 +1,10 @@
 // Property-based tests for randomized item scenarios
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, it, expect } from 'vitest';
+
 import { computeEquipBonuses, zeroEquip, type EquipBonuses } from '../../../gameplay/equipBonuses';
-import { createDefaultStats, calculateDerivedStats, type CharacterStats } from '../../../gameplay/stats';
 import { generateItem } from '../../../gameplay/loot/itemGen';
+import { createDefaultStats, calculateDerivedStats, type CharacterStats } from '../../../gameplay/stats';
 import type { EquipmentState, ItemInstance } from '../../../systems/items';
 
 // Mock item generator for testing

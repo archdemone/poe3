@@ -3,7 +3,7 @@
  * Helper functions for debugging and monitoring particle systems
  */
 
-import { Scene } from 'babylonjs';
+import { Scene } from '@babylonjs/core/scene';
 
 /**
  * Logs detailed information about all active particle systems

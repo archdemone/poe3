@@ -1,8 +1,8 @@
 // Centralized death system for XP and loot attribution
 
-import type { World, Entity } from '../world';
-import type { System } from '../systems';
 import type { Health, Combatant, CDamageCredit, Transform } from '../components';
+import type { System } from '../systems';
+import type { World, Entity } from '../world';
 
 const CREDIT_TIMEOUT_MS = 5000; // credit kills to last hitter within 5s
 

@@ -3,12 +3,13 @@
  * High-quality particle sprites for effects
  */
 
-import { DynamicTexture, Scene } from 'babylonjs';
+import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture';
+import { Scene } from '@babylonjs/core/scene';
 
 /**
  * Creates a soft circular particle texture (good for flames, smoke, magic)
  */
-export function createSoftParticleTexture(name: string, scene: Scene, size: number = 128): DynamicTexture {
+export function createSoftParticleTexture(name: string, scene: Scene, size = 128): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, false);
   const ctx = texture.getContext();
   
@@ -35,7 +36,7 @@ export function createSoftParticleTexture(name: string, scene: Scene, size: numb
 /**
  * Creates a flame-shaped particle texture
  */
-export function createFlameParticleTexture(name: string, scene: Scene, size: number = 128): DynamicTexture {
+export function createFlameParticleTexture(name: string, scene: Scene, size = 128): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, false);
   const ctx = texture.getContext();
   
@@ -90,7 +91,7 @@ export function createFlameParticleTexture(name: string, scene: Scene, size: num
 /**
  * Creates a sparkle/star particle texture
  */
-export function createSparkleTexture(name: string, scene: Scene, size: number = 64): DynamicTexture {
+export function createSparkleTexture(name: string, scene: Scene, size = 64): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, false);
   const ctx = texture.getContext();
   
@@ -141,7 +142,7 @@ export function createSparkleTexture(name: string, scene: Scene, size: number = 
 /**
  * Creates a smoke/cloud particle texture
  */
-export function createSmokeTexture(name: string, scene: Scene, size: number = 128): DynamicTexture {
+export function createSmokeTexture(name: string, scene: Scene, size = 128): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, false);
   const ctx = texture.getContext();
   
@@ -173,7 +174,7 @@ export function createSmokeTexture(name: string, scene: Scene, size: number = 12
 /**
  * Creates a magical glow particle texture (for portals, crystals)
  */
-export function createMagicGlowTexture(name: string, scene: Scene, size: number = 128): DynamicTexture {
+export function createMagicGlowTexture(name: string, scene: Scene, size = 128): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, false);
   const ctx = texture.getContext();
   
@@ -210,7 +211,7 @@ export function createMagicGlowTexture(name: string, scene: Scene, size: number 
 /**
  * Creates a dust mote texture (small, subtle)
  */
-export function createDustTexture(name: string, scene: Scene, size: number = 32): DynamicTexture {
+export function createDustTexture(name: string, scene: Scene, size = 32): DynamicTexture {
   const texture = new DynamicTexture(name, size, scene, false);
   const ctx = texture.getContext();
   

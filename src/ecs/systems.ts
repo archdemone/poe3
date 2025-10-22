@@ -1,9 +1,14 @@
-import type { World, Entity } from './world';
-import type { Transform, Velocity, Health, EnemyTag, PlayerTag, Projectile, Combatant, Hurtbox, Hitbox, EnemyAI, PlayerState } from './components';
-import { Vector3, Matrix, Viewport, Vector3 as V3, Scene } from 'babylonjs';
-import { spawnMeleeHitbox } from '../gameplay/combat/spawnHitbox';
+
+import { Vector3, Matrix, Vector3 as V3 } from '@babylonjs/core/Maths/math.vector';
+import { Viewport } from '@babylonjs/core/Maths/math.viewport';
+import { Scene } from '@babylonjs/core/scene';
+
 import { applyDamage, type DamageContext } from '../gameplay/combat/applyDamage';
 import { createDamageContext } from '../gameplay/combat/ownership';
+import { spawnMeleeHitbox } from '../gameplay/combat/spawnHitbox';
+
+import type { Transform, Velocity, Health, EnemyTag, PlayerTag, Projectile, Combatant, Hurtbox, Hitbox, EnemyAI, PlayerState } from './components';
+import type { World, Entity } from './world';
 
 /** Base interface for systems. A system processes a set of entities each
  * frame. */

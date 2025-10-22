@@ -4,11 +4,28 @@
     "name": "SkullHunter",
     "baseId": "leather_belt",
     "explicit": [
-      { "stat": "str", "value": [10, 25] },
-      { "stat": "dex", "value": [10, 25] },
-      { "stat": "int", "value": [10, 25] }
+      {
+        "stat": "str",
+        "value": [
+          10,
+          25
+        ]
+      },
+      {
+        "stat": "dex",
+        "value": [
+          10,
+          25
+        ]
+      },
+      {
+        "stat": "int",
+        "value": [
+          10,
+          25
+        ]
+      }
     ],
     "special": "skullhunter_steal_mods_60s"
   }
 ]
-

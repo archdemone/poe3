@@ -1,8 +1,9 @@
 // Unified damage application system for World-based ECS
 
-import type { World, Entity } from '@/ecs/world';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+
 import type { Health, Combatant, Transform, CDamageCredit } from '@/ecs/components';
-import { Vector3 } from 'babylonjs';
+import type { World, Entity } from '@/ecs/world';
 
 /** Damage payload with physical and optional elemental components */
 export interface DamagePayload {
