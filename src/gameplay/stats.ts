@@ -1,6 +1,11 @@
 // Character stats system with derived values and damage calculations
 
 export interface CharacterStats {
+  // Character progression
+  level: number;
+  experience: number;
+  experienceToNext: number;
+
   // Core attributes
   strength: number;
   dexterity: number;
@@ -61,6 +66,9 @@ export function createDefaultStats(characterClass: string): CharacterStats {
     const baseStats = calculateBaseStatsFromAttributes(strength, dexterity, intelligence);
 
     return {
+      level: 1,
+      experience: 0,
+      experienceToNext: 100,
       strength,
       dexterity,
       intelligence,
@@ -86,6 +94,9 @@ export function createDefaultStats(characterClass: string): CharacterStats {
     const baseStats = calculateBaseStatsFromAttributes(strength, dexterity, intelligence);
 
     return {
+      level: 1,
+      experience: 0,
+      experienceToNext: 100,
       strength,
       dexterity,
       intelligence,
@@ -271,5 +282,102 @@ export function calculateAilmentMechanics(stats: CharacterStats): {
 /** Format a number with + sign if positive */
 export function formatStatBonus(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
+}
+
+/**
+ * Merge character base stats with skill tree passive bonuses.
+ * This function combines equipment/base stats with all bonuses from the skill tree.
+ *
+ * @param baseStats Character's base stats (from character + equipment)
+ * @param treeBonuses Calculated bonuses from allocated skill tree nodes
+ * @returns Final merged CharacterStats with all bonuses applied
+ */
+export function mergeStatsWithTreeBonuses(
+  baseStats: CharacterStats,
+  treeBonuses: {
+    str: number;
+    dex: number;
+    int: number;
+    hp_flat: number;
+    mp_flat: number;
+    energy_shield: number;
+    armor: number;
+    evasion: number;
+    accuracy: number;
+    fire_resistance: number;
+    cold_resistance: number;
+    lightning_resistance: number;
+    chaos_resistance: number;
+    melee_pct: number;
+    bow_pct: number;
+    spell_pct: number;
+    crit_chance: number;
+    crit_multiplier: number;
+    attack_speed: number;
+    cast_speed: number;
+    block_chance: number;
+    dodge_chance: number;
+    stun_threshold: number;
+    stun_duration: number;
+    movement_speed: number;
+    mana_cost_reduction: number;
+    mana_regen: number;
+    minion_damage: number;
+    totem_damage: number;
+  }
+): CharacterStats {
+  // Recalculate base values from new attributes (STR/DEX/INT affect base HP/MP/Accuracy)
+  const newStrength = baseStats.strength + treeBonuses.str;
+  const newDexterity = baseStats.dexterity + treeBonuses.dex;
+  const newIntelligence = baseStats.intelligence + treeBonuses.int;
+
+  // Recalculate attribute-derived stats
+  const attributeStats = calculateBaseStatsFromAttributes(newStrength, newDexterity, newIntelligence);
+
+  // Merge stats: base + tree flat bonuses
+  const newMaxHp = attributeStats.baseHp + treeBonuses.hp_flat;
+  const newMaxMp = attributeStats.baseMp + treeBonuses.mp_flat;
+
+  return {
+    // Progression stats (unchanged by tree)
+    level: baseStats.level,
+    experience: baseStats.experience,
+    experienceToNext: baseStats.experienceToNext,
+
+    // Core attributes: base + tree bonuses
+    strength: newStrength,
+    dexterity: newDexterity,
+    intelligence: newIntelligence,
+
+    // Resources: recalculated from attributes + tree flat bonuses
+    maxHp: newMaxHp,
+    maxMp: newMaxMp,
+    // Keep current HP/MP ratio when max changes
+    hp: Math.min(baseStats.hp, newMaxHp),
+    mp: Math.min(baseStats.mp, newMaxMp),
+    energyShield: treeBonuses.energy_shield,
+    maxEnergyShield: treeBonuses.energy_shield,
+
+    // Defense: base + tree flat bonuses
+    armor: baseStats.armor + treeBonuses.armor,
+    evasion: baseStats.evasion + treeBonuses.evasion,
+
+    // Resistances: base + tree bonuses (will be capped at 75% in game logic)
+    fireResistance: baseStats.fireResistance + treeBonuses.fire_resistance,
+    coldResistance: baseStats.coldResistance + treeBonuses.cold_resistance,
+    lightningResistance: baseStats.lightningResistance + treeBonuses.lightning_resistance,
+    chaosResistance: baseStats.chaosResistance + treeBonuses.chaos_resistance,
+
+    // Accuracy: recalculated from DEX + tree bonuses
+    accuracy: attributeStats.baseAccuracy + treeBonuses.accuracy,
+  };
+}
+
+/**
+ * Calculate experience required for next level (exponential curve)
+ */
+export function calculateExperienceForLevel(level: number): number {
+  // POE-style exponential curve: 100 * (level^1.5)
+  return Math.floor(100 * Math.pow(level, 1.5));
 }
 

@@ -120,6 +120,15 @@ const treeState: TreeState = {
   keystoneModifiers: new Map(),
 };
 
+/** Character context for requirement checking */
+let characterContext: {
+  level: number;
+  class: 'warrior' | 'archer' | 'mage';
+} = {
+  level: 1,
+  class: 'warrior',
+};
+
 /** Keystone effect manager for complex passive effects */
 export class KeystoneManager {
   private keystoneEffects: Map<string, KeystoneEffect> = new Map();
@@ -367,14 +376,12 @@ function checkRequirement(req: NodeRequirement): boolean {
       return currentValue >= req.value;
 
     case 'level':
-      // For now, assume level requirements are always met
-      // This would integrate with character level system
-      return true;
+      // Check character level
+      return characterContext.level >= req.value;
 
     case 'class':
-      // For now, assume class requirements are always met
-      // This would integrate with character class system
-      return true;
+      // Check character class
+      return characterContext.class === req.value;
 
     default:
       console.warn(`Unknown requirement type: ${req.type}`);
@@ -693,6 +700,17 @@ export function setAllocatedNodes(nodeIds: string[]): void {
 /** Set available passive points */
 export function setPassivePoints(points: number): void {
   treeState.passivePoints = points;
+}
+
+/** Set character context for requirement checking */
+export function setCharacterContext(level: number, characterClass: 'warrior' | 'archer' | 'mage'): void {
+  characterContext.level = level;
+  characterContext.class = characterClass;
+}
+
+/** Get current character context */
+export function getCharacterContext(): { level: number; class: 'warrior' | 'archer' | 'mage' } {
+  return { ...characterContext };
 }
 
 /** Reset all nodes except start */

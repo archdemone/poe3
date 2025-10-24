@@ -22,6 +22,10 @@ export interface SaveData {
     name: string;
     class: 'warrior' | 'archer';
     stats: {
+      // Progression
+      level: number;
+      experience: number;
+      experienceToNext: number;
       // Core attributes
       strength: number;
       dexterity: number;
@@ -34,6 +38,16 @@ export interface SaveData {
       // Defense
       armor: number;
       evasion: number;
+      // Resistances (added for completeness)
+      fireResistance?: number;
+      coldResistance?: number;
+      lightningResistance?: number;
+      chaosResistance?: number;
+      // Energy Shield
+      energyShield?: number;
+      maxEnergyShield?: number;
+      // Accuracy
+      accuracy?: number;
     };
   };
   inventory: {
@@ -145,6 +159,34 @@ export function loadGame(slot: 0 | 1 | 2): SaveData | null {
 
 /** Migrate save data from old format to new format */
 function migrateSaveData(saveData: SaveData): void {
+  // Migrate character stats to include new fields
+  if (saveData.character && saveData.character.stats) {
+    const stats = saveData.character.stats;
+
+    // Add level/experience if missing
+    if (!stats.level) {
+      stats.level = saveData.meta.level || 1;
+      stats.experience = 0;
+      stats.experienceToNext = 100;
+    }
+
+    // Add resistances if missing
+    if (stats.fireResistance === undefined) stats.fireResistance = 0;
+    if (stats.coldResistance === undefined) stats.coldResistance = 0;
+    if (stats.lightningResistance === undefined) stats.lightningResistance = 0;
+    if (stats.chaosResistance === undefined) stats.chaosResistance = 0;
+
+    // Add energy shield if missing
+    if (stats.energyShield === undefined) stats.energyShield = 0;
+    if (stats.maxEnergyShield === undefined) stats.maxEnergyShield = 0;
+
+    // Add accuracy if missing (calculate from DEX)
+    if (stats.accuracy === undefined) {
+      const dex = stats.dexterity || 10;
+      stats.accuracy = 80 + (dex * 8);
+    }
+  }
+
   // Migrate skill tree data
   if (saveData.skillTree) {
     // Add activeKeystones if missing
@@ -157,10 +199,10 @@ function migrateSaveData(saveData: SaveData): void {
       saveData.skillTree.weaponSpecializations = {};
     }
 
-    // Update available points if using old system (3 points vs 24)
-    if (saveData.skillTree.availablePoints < 10) {
+    // Update available points if using old system (12 points → 100 points)
+    if (saveData.skillTree.availablePoints < 20) {
       // Assume this is an old save, update to new point system
-      saveData.skillTree.availablePoints = 24 - (saveData.skillTree.allocatedNodes.length - 1);
+      saveData.skillTree.availablePoints = 100 - (saveData.skillTree.allocatedNodes.length - 1);
     }
   }
 
@@ -194,8 +236,11 @@ export function createNewSave(
   const starterSkill = characterClass === 'warrior' ? 'heavyStrike' : 'splitShot';
 
   // Starter stats based on class
-  const starterStats = characterClass === 'warrior' 
+  const starterStats = characterClass === 'warrior'
     ? {
+        level: 1,
+        experience: 0,
+        experienceToNext: 100,
         strength: 20,
         dexterity: 10,
         intelligence: 10,
@@ -205,8 +250,18 @@ export function createNewSave(
         maxMp: 50,
         armor: 10,
         evasion: 5,
+        fireResistance: 0,
+        coldResistance: 0,
+        lightningResistance: 0,
+        chaosResistance: 0,
+        energyShield: 0,
+        maxEnergyShield: 0,
+        accuracy: 160, // Base 80 + (10 DEX * 8)
       }
     : {
+        level: 1,
+        experience: 0,
+        experienceToNext: 100,
         strength: 10,
         dexterity: 20,
         intelligence: 10,
@@ -216,6 +271,13 @@ export function createNewSave(
         maxMp: 60,
         armor: 5,
         evasion: 15,
+        fireResistance: 0,
+        coldResistance: 0,
+        lightningResistance: 0,
+        chaosResistance: 0,
+        energyShield: 0,
+        maxEnergyShield: 0,
+        accuracy: 240, // Base 80 + (20 DEX * 8)
       };
 
   const saveData: SaveData = {
@@ -251,7 +313,7 @@ export function createNewSave(
     },
     skillTree: {
       allocatedNodes: ['start'], // Start node is always allocated
-      availablePoints: 24, // Updated for POE2-style tree
+      availablePoints: 100, // Updated for POE2-style tree (large tree with 553 nodes)
       activeKeystones: [], // Start with no active keystones
       weaponSpecializations: {}, // Empty weapon specializations
     },
