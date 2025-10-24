@@ -1,9 +1,9 @@
 {
   "metadata": {
     "version": "3.0.0-poe2-scale",
-    "generatedAt": "2025-10-24T17:16:15.484Z",
+    "generatedAt": "2025-10-24T17:23:42.216Z",
     "totalNodes": 2380,
-    "totalConnections": 9302,
+    "totalConnections": 9323,
     "generator": "generateSkillTree.ts (POE2 Full Scale)",
     "scale": "99% of POE2 (2380/2402 nodes)"
   },
@@ -72810,6 +72810,10 @@
         {
           "type": "node",
           "value": "hybrid_str_dex_r3"
+        },
+        {
+          "type": "node",
+          "value": "str_r1_0"
         }
       ],
       "tags": [
@@ -73341,6 +73345,10 @@
         {
           "type": "node",
           "value": "cluster_maximum_mana_4"
+        },
+        {
+          "type": "node",
+          "value": "dex_r5_0"
         }
       ],
       "tags": [
@@ -73383,6 +73391,10 @@
         {
           "type": "node",
           "value": "hybrid_dex_int_r7"
+        },
+        {
+          "type": "node",
+          "value": "dex_r6_0"
         }
       ],
       "tags": [
@@ -73425,6 +73437,10 @@
         {
           "type": "node",
           "value": "cluster_maximum_mana_7"
+        },
+        {
+          "type": "node",
+          "value": "dex_r7_0"
         }
       ],
       "tags": [
@@ -73459,6 +73475,10 @@
         {
           "type": "node",
           "value": "cluster_movement_speed_1"
+        },
+        {
+          "type": "node",
+          "value": "dex_r8_0"
         }
       ],
       "tags": [
@@ -73502,6 +73522,10 @@
         {
           "type": "node",
           "value": "cluster_mana_cost_reduction_5"
+        },
+        {
+          "type": "node",
+          "value": "dex_r9_0"
         }
       ],
       "tags": [
@@ -73532,6 +73556,10 @@
         {
           "type": "node",
           "value": "hybrid_dex_int_r11"
+        },
+        {
+          "type": "node",
+          "value": "dex_r10_0"
         }
       ],
       "tags": [
@@ -73749,6 +73777,10 @@
         {
           "type": "node",
           "value": "cluster_maximum_life_1"
+        },
+        {
+          "type": "node",
+          "value": "str_r5_24"
         }
       ],
       "tags": [
@@ -73791,6 +73823,10 @@
         {
           "type": "node",
           "value": "hybrid_int_str_r7"
+        },
+        {
+          "type": "node",
+          "value": "str_r6_27"
         }
       ],
       "tags": [
@@ -73833,6 +73869,10 @@
         {
           "type": "node",
           "value": "cluster_maximum_life_9"
+        },
+        {
+          "type": "node",
+          "value": "str_r7_30"
         }
       ],
       "tags": [
@@ -73863,6 +73903,10 @@
         {
           "type": "node",
           "value": "hybrid_int_str_r9"
+        },
+        {
+          "type": "node",
+          "value": "str_r8_33"
         }
       ],
       "tags": [
@@ -73894,6 +73938,10 @@
         {
           "type": "node",
           "value": "hybrid_int_str_r10"
+        },
+        {
+          "type": "node",
+          "value": "str_r9_36"
         }
       ],
       "tags": [
@@ -73924,6 +73972,10 @@
         {
           "type": "node",
           "value": "hybrid_int_str_r11"
+        },
+        {
+          "type": "node",
+          "value": "str_r10_39"
         }
       ],
       "tags": [
@@ -77319,6 +77371,10 @@
         {
           "type": "node",
           "value": "cluster_critical_strike_chance_2"
+        },
+        {
+          "type": "node",
+          "value": "hybrid_str_dex_r7"
         }
       ],
       "tags": [
@@ -77528,6 +77584,10 @@
         {
           "type": "node",
           "value": "cluster_all_resistances_5"
+        },
+        {
+          "type": "node",
+          "value": "hybrid_str_dex_r8"
         }
       ],
       "tags": [
@@ -77721,6 +77781,10 @@
         {
           "type": "node",
           "value": "cluster_critical_strike_chance_9"
+        },
+        {
+          "type": "node",
+          "value": "hybrid_str_dex_r6"
         }
       ],
       "tags": [
@@ -78074,6 +78138,10 @@
         {
           "type": "node",
           "value": "cluster_critical_multiplier_7"
+        },
+        {
+          "type": "node",
+          "value": "hybrid_str_dex_r5"
         }
       ],
       "tags": [
@@ -79410,6 +79478,10 @@
         {
           "type": "node",
           "value": "cluster_attack_speed_9"
+        },
+        {
+          "type": "node",
+          "value": "dex_r9_36"
         }
       ],
       "tags": [
@@ -79763,6 +79835,10 @@
         {
           "type": "node",
           "value": "cluster_cast_speed_9"
+        },
+        {
+          "type": "node",
+          "value": "str_r8_0"
         }
       ],
       "tags": [
@@ -80959,6 +81035,10 @@
         {
           "type": "node",
           "value": "cluster_stun_threshold_5"
+        },
+        {
+          "type": "node",
+          "value": "str_r9_0"
         }
       ],
       "tags": [
@@ -81168,6 +81248,10 @@
         {
           "type": "node",
           "value": "cluster_movement_speed_7"
+        },
+        {
+          "type": "node",
+          "value": "hybrid_dex_int_r8"
         }
       ],
       "tags": [
@@ -120453,6 +120537,90 @@
     [
       "dex_r5_15",
       "cluster_elemental_damage_5"
+    ],
+    [
+      "str_r1_0",
+      "hybrid_str_dex_r2"
+    ],
+    [
+      "dex_r5_0",
+      "hybrid_dex_int_r5"
+    ],
+    [
+      "dex_r6_0",
+      "hybrid_dex_int_r6"
+    ],
+    [
+      "dex_r7_0",
+      "hybrid_dex_int_r7"
+    ],
+    [
+      "dex_r8_0",
+      "hybrid_dex_int_r8"
+    ],
+    [
+      "dex_r9_0",
+      "hybrid_dex_int_r9"
+    ],
+    [
+      "dex_r10_0",
+      "hybrid_dex_int_r10"
+    ],
+    [
+      "str_r5_24",
+      "hybrid_int_str_r5"
+    ],
+    [
+      "str_r6_27",
+      "hybrid_int_str_r6"
+    ],
+    [
+      "str_r7_30",
+      "hybrid_int_str_r7"
+    ],
+    [
+      "str_r8_33",
+      "hybrid_int_str_r8"
+    ],
+    [
+      "str_r9_36",
+      "hybrid_int_str_r9"
+    ],
+    [
+      "str_r10_39",
+      "hybrid_int_str_r10"
+    ],
+    [
+      "hybrid_str_dex_r7",
+      "cluster_chaos_resistance_0"
+    ],
+    [
+      "hybrid_str_dex_r8",
+      "cluster_all_resistances_0"
+    ],
+    [
+      "hybrid_str_dex_r6",
+      "cluster_critical_strike_chance_0"
+    ],
+    [
+      "hybrid_str_dex_r5",
+      "cluster_critical_multiplier_0"
+    ],
+    [
+      "dex_r9_36",
+      "cluster_attack_speed_0"
+    ],
+    [
+      "str_r8_0",
+      "cluster_cast_speed_0"
+    ],
+    [
+      "str_r9_0",
+      "cluster_stun_threshold_0"
+    ],
+    [
+      "hybrid_dex_int_r8",
+      "cluster_movement_speed_0"
     ]
   ]
 }

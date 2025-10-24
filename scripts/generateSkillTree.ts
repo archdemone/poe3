@@ -512,6 +512,74 @@ function generateSkillTree(): SkillTreeData {
 
   console.log(`  ✓ Connections complete: ${edges.length} connections`);
 
+  // BRIDGE CONNECTIONS - Connect isolated hybrid paths and clusters to main tree
+  console.log('  Adding bridge connections for hybrid paths and clusters...');
+
+  // Connect each hybrid path to the nearest main path nodes
+  hybridConnections.forEach((hybrid) => {
+    for (let ring = 2; ring <= 12; ring++) {
+      const hybridId = `hybrid_${hybrid.from}_${hybrid.to}_r${ring}`;
+      const hybridNode = nodes.find(n => n.id === hybridId);
+      if (!hybridNode) continue;
+
+      // Find nearest nodes from main paths (not other hybrid/cluster nodes)
+      const mainPathNodes = nodes.filter(n =>
+        (n.id.startsWith('str_') || n.id.startsWith('dex_') || n.id.startsWith('int_')) &&
+        !n.id.includes('hybrid') &&
+        !n.id.includes('cluster')
+      );
+
+      const nearest = mainPathNodes
+        .map(other => ({
+          id: other.id,
+          dist: Math.sqrt((hybridNode.x - other.x) ** 2 + (hybridNode.y - other.y) ** 2)
+        }))
+        .sort((a, b) => a.dist - b.dist)[0];
+
+      if (nearest && nearest.dist < 150) { // Larger distance for bridges
+        const edgeExists = edges.some(
+          ([from, to]) =>
+            (from === hybridId && to === nearest.id) || (from === nearest.id && to === hybridId)
+        );
+        if (!edgeExists) {
+          edges.push([nearest.id, hybridId]);
+        }
+      }
+    }
+  });
+
+  // Connect each cluster's entry node (first node) to the nearest main path
+  clusters.forEach((cluster) => {
+    const clusterId = `cluster_${cluster.name.toLowerCase().replace(/ /g, '_')}_0`;
+    const clusterNode = nodes.find(n => n.id === clusterId);
+    if (!clusterNode) return;
+
+    // Find nearest main path or hybrid node
+    const pathNodes = nodes.filter(n =>
+      (n.id.startsWith('str_') || n.id.startsWith('dex_') || n.id.startsWith('int_') || n.id.startsWith('hybrid_')) &&
+      !n.id.includes('cluster')
+    );
+
+    const nearest = pathNodes
+      .map(other => ({
+        id: other.id,
+        dist: Math.sqrt((clusterNode.x - other.x) ** 2 + (clusterNode.y - other.y) ** 2)
+      }))
+      .sort((a, b) => a.dist - b.dist)[0];
+
+    if (nearest && nearest.dist < 200) { // Even larger for clusters
+      const edgeExists = edges.some(
+        ([from, to]) =>
+          (from === clusterId && to === nearest.id) || (from === nearest.id && to === clusterId)
+      );
+      if (!edgeExists) {
+        edges.push([nearest.id, clusterId]);
+      }
+    }
+  });
+
+  console.log(`  ✓ Bridge connections added: ${edges.length} total connections`);
+
   // ADD REQUIREMENTS to nodes based on edges
   edges.forEach(([from, to]) => {
     const toNode = nodes.find(n => n.id === to);

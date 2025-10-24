@@ -138,76 +138,69 @@ export class KeystoneManager {
   }
 
   private registerKeystoneEffects(): void {
-    // Unbreakable - Cannot be stunned, +20% armor, +25 str, +60 hp
+    // Note: Keystones in tree have IDs like str_r18_0, dex_r18_0, int_r18_0
+    // We register them by their node ID for dynamic lookup
+
+    // The generator creates keystones at ring 18 positions 0, 32, 63 for each path
+    // We'll register the effects they SHOULD have, but node-based application
+    // happens through the stat calculation system
+
+    // Legacy keystones (kept for compatibility)
     this.registerKeystone('unbreakable', {
       name: 'Unbreakable',
-      apply: (stats, allocatedNodes) => {
-        return {
-          ...stats,
-          str: stats.str + 25,
-          hp_flat: stats.hp_flat + 60,
-          armor: stats.armor * 1.20, // 20% more armor
-          stun_threshold: 0 // Cannot be stunned
-        };
-      },
+      apply: (stats) => ({
+        ...stats,
+        str: stats.str + 25,
+        hp_flat: stats.hp_flat + 60,
+        armor: Math.floor(stats.armor * 1.20),
+        stun_threshold: 0
+      }),
       description: 'You cannot be stunned. 20% more Armor.'
     });
 
-    // Titanic Strength - Immense strength and melee power
     this.registerKeystone('titanic_strength', {
       name: 'Titanic Strength',
-      apply: (stats, allocatedNodes) => {
-        return {
-          ...stats,
-          str: stats.str + 30,
-          melee_pct: stats.melee_pct * 1.20, // 20% more melee damage
-          stun_duration: stats.stun_duration * 0.50 // 50% less stun duration
-        };
-      },
+      apply: (stats) => ({
+        ...stats,
+        str: stats.str + 30,
+        melee_pct: Math.floor(stats.melee_pct * 1.20),
+        stun_duration: Math.floor(stats.stun_duration * 0.50)
+      }),
       description: 'The earth trembles at your might'
     });
 
-    // Wind Dancer - Unparalleled speed and evasion
     this.registerKeystone('wind_dancer', {
       name: 'Wind Dancer',
-      apply: (stats, allocatedNodes) => {
-        return {
-          ...stats,
-          dex: stats.dex + 30,
-          movement_speed: stats.movement_speed + 15,
-          dodge_chance: stats.dodge_chance + 10
-        };
-      },
+      apply: (stats) => ({
+        ...stats,
+        dex: stats.dex + 30,
+        movement_speed: stats.movement_speed + 15,
+        dodge_chance: stats.dodge_chance + 10
+      }),
       description: 'Dance with the wind, strike like lightning'
     });
 
-    // Arcane Scholar - Master of arcane arts
     this.registerKeystone('arcane_scholar', {
       name: 'Arcane Scholar',
-      apply: (stats, allocatedNodes) => {
-        return {
-          ...stats,
-          int: stats.int + 30,
-          spell_pct: stats.spell_pct * 1.20, // 20% more spell damage
-          mana_regen: stats.mana_regen + 20
-        };
-      },
+      apply: (stats) => ({
+        ...stats,
+        int: stats.int + 30,
+        spell_pct: Math.floor(stats.spell_pct * 1.20),
+        mana_regen: stats.mana_regen + 20
+      }),
       description: 'Knowledge is the greatest power'
     });
 
-    // Ascendant Power - Master of all elements, +20 all attributes, +50 hp/mp
     this.registerKeystone('ascendant_power', {
       name: 'Ascendant Power',
-      apply: (stats, allocatedNodes) => {
-        return {
-          ...stats,
-          str: stats.str + 20,
-          dex: stats.dex + 20,
-          int: stats.int + 20,
-          hp_flat: stats.hp_flat + 50,
-          mp_flat: stats.mp_flat + 50
-        };
-      },
+      apply: (stats) => ({
+        ...stats,
+        str: stats.str + 20,
+        dex: stats.dex + 20,
+        int: stats.int + 20,
+        hp_flat: stats.hp_flat + 50,
+        mp_flat: stats.mp_flat + 50
+      }),
       description: 'Master of all elements'
     });
   }
