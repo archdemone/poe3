@@ -86,11 +86,15 @@ export interface DerivedBonuses {
   crit_multiplier: number;
   attack_speed: number;
   cast_speed: number;
+  accuracy: number;
 
   // Defense
   armor: number;
   evasion: number;
   block_chance: number;
+  dodge_chance: number;
+  stun_threshold: number;
+  stun_duration: number;
 
   // Resistances
   fire_resistance: number;
@@ -101,6 +105,7 @@ export interface DerivedBonuses {
   // Utility
   movement_speed: number;
   mana_cost_reduction: number;
+  mana_regen: number;
   minion_damage: number;
   totem_damage: number;
 }
@@ -125,49 +130,64 @@ export class KeystoneManager {
 
   private registerKeystoneEffects(): void {
     // Unbreakable - Cannot be stunned, +20% armor, +25 str, +60 hp
-    this.registerKeystone('keystone_1', {
+    this.registerKeystone('unbreakable', {
       name: 'Unbreakable',
       apply: (stats, allocatedNodes) => {
         return {
           ...stats,
           str: stats.str + 25,
           hp_flat: stats.hp_flat + 60,
-          armor: stats.armor * 1.20 // 20% more armor
+          armor: stats.armor * 1.20, // 20% more armor
+          stun_threshold: 0 // Cannot be stunned
         };
       },
-      description: 'You cannot be stunned'
+      description: 'You cannot be stunned. 20% more Armor.'
     });
 
-    // Phantom Strike - Chance for attacks to pass through enemies, +25 dex, +25% bow, +15% movement
-    this.registerKeystone('keystone_2', {
-      name: 'Phantom Strike',
+    // Titanic Strength - Immense strength and melee power
+    this.registerKeystone('titanic_strength', {
+      name: 'Titanic Strength',
       apply: (stats, allocatedNodes) => {
         return {
           ...stats,
-          dex: stats.dex + 25,
-          bow_pct: stats.bow_pct + 25,
-          movement_speed: stats.movement_speed * 1.15
+          str: stats.str + 30,
+          melee_pct: stats.melee_pct * 1.20, // 20% more melee damage
+          stun_duration: stats.stun_duration * 0.50 // 50% less stun duration
         };
       },
-      description: 'Your attacks have a chance to pass through enemies'
+      description: 'The earth trembles at your might'
     });
 
-    // Arcane Dominion - Faster mana regeneration, +25 int, +20% spell, +50 mp
-    this.registerKeystone('keystone_3', {
-      name: 'Arcane Dominion',
+    // Wind Dancer - Unparalleled speed and evasion
+    this.registerKeystone('wind_dancer', {
+      name: 'Wind Dancer',
       apply: (stats, allocatedNodes) => {
         return {
           ...stats,
-          int: stats.int + 25,
-          spell_pct: stats.spell_pct + 20,
-          mp_flat: stats.mp_flat + 50
+          dex: stats.dex + 30,
+          movement_speed: stats.movement_speed + 15,
+          dodge_chance: stats.dodge_chance + 10
         };
       },
-      description: 'You regenerate mana 50% faster'
+      description: 'Dance with the wind, strike like lightning'
+    });
+
+    // Arcane Scholar - Master of arcane arts
+    this.registerKeystone('arcane_scholar', {
+      name: 'Arcane Scholar',
+      apply: (stats, allocatedNodes) => {
+        return {
+          ...stats,
+          int: stats.int + 30,
+          spell_pct: stats.spell_pct * 1.20, // 20% more spell damage
+          mana_regen: stats.mana_regen + 20
+        };
+      },
+      description: 'Knowledge is the greatest power'
     });
 
     // Ascendant Power - Master of all elements, +20 all attributes, +50 hp/mp
-    this.registerKeystone('keystone_4', {
+    this.registerKeystone('ascendant_power', {
       name: 'Ascendant Power',
       apply: (stats, allocatedNodes) => {
         return {
@@ -232,8 +252,13 @@ export async function loadSkillTree(forceReload = false): Promise<SkillTreeData>
   if (skillTreeData && !forceReload) return skillTreeData;
 
   try {
-    // Try loading from new POE2 tree first, fallback to old tree
-    let response = await fetch('/data/generated/poe2_skill_tree.json?v=' + Date.now());
+    // Try loading from large generated tree first
+    let response = await fetch('/data/generated/poe2_skill_tree_large.json?v=' + Date.now());
+
+    if (!response.ok) {
+      console.log('Large tree not found, trying smaller POE2 tree');
+      response = await fetch('/data/generated/poe2_skill_tree.json?v=' + Date.now());
+    }
 
     if (!response.ok) {
       console.log('POE2 tree not found, falling back to legacy tree');
@@ -462,22 +487,27 @@ export class StatCalculator {
       hp_flat: character.maxHp || 100,
       mp_flat: character.maxMp || 50,
       energy_shield: 0,
-    melee_pct: 0,
-    bow_pct: 0,
+      melee_pct: 0,
+      bow_pct: 0,
       spell_pct: 0,
       crit_chance: 5, // 5% base crit
       crit_multiplier: 150, // 150% base multiplier
       attack_speed: 100,
       cast_speed: 100,
+      accuracy: 100, // Base accuracy
       armor: character.armor || 0,
       evasion: character.evasion || 0,
       block_chance: 0,
+      dodge_chance: 0,
+      stun_threshold: 100, // 100% base threshold
+      stun_duration: 100, // 100% base duration
       fire_resistance: 0,
       cold_resistance: 0,
       lightning_resistance: 0,
       chaos_resistance: 0,
       movement_speed: 100,
       mana_cost_reduction: 0,
+      mana_regen: 1, // Base 1 mp/s
       minion_damage: 0,
       totem_damage: 0,
     };

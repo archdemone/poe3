@@ -106,7 +106,7 @@ describe('Skill Tree System', () => {
   describe('KeystoneManager', () => {
     it('should provide keystone effects', () => {
       const keystoneManager = new KeystoneManager();
-      const unbreakableEffect = keystoneManager.getKeystoneEffect('keystone_1');
+      const unbreakableEffect = keystoneManager.getKeystoneEffect('unbreakable');
       expect(unbreakableEffect).toBeDefined();
       expect(unbreakableEffect?.name).toBe('Unbreakable');
       expect(unbreakableEffect?.description).toContain('stunned');
@@ -118,13 +118,14 @@ describe('Skill Tree System', () => {
         str: 10, dex: 10, int: 10, hp_flat: 100, mp_flat: 50,
         energy_shield: 0, melee_pct: 0, bow_pct: 0, spell_pct: 0,
         crit_chance: 5, crit_multiplier: 150, attack_speed: 100,
-        cast_speed: 100, armor: 10, evasion: 5, block_chance: 0,
+        cast_speed: 100, accuracy: 100, armor: 10, evasion: 5, block_chance: 0,
+        dodge_chance: 0, stun_threshold: 100, stun_duration: 100,
         fire_resistance: 0, cold_resistance: 0, lightning_resistance: 0,
         chaos_resistance: 0, movement_speed: 100, mana_cost_reduction: 0,
-        minion_damage: 0, totem_damage: 0
+        mana_regen: 1, minion_damage: 0, totem_damage: 0
       };
 
-      const modifiedStats = keystoneManager.applyKeystoneEffects(baseStats, ['keystone_1']);
+      const modifiedStats = keystoneManager.applyKeystoneEffects(baseStats, ['unbreakable']);
       expect(modifiedStats.str).toBe(35); // 10 + 25 from Unbreakable
       expect(modifiedStats.hp_flat).toBe(160); // 100 + 60 from Unbreakable
     });
