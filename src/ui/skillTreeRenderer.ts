@@ -1,6 +1,7 @@
 // High-performance Canvas-based skill tree renderer with spatial indexing and LOD
 
 import type { SkillNode, SkillTreeData, TreeState } from '../gameplay/skillTree';
+import { getSkillTree } from '../gameplay/skillTree';
 
 // QuadTree for spatial indexing
 class QuadTree {
@@ -492,6 +493,38 @@ export class SkillTreeRenderer {
   }
 
   private setupEventListeners(): void {
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Only handle if skill tree is visible
+      const skillTreePanel = document.getElementById('skill-tree');
+      if (!skillTreePanel || skillTreePanel.classList.contains('hidden')) return;
+
+      switch(e.key) {
+        case ' ': // Space - center on tree
+          e.preventDefault();
+          const treeData = getSkillTree();
+          if (treeData && treeData.nodes) {
+            this.centerViewportOnTree(treeData.nodes);
+            console.log('[SkillTree] Centered via Space key');
+          }
+          break;
+        case '+':
+        case '=': // Zoom in
+          e.preventDefault();
+          this.viewport.zoom = Math.min(this.viewport.zoom * 1.2, 3);
+          break;
+        case '-':
+        case '_': // Zoom out
+          e.preventDefault();
+          this.viewport.zoom = Math.max(this.viewport.zoom * 0.8, 0.1);
+          break;
+        case '0': // Reset zoom
+          e.preventDefault();
+          this.viewport.zoom = 1;
+          break;
+      }
+    });
+
     // Pan and zoom controls
     let isDragging = false;
     let lastX = 0;
