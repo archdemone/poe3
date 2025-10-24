@@ -12,6 +12,8 @@ import {
   refundNode,
   resetTree,
   getKeystoneEffect,
+  computePassiveBonuses,
+  StatCalculator,
 } from '../gameplay/skillTree';
 
 let onTreeChange: (() => void) | null = null;
@@ -257,6 +259,53 @@ function showTooltip(event: MouseEvent, node: SkillNode): void {
   tooltipStats.innerHTML = statLines
     .map(line => `<div class="tooltip-stat-positive">${line}</div>`)
     .join('');
+
+  // Add stat preview if node is not allocated
+  if (!state.allocated.has(node.id) && node.type !== 'start') {
+    const treeData = getSkillTree();
+    if (treeData) {
+      try {
+        // Calculate current stats
+        const currentStats = computePassiveBonuses(treeData);
+
+        // Calculate stats with this node hypothetically allocated
+        const hypotheticalNodes = [...Array.from(state.allocated), node.id];
+        const calculator = new StatCalculator();
+        const mockCharacter = {
+          strength: 10,
+          dexterity: 10,
+          intelligence: 10,
+          maxHp: 100,
+          maxMp: 50,
+          armor: 0,
+          evasion: 0,
+        };
+        const newStats = calculator.calculate(mockCharacter, {}, hypotheticalNodes, treeData);
+
+        // Show preview for key stats that changed
+        const previewLines: string[] = [];
+        const keyStats = ['str', 'dex', 'int', 'hp_flat', 'mp_flat', 'melee_pct', 'bow_pct', 'spell_pct', 'crit_chance', 'armor', 'evasion'];
+
+        for (const stat of keyStats) {
+          const current = (currentStats as any)[stat];
+          const newValue = (newStats as any)[stat];
+          if (current !== newValue && newValue !== undefined && current !== undefined) {
+            const label = statLabels[stat] || stat;
+            const diff = newValue - current;
+            const sign = diff > 0 ? '+' : '';
+            previewLines.push(`<div class="tooltip-stat-preview">${label}: ${current} → ${newValue} (${sign}${diff})</div>`);
+          }
+        }
+
+        if (previewLines.length > 0) {
+          tooltipStats.innerHTML += '<div class="tooltip-divider"></div>' + previewLines.join('');
+        }
+      } catch (err) {
+        // Silently fail if stat calculation fails
+        console.warn('Failed to calculate stat preview:', err);
+      }
+    }
+  }
 
   tooltipCost.textContent = 'Cost: 1 point';
 
