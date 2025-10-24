@@ -42,6 +42,12 @@ export async function initSkillTree(onChange: () => void): Promise<void> {
   renderer = new SkillTreeRenderer(canvas);
   await renderer.initialize();
 
+  // Center viewport on tree initially
+  const treeData = getSkillTree();
+  if (treeData && treeData.nodes.length > 0) {
+    renderer.centerOnTree(treeData.nodes);
+  }
+
   // Start render loop
   renderer.startRenderLoop(() => {
     const treeData = getSkillTree();
@@ -52,6 +58,7 @@ export async function initSkillTree(onChange: () => void): Promise<void> {
   });
 
   updatePointsDisplay();
+  updateBuildStatsPanel();
   setupEventListeners();
 }
 
@@ -381,6 +388,13 @@ function updatePointsDisplay(): void {
 export function refreshTree(): void {
   updatePointsDisplay();
   updateBuildStatsPanel();
+
+  // Center viewport on tree to ensure it's visible
+  const treeData = getSkillTree();
+  if (renderer && treeData && treeData.nodes.length > 0) {
+    renderer.centerOnTree(treeData.nodes);
+  }
+
   // Canvas renderer handles its own updates via render loop
 }
 

@@ -212,6 +212,13 @@ export class SkillTreeRenderer {
     await this.nodeAtlas.loadSprites();
   }
 
+  /** Force center the viewport on the tree - useful when opening the skill tree panel */
+  public centerOnTree(nodes: SkillNode[]): void {
+    if (nodes.length > 0) {
+      this.centerViewportOnTree(nodes);
+    }
+  }
+
   render(nodes: SkillNode[], edges: Array<[string, string]>, state: TreeState): void {
     const now = performance.now();
     if (now - this.lastFrameTime < this.frameInterval) return;
