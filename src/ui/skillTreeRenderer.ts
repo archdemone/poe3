@@ -215,7 +215,15 @@ export class SkillTreeRenderer {
   /** Force center the viewport on the tree - useful when opening the skill tree panel */
   public centerOnTree(nodes: SkillNode[]): void {
     if (nodes.length > 0) {
+      console.log('[SkillTree] Centering viewport on', nodes.length, 'nodes');
       this.centerViewportOnTree(nodes);
+      console.log('[SkillTree] Viewport after centering:', {
+        x: this.viewport.x,
+        y: this.viewport.y,
+        zoom: this.viewport.zoom,
+        canvasWidth: this.canvas.width,
+        canvasHeight: this.canvas.height
+      });
     }
   }
 
@@ -241,6 +249,11 @@ export class SkillTreeRenderer {
     // Clear canvas
     this.ctx.fillStyle = '#1a1a1a';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Debug: Draw a red border to confirm canvas is rendering
+    this.ctx.strokeStyle = '#ff0000';
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(1, 1, this.canvas.width - 2, this.canvas.height - 2);
 
     // Update viewport
     this.viewport.update(this.canvas);
