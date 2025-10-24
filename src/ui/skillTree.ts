@@ -14,6 +14,7 @@ import {
   getKeystoneEffect,
   computePassiveBonuses,
   StatCalculator,
+  setCharacterContext,
 } from '../gameplay/skillTree';
 
 let onTreeChange: (() => void) | null = null;
