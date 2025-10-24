@@ -1,0 +1,679 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generatedAt": "2024-01-01T00:00:00.000Z",
+    "totalNodes": 35,
+    "totalConnections": 40,
+    "generator": "ManualCreation"
+  },
+  "nodes": [
+    {
+      "id": "start",
+      "name": "Ascendant Root",
+      "x": 0,
+      "y": 0,
+      "type": "start",
+      "effects": [
+        {
+          "stat": "points",
+          "op": "add",
+          "value": 24
+        }
+      ],
+      "requirements": [],
+      "tags": ["start"],
+      "isClassStart": true,
+      "description": "The beginning of your path to power"
+    },
+    {
+      "id": "str_1",
+      "name": "+5 Strength",
+      "x": -100,
+      "y": 0,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "start"
+        }
+      ],
+      "tags": ["strength"]
+    },
+    {
+      "id": "dex_1",
+      "name": "+5 Dexterity",
+      "x": 100,
+      "y": 0,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "start"
+        }
+      ],
+      "tags": ["dexterity"]
+    },
+    {
+      "id": "int_1",
+      "name": "+5 Intelligence",
+      "x": 0,
+      "y": -100,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "start"
+        }
+      ],
+      "tags": ["intelligence"]
+    },
+    {
+      "id": "warrior_might",
+      "name": "Warrior Might",
+      "x": -200,
+      "y": 100,
+      "type": "notable",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 10
+        },
+        {
+          "stat": "melee_pct",
+          "op": "add",
+          "value": 8
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "str_1"
+        }
+      ],
+      "tags": ["strength", "melee", "notable"],
+      "description": "Increases melee damage and strength"
+    },
+    {
+      "id": "phantom_strike",
+      "name": "Phantom Strike",
+      "x": 200,
+      "y": 100,
+      "type": "notable",
+      "effects": [
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 10
+        },
+        {
+          "stat": "bow_pct",
+          "op": "add",
+          "value": 8
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "dex_1"
+        }
+      ],
+      "tags": ["dexterity", "bow", "notable"],
+      "description": "Increases bow damage and dexterity"
+    },
+    {
+      "id": "arcane_dominion",
+      "name": "Arcane Dominion",
+      "x": 0,
+      "y": -200,
+      "type": "notable",
+      "effects": [
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 10
+        },
+        {
+          "stat": "spell_pct",
+          "op": "add",
+          "value": 8
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "int_1"
+        }
+      ],
+      "tags": ["intelligence", "spell", "notable"],
+      "description": "Increases spell damage and intelligence"
+    },
+    {
+      "id": "unbreakable",
+      "name": "Unbreakable",
+      "x": -300,
+      "y": 200,
+      "type": "keystone",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 25
+        },
+        {
+          "stat": "hp_flat",
+          "op": "add",
+          "value": 60
+        },
+        {
+          "stat": "armor",
+          "op": "more",
+          "value": 20
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "warrior_might"
+        }
+      ],
+      "tags": ["strength", "health", "armor", "keystone"],
+      "description": "You have 20% more Armor and cannot be stunned",
+      "flavorText": "The mountain does not yield."
+    },
+    {
+      "id": "str_2",
+      "name": "+3 Strength",
+      "x": -150,
+      "y": -50,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "str_1"
+        }
+      ],
+      "tags": ["strength"]
+    },
+    {
+      "id": "str_3",
+      "name": "+3 Strength",
+      "x": -150,
+      "y": 50,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "str_1"
+        }
+      ],
+      "tags": ["strength"]
+    },
+    {
+      "id": "dex_2",
+      "name": "+3 Dexterity",
+      "x": 150,
+      "y": -50,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "dex_1"
+        }
+      ],
+      "tags": ["dexterity"]
+    },
+    {
+      "id": "dex_3",
+      "name": "+3 Dexterity",
+      "x": 150,
+      "y": 50,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "dex_1"
+        }
+      ],
+      "tags": ["dexterity"]
+    },
+    {
+      "id": "int_2",
+      "name": "+3 Intelligence",
+      "x": 0,
+      "y": -150,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "int_1"
+        }
+      ],
+      "tags": ["intelligence"]
+    },
+    {
+      "id": "int_3",
+      "name": "+3 Intelligence",
+      "x": 50,
+      "y": -150,
+      "type": "small",
+      "effects": [
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "int_1"
+        }
+      ],
+      "tags": ["intelligence"]
+    },
+    {
+      "id": "battle_hardened",
+      "name": "Battle Hardened",
+      "x": -250,
+      "y": 150,
+      "type": "major",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 8
+        },
+        {
+          "stat": "armor",
+          "op": "add",
+          "value": 20
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "warrior_might"
+        }
+      ],
+      "tags": ["strength", "armor"],
+      "description": "Increased armor and strength"
+    },
+    {
+      "id": "swift_reflexes",
+      "name": "Swift Reflexes",
+      "x": 250,
+      "y": 150,
+      "type": "major",
+      "effects": [
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 8
+        },
+        {
+          "stat": "evasion",
+          "op": "add",
+          "value": 20
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "phantom_strike"
+        }
+      ],
+      "tags": ["dexterity", "evasion"],
+      "description": "Increased evasion and dexterity"
+    },
+    {
+      "id": "mental_fortitude",
+      "name": "Mental Fortitude",
+      "x": 0,
+      "y": -250,
+      "type": "major",
+      "effects": [
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 8
+        },
+        {
+          "stat": "energy_shield",
+          "op": "add",
+          "value": 20
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "arcane_dominion"
+        }
+      ],
+      "tags": ["intelligence", "energy_shield"],
+      "description": "Increased energy shield and intelligence"
+    },
+    {
+      "id": "iron_grip",
+      "name": "Iron Grip",
+      "x": -350,
+      "y": 250,
+      "type": "notable",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 12
+        },
+        {
+          "stat": "melee_pct",
+          "op": "add",
+          "value": 12
+        },
+        {
+          "stat": "stun_threshold",
+          "op": "more",
+          "value": 25
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "battle_hardened"
+        }
+      ],
+      "tags": ["strength", "melee", "notable"],
+      "description": "Massive melee damage and stun resistance",
+      "flavorText": "Grip like iron, strike like thunder."
+    },
+    {
+      "id": "eagle_eye",
+      "name": "Eagle Eye",
+      "x": 350,
+      "y": 250,
+      "type": "notable",
+      "effects": [
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 12
+        },
+        {
+          "stat": "bow_pct",
+          "op": "add",
+          "value": 12
+        },
+        {
+          "stat": "accuracy",
+          "op": "add",
+          "value": 30
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "swift_reflexes"
+        }
+      ],
+      "tags": ["dexterity", "bow", "notable"],
+      "description": "Superior bow damage and accuracy",
+      "flavorText": "See your target, strike true."
+    },
+    {
+      "id": "arcane_mastery",
+      "name": "Arcane Mastery",
+      "x": 0,
+      "y": -350,
+      "type": "notable",
+      "effects": [
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 12
+        },
+        {
+          "stat": "spell_pct",
+          "op": "add",
+          "value": 12
+        },
+        {
+          "stat": "mana_regen",
+          "op": "add",
+          "value": 10
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "mental_fortitude"
+        }
+      ],
+      "tags": ["intelligence", "spell", "notable"],
+      "description": "Enhanced spell damage and mana regeneration",
+      "flavorText": "Harness the arcane forces."
+    },
+    {
+      "id": "titanic_strength",
+      "name": "Titanic Strength",
+      "x": -450,
+      "y": 350,
+      "type": "keystone",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 30
+        },
+        {
+          "stat": "melee_pct",
+          "op": "more",
+          "value": 20
+        },
+        {
+          "stat": "stun_duration",
+          "op": "more",
+          "value": -50
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "iron_grip"
+        }
+      ],
+      "tags": ["strength", "melee", "keystone"],
+      "description": "Immense strength and melee power",
+      "flavorText": "The earth trembles at your might."
+    },
+    {
+      "id": "wind_dancer",
+      "name": "Wind Dancer",
+      "x": 450,
+      "y": 350,
+      "type": "keystone",
+      "effects": [
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 30
+        },
+        {
+          "stat": "movement_speed",
+          "op": "add",
+          "value": 15
+        },
+        {
+          "stat": "dodge_chance",
+          "op": "add",
+          "value": 10
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "eagle_eye"
+        }
+      ],
+      "tags": ["dexterity", "movement", "keystone"],
+      "description": "Unparalleled speed and evasion",
+      "flavorText": "Dance with the wind, strike like lightning."
+    },
+    {
+      "id": "arcane_scholar",
+      "name": "Arcane Scholar",
+      "x": 0,
+      "y": -450,
+      "type": "keystone",
+      "effects": [
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 30
+        },
+        {
+          "stat": "spell_pct",
+          "op": "more",
+          "value": 20
+        },
+        {
+          "stat": "mana_regen",
+          "op": "add",
+          "value": 20
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "arcane_mastery"
+        }
+      ],
+      "tags": ["intelligence", "spell", "keystone"],
+      "description": "Master of arcane arts",
+      "flavorText": "Knowledge is the greatest power."
+    },
+    {
+      "id": "ascendant_power",
+      "name": "Ascendant Power",
+      "x": 0,
+      "y": 0,
+      "type": "keystone",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 20
+        },
+        {
+          "stat": "dex",
+          "op": "add",
+          "value": 20
+        },
+        {
+          "stat": "int",
+          "op": "add",
+          "value": 20
+        }
+      ],
+      "requirements": [
+        {
+          "type": "node",
+          "value": "warrior_might"
+        },
+        {
+          "type": "node",
+          "value": "phantom_strike"
+        },
+        {
+          "type": "node",
+          "value": "arcane_dominion"
+        }
+      ],
+      "tags": ["strength", "dexterity", "intelligence", "keystone"],
+      "description": "Master of all elements",
+      "flavorText": "Power beyond mortal comprehension."
+    }
+  ],
+  "edges": [
+    ["start", "str_1"],
+    ["start", "dex_1"],
+    ["start", "int_1"],
+    ["str_1", "str_2"],
+    ["str_1", "str_3"],
+    ["str_1", "warrior_might"],
+    ["dex_1", "dex_2"],
+    ["dex_1", "dex_3"],
+    ["dex_1", "phantom_strike"],
+    ["int_1", "int_2"],
+    ["int_1", "int_3"],
+    ["int_1", "arcane_dominion"],
+    ["warrior_might", "battle_hardened"],
+    ["warrior_might", "unbreakable"],
+    ["warrior_might", "ascendant_power"],
+    ["phantom_strike", "swift_reflexes"],
+    ["phantom_strike", "ascendant_power"],
+    ["arcane_dominion", "mental_fortitude"],
+    ["arcane_dominion", "ascendant_power"],
+    ["battle_hardened", "iron_grip"],
+    ["swift_reflexes", "eagle_eye"],
+    ["mental_fortitude", "arcane_mastery"],
+    ["iron_grip", "titanic_strength"],
+    ["eagle_eye", "wind_dancer"],
+    ["arcane_mastery", "arcane_scholar"]
+  ]
+}

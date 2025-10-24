@@ -1,38 +1,377 @@
 [
   {
-    "id": "sentinel",
-    "displayName": "Sentinel (Strength-focused)",
-    "affinity": { "str": 32, "dex": 14, "int": 14 },
-    "startingStats": {
-      "strength": 20,
-      "dexterity": 10,
-      "intelligence": 10,
-      "hp": 100,
-      "maxHp": 100,
-      "mp": 50,
-      "maxMp": 50,
-      "armor": 10,
-      "evasion": 5
+    "id": "marauder",
+    "displayName": "Marauder (Strength-focused)",
+    "game": "poe1",
+    "affinity": {
+      "str": 32,
+      "dex": 14,
+      "int": 14
     },
-    "allowedAscendancies": ["warden", "champion"],
+    "startingStats": {
+      "strength": 27,
+      "dexterity": 9,
+      "intelligence": 9,
+      "hp": 109,
+      "maxHp": 109,
+      "mp": 43,
+      "maxMp": 43,
+      "armor": 17,
+      "evasion": 4
+    },
+    "allowedAscendancies": [
+      "juggernaut",
+      "berserker",
+      "chieftain"
+    ],
+    "saveClass": "marauder"
+  },
+  {
+    "id": "duelist",
+    "displayName": "Duelist (Balanced-focused)",
+    "game": "poe1",
+    "affinity": {
+      "str": 23,
+      "dex": 23,
+      "int": 14
+    },
+    "startingStats": {
+      "strength": 18,
+      "dexterity": 18,
+      "intelligence": 9,
+      "hp": 91,
+      "maxHp": 91,
+      "mp": 43,
+      "maxMp": 43,
+      "armor": 8,
+      "evasion": 13
+    },
+    "allowedAscendancies": [
+      "slayer",
+      "gladiator",
+      "champion"
+    ],
+    "saveClass": "duelist"
+  },
+  {
+    "id": "templar",
+    "displayName": "Templar (Balanced-focused)",
+    "game": "poe1",
+    "affinity": {
+      "str": 23,
+      "dex": 14,
+      "int": 23
+    },
+    "startingStats": {
+      "strength": 18,
+      "dexterity": 9,
+      "intelligence": 18,
+      "hp": 91,
+      "maxHp": 91,
+      "mp": 61,
+      "maxMp": 61,
+      "armor": 8,
+      "evasion": 4
+    },
+    "allowedAscendancies": [
+      "inquisitor",
+      "hierophant",
+      "guardian"
+    ],
+    "saveClass": "templar"
+  },
+  {
+    "id": "shadow",
+    "displayName": "Shadow (Balanced-focused)",
+    "game": "poe1",
+    "affinity": {
+      "str": 14,
+      "dex": 23,
+      "int": 23
+    },
+    "startingStats": {
+      "strength": 9,
+      "dexterity": 18,
+      "intelligence": 18,
+      "hp": 73,
+      "maxHp": 73,
+      "mp": 61,
+      "maxMp": 61,
+      "armor": -1,
+      "evasion": 13
+    },
+    "allowedAscendancies": [
+      "assassin",
+      "trickster",
+      "saboteur"
+    ],
+    "saveClass": "shadow"
+  },
+  {
+    "id": "scion",
+    "displayName": "Scion (Balanced-focused)",
+    "game": "poe1",
+    "affinity": {
+      "str": 20,
+      "dex": 20,
+      "int": 20
+    },
+    "startingStats": {
+      "strength": 15,
+      "dexterity": 15,
+      "intelligence": 15,
+      "hp": 85,
+      "maxHp": 85,
+      "mp": 55,
+      "maxMp": 55,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": 5,
+      "evasion": 10,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 200
+    },
+    "allowedAscendancies": [
+      "ascendant"
+    ],
+    "saveClass": "scion"
+  },
+  {
+    "id": "warrior",
+    "displayName": "Warrior (Strength-focused)",
+    "game": "poe2",
+    "affinity": {
+      "str": 32,
+      "dex": 14,
+      "int": 14
+    },
+    "startingStats": {
+      "strength": 27,
+      "dexterity": 9,
+      "intelligence": 9,
+      "hp": 78,
+      "maxHp": 78,
+      "mp": 40,
+      "maxMp": 40,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": 17,
+      "evasion": 4,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 152
+    },
+    "allowedAscendancies": [
+      "titan",
+      "warbringer",
+      "smith_of_kitava"
+    ],
     "saveClass": "warrior"
   },
   {
-    "id": "huntress",
-    "displayName": "Huntress (Dexterity-focused)",
-    "affinity": { "str": 14, "dex": 32, "int": 14 },
-    "startingStats": {
-      "strength": 10,
-      "dexterity": 20,
-      "intelligence": 10,
-      "hp": 80,
-      "maxHp": 80,
-      "mp": 60,
-      "maxMp": 60,
-      "armor": 5,
-      "evasion": 15
+    "id": "witch",
+    "displayName": "Witch (Intelligence-focused)",
+    "game": "poe2",
+    "affinity": {
+      "str": 14,
+      "dex": 14,
+      "int": 32
     },
-    "allowedAscendancies": ["pathfinder", "marksman"],
+    "startingStats": {
+      "strength": 9,
+      "dexterity": 9,
+      "intelligence": 27,
+      "hp": 73,
+      "maxHp": 73,
+      "mp": 79,
+      "maxMp": 79,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": -1,
+      "evasion": 4,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 152
+    },
+    "allowedAscendancies": [
+      "infernalist",
+      "blood_mage",
+      "lich"
+    ],
+    "saveClass": "witch"
+  },
+  {
+    "id": "sorceress",
+    "displayName": "Sorceress (Balanced-focused)",
+    "game": "poe2",
+    "affinity": {
+      "str": 20,
+      "dex": 20,
+      "int": 20
+    },
+    "startingStats": {
+      "strength": 15,
+      "dexterity": 15,
+      "intelligence": 15,
+      "hp": 85,
+      "maxHp": 85,
+      "mp": 55,
+      "maxMp": 55,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": 5,
+      "evasion": 10,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 200
+    },
+    "allowedAscendancies": [
+      "stormweaver",
+      "chronomancer"
+    ],
+    "saveClass": "sorceress"
+  },
+  {
+    "id": "mercenary",
+    "displayName": "Mercenary (Balanced-focused)",
+    "game": "poe2",
+    "affinity": {
+      "str": 20,
+      "dex": 20,
+      "int": 20
+    },
+    "startingStats": {
+      "strength": 15,
+      "dexterity": 15,
+      "intelligence": 15,
+      "hp": 85,
+      "maxHp": 85,
+      "mp": 55,
+      "maxMp": 55,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": 5,
+      "evasion": 10,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 200
+    },
+    "allowedAscendancies": [
+      "tactician",
+      "witchhunter",
+      "gemling_legionnaire"
+    ],
+    "saveClass": "mercenary"
+  },
+  {
+    "id": "monk",
+    "displayName": "Monk (Intelligence-focused)",
+    "game": "poe2",
+    "affinity": {
+      "str": 14,
+      "dex": 14,
+      "int": 32
+    },
+    "startingStats": {
+      "strength": 9,
+      "dexterity": 9,
+      "intelligence": 27,
+      "hp": 73,
+      "maxHp": 73,
+      "mp": 79,
+      "maxMp": 79,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": -1,
+      "evasion": 4,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 152
+    },
+    "allowedAscendancies": [
+      "invoker",
+      "acolyte_of_chayula"
+    ],
+    "saveClass": "monk"
+  },
+  {
+    "id": "ranger",
+    "displayName": "Ranger (Balanced-focused)",
+    "game": "poe2",
+    "affinity": {
+      "str": 23,
+      "dex": 23,
+      "int": 14
+    },
+    "startingStats": {
+      "strength": 18,
+      "dexterity": 18,
+      "intelligence": 9,
+      "hp": 60,
+      "maxHp": 60,
+      "mp": 49,
+      "maxMp": 49,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": 8,
+      "evasion": 13,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 224
+    },
+    "allowedAscendancies": [
+      "warden",
+      "deadeye",
+      "pathfinder"
+    ],
     "saveClass": "archer"
+  },
+  {
+    "id": "huntress",
+    "displayName": "Huntress (Balanced-focused)",
+    "game": "poe2",
+    "affinity": {
+      "str": 20,
+      "dex": 20,
+      "int": 20
+    },
+    "startingStats": {
+      "strength": 15,
+      "dexterity": 15,
+      "intelligence": 15,
+      "hp": 85,
+      "maxHp": 85,
+      "mp": 55,
+      "maxMp": 55,
+      "energyShield": 0,
+      "maxEnergyShield": 0,
+      "armor": 5,
+      "evasion": 10,
+      "fireResistance": 0,
+      "coldResistance": 0,
+      "lightningResistance": 0,
+      "chaosResistance": 0,
+      "accuracy": 200
+    },
+    "allowedAscendancies": [
+      "amazon",
+      "ritualist"
+    ],
+    "saveClass": "huntress"
   }
 ]

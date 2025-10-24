@@ -1,7 +1,7 @@
 // Panel Manager - Toggles between standalone and compact inventory UIs
 // Ensures only one inventory DOM is visible at a time
 
-import { ensureTwoDock, ensureUiLayer } from '../../../ui/mount';
+import { ensureTwoDock, ensureUiLayer } from '../mount';
 
 /** Show a panel by ID */
 function show(id: string): void {

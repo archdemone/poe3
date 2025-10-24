@@ -6,138 +6,1415 @@
       "x": 0,
       "y": 0,
       "type": "start",
+      "effects": [
+        {
+          "stat": "points",
+          "op": "add",
+          "value": 12
+        }
+      ],
       "grants": [
-        { "stat": "points", "value": 3 }
+        {
+          "stat": "points",
+          "value": 12
+        }
       ]
     },
     {
       "id": "str1",
-      "name": "+10 STR",
-      "x": -160,
-      "y": 0,
+      "name": "+5 Strength",
+      "x": -120,
+      "y": -50,
       "type": "small",
       "grants": [
-        { "stat": "str", "value": 10 }
+        {
+          "stat": "str",
+          "value": 5
+        }
       ],
-      "requires": ["start"]
+      "requires": [
+        "start"
+      ]
+    },
+    {
+      "id": "str2",
+      "name": "+5 Strength",
+      "x": -180,
+      "y": -100,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "str1"
+      ]
+    },
+    {
+      "id": "str3",
+      "name": "+5 Strength",
+      "x": -240,
+      "y": -150,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "str2"
+      ]
+    },
+    {
+      "id": "str4",
+      "name": "+5 Strength",
+      "x": -300,
+      "y": -200,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "str3"
+      ]
+    },
+    {
+      "id": "str5",
+      "name": "+5 Strength",
+      "x": -360,
+      "y": -250,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "str4"
+      ]
+    },
+    {
+      "id": "str6",
+      "name": "+5 Strength",
+      "x": -420,
+      "y": -300,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "str5"
+      ]
+    },
+    {
+      "id": "warrior_might",
+      "name": "Warrior Might",
+      "x": -360,
+      "y": -200,
+      "type": "notable",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 12
+        },
+        {
+          "stat": "hp_flat",
+          "op": "add",
+          "value": 25
+        }
+      ],
+      "grants": [
+        {
+          "stat": "str",
+          "value": 12
+        },
+        {
+          "stat": "hp_flat",
+          "value": 25
+        }
+      ],
+      "requires": [
+        "str4"
+      ],
+      "tags": ["strength", "health", "warrior", "notable"]
+    },
+    {
+      "id": "melee_specialist",
+      "name": "Melee Specialist",
+      "x": -420,
+      "y": -250,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "melee_pct",
+          "value": 10
+        },
+        {
+          "stat": "str",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "warrior_might",
+        "str5"
+      ]
+    },
+    {
+      "id": "battle_fury",
+      "name": "Battle Fury",
+      "x": -480,
+      "y": -300,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "melee_pct",
+          "value": 8
+        },
+        {
+          "stat": "str",
+          "value": 15
+        }
+      ],
+      "requires": [
+        "melee_specialist",
+        "str6"
+      ]
+    },
+    {
+      "id": "unbreakable",
+      "name": "Unbreakable",
+      "x": -540,
+      "y": -350,
+      "type": "keystone",
+      "effects": [
+        {
+          "stat": "str",
+          "op": "add",
+          "value": 25
+        },
+        {
+          "stat": "hp_flat",
+          "op": "add",
+          "value": 60
+        },
+        {
+          "stat": "armor",
+          "op": "more",
+          "value": 20
+        }
+      ],
+      "grants": [
+        {
+          "stat": "str",
+          "value": 25
+        },
+        {
+          "stat": "hp_flat",
+          "value": 60
+        }
+      ],
+      "requires": [
+        "battle_fury"
+      ],
+      "tags": ["strength", "health", "armor", "keystone"],
+      "description": "You have 20% more Armor and cannot be stunned",
+      "flavorText": "The mountain does not yield."
+    },
+    {
+      "id": "str_side1",
+      "name": "+8 Strength",
+      "x": -200,
+      "y": -80,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "str2"
+      ]
+    },
+    {
+      "id": "str_side2",
+      "name": "+8 Strength",
+      "x": -260,
+      "y": -110,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "str_side1"
+      ]
+    },
+    {
+      "id": "tank_core",
+      "name": "Tank Core",
+      "x": -320,
+      "y": -140,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 10
+        },
+        {
+          "stat": "hp_flat",
+          "value": 40
+        }
+      ],
+      "requires": [
+        "str_side2"
+      ]
+    },
+    {
+      "id": "str_side3",
+      "name": "+8 Strength",
+      "x": -380,
+      "y": -170,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "tank_core"
+      ]
+    },
+    {
+      "id": "defensive_mastery",
+      "name": "Defensive Mastery",
+      "x": -440,
+      "y": -200,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 12
+        },
+        {
+          "stat": "hp_flat",
+          "value": 30
+        }
+      ],
+      "requires": [
+        "str_side3"
+      ]
     },
     {
       "id": "dex1",
-      "name": "+10 DEX",
-      "x": 160,
-      "y": 0,
+      "name": "+5 Dexterity",
+      "x": 120,
+      "y": -50,
       "type": "small",
       "grants": [
-        { "stat": "dex", "value": 10 }
+        {
+          "stat": "dex",
+          "value": 5
+        }
       ],
-      "requires": ["start"]
+      "requires": [
+        "start"
+      ]
     },
     {
-      "id": "hp1",
-      "name": "+50 HP",
-      "x": 0,
-      "y": -160,
+      "id": "dex2",
+      "name": "+5 Dexterity",
+      "x": 180,
+      "y": -100,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "dex1"
+      ]
+    },
+    {
+      "id": "dex3",
+      "name": "+5 Dexterity",
+      "x": 240,
+      "y": -150,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "dex2"
+      ]
+    },
+    {
+      "id": "dex4",
+      "name": "+5 Dexterity",
+      "x": 300,
+      "y": -200,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "dex3"
+      ]
+    },
+    {
+      "id": "dex5",
+      "name": "+5 Dexterity",
+      "x": 360,
+      "y": -250,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "dex4"
+      ]
+    },
+    {
+      "id": "dex6",
+      "name": "+5 Dexterity",
+      "x": 420,
+      "y": -300,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "dex5"
+      ]
+    },
+    {
+      "id": "nimble_fingers",
+      "name": "Nimble Fingers",
+      "x": 360,
+      "y": -200,
       "type": "notable",
       "grants": [
-        { "stat": "hp_flat", "value": 50 }
+        {
+          "stat": "dex",
+          "value": 12
+        },
+        {
+          "stat": "bow_pct",
+          "value": 8
+        }
       ],
-      "requires": ["start"]
+      "requires": [
+        "dex4"
+      ]
     },
     {
-      "id": "melee1",
-      "name": "+8% Melee Dmg",
-      "x": -320,
-      "y": 0,
+      "id": "bow_expert",
+      "name": "Bow Expert",
+      "x": 420,
+      "y": -250,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "bow_pct",
+          "value": 12
+        },
+        {
+          "stat": "dex",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "nimble_fingers",
+        "dex5"
+      ]
+    },
+    {
+      "id": "deadeye",
+      "name": "Deadeye",
+      "x": 480,
+      "y": -300,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "bow_pct",
+          "value": 10
+        },
+        {
+          "stat": "dex",
+          "value": 15
+        }
+      ],
+      "requires": [
+        "bow_expert",
+        "dex6"
+      ]
+    },
+    {
+      "id": "phantom_strike",
+      "name": "Phantom Strike",
+      "x": 540,
+      "y": -350,
+      "type": "keystone",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 25
+        },
+        {
+          "stat": "bow_pct",
+          "value": 20
+        }
+      ],
+      "requires": [
+        "deadeye"
+      ]
+    },
+    {
+      "id": "dex_side1",
+      "name": "+8 Dexterity",
+      "x": 200,
+      "y": -80,
       "type": "small",
       "grants": [
-        { "stat": "melee_pct", "value": 8 }
+        {
+          "stat": "dex",
+          "value": 8
+        }
       ],
-      "requires": ["str1"]
+      "requires": [
+        "dex2"
+      ]
     },
     {
-      "id": "bow1",
-      "name": "+8% Bow Dmg",
+      "id": "dex_side2",
+      "name": "+8 Dexterity",
+      "x": 260,
+      "y": -110,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "dex_side1"
+      ]
+    },
+    {
+      "id": "evasion_core",
+      "name": "Evasion Core",
       "x": 320,
-      "y": 0,
-      "type": "small",
+      "y": -140,
+      "type": "notable",
       "grants": [
-        { "stat": "bow_pct", "value": 8 }
+        {
+          "stat": "dex",
+          "value": 10
+        },
+        {
+          "stat": "bow_pct",
+          "value": 6
+        }
       ],
-      "requires": ["dex1"]
+      "requires": [
+        "dex_side2"
+      ]
     },
     {
       "id": "int1",
-      "name": "+10 INT",
+      "name": "+5 Intelligence",
+      "x": 0,
+      "y": -100,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "start"
+      ]
+    },
+    {
+      "id": "int2",
+      "name": "+5 Intelligence",
+      "x": 0,
+      "y": -150,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "int1"
+      ]
+    },
+    {
+      "id": "int3",
+      "name": "+5 Intelligence",
+      "x": 0,
+      "y": -200,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "int2"
+      ]
+    },
+    {
+      "id": "int4",
+      "name": "+5 Intelligence",
+      "x": 0,
+      "y": -250,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "int3"
+      ]
+    },
+    {
+      "id": "int5",
+      "name": "+5 Intelligence",
+      "x": 0,
+      "y": -300,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "int4"
+      ]
+    },
+    {
+      "id": "int6",
+      "name": "+5 Intelligence",
+      "x": 0,
+      "y": -350,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "int5"
+      ]
+    },
+    {
+      "id": "arcane_knowledge",
+      "name": "Arcane Knowledge",
+      "x": 60,
+      "y": -250,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 12
+        },
+        {
+          "stat": "mp_flat",
+          "value": 25
+        }
+      ],
+      "requires": [
+        "int4"
+      ]
+    },
+    {
+      "id": "spell_power",
+      "name": "Spell Power",
+      "x": 60,
+      "y": -300,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "spell_pct",
+          "value": 10
+        },
+        {
+          "stat": "int",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "arcane_knowledge",
+        "int5"
+      ]
+    },
+    {
+      "id": "mana_master",
+      "name": "Mana Master",
+      "x": 60,
+      "y": -350,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "mp_flat",
+          "value": 40
+        },
+        {
+          "stat": "int",
+          "value": 15
+        }
+      ],
+      "requires": [
+        "spell_power",
+        "int6"
+      ]
+    },
+    {
+      "id": "arcane_dominion",
+      "name": "Arcane Dominion",
+      "x": 60,
+      "y": -400,
+      "type": "keystone",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 25
+        },
+        {
+          "stat": "spell_pct",
+          "value": 15
+        }
+      ],
+      "requires": [
+        "mana_master"
+      ]
+    },
+    {
+      "id": "int_side1",
+      "name": "+8 Intelligence",
+      "x": 40,
+      "y": -120,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 8
+        }
+      ],
+      "requires": [
+        "int2"
+      ]
+    },
+    {
+      "id": "mana_core",
+      "name": "Mana Core",
+      "x": 80,
+      "y": -170,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "int",
+          "value": 10
+        },
+        {
+          "stat": "mp_flat",
+          "value": 30
+        }
+      ],
+      "requires": [
+        "int_side1"
+      ]
+    },
+    {
+      "id": "balanced_training",
+      "name": "+4 All Attributes",
+      "x": -60,
+      "y": -50,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 4
+        },
+        {
+          "stat": "dex",
+          "value": 4
+        },
+        {
+          "stat": "int",
+          "value": 4
+        }
+      ],
+      "requires": [
+        "str1",
+        "dex1"
+      ]
+    },
+    {
+      "id": "versatile_training",
+      "name": "+4 All Attributes",
+      "x": 60,
+      "y": -50,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 4
+        },
+        {
+          "stat": "dex",
+          "value": 4
+        },
+        {
+          "stat": "int",
+          "value": 4
+        }
+      ],
+      "requires": [
+        "dex1",
+        "int1"
+      ]
+    },
+    {
+      "id": "hybrid_warrior",
+      "name": "Hybrid Warrior",
+      "x": -120,
+      "y": -120,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 8
+        },
+        {
+          "stat": "dex",
+          "value": 8
+        },
+        {
+          "stat": "melee_pct",
+          "value": 6
+        }
+      ],
+      "requires": [
+        "balanced_training",
+        "str3"
+      ]
+    },
+    {
+      "id": "battle_mage",
+      "name": "Battle Mage",
+      "x": -60,
+      "y": -170,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 8
+        },
+        {
+          "stat": "int",
+          "value": 8
+        },
+        {
+          "stat": "hp_flat",
+          "value": 20
+        },
+        {
+          "stat": "mp_flat",
+          "value": 20
+        }
+      ],
+      "requires": [
+        "str2",
+        "int3"
+      ]
+    },
+    {
+      "id": "shadow_mage",
+      "name": "Shadow Mage",
+      "x": 120,
+      "y": -170,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "dex",
+          "value": 8
+        },
+        {
+          "stat": "int",
+          "value": 8
+        },
+        {
+          "stat": "bow_pct",
+          "value": 6
+        },
+        {
+          "stat": "spell_pct",
+          "value": 6
+        }
+      ],
+      "requires": [
+        "dex2",
+        "int3"
+      ]
+    },
+    {
+      "id": "defensive_foundation",
+      "name": "Defensive Foundation",
+      "x": -80,
+      "y": 60,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "hp_flat",
+          "value": 35
+        },
+        {
+          "stat": "str",
+          "value": 6
+        }
+      ],
+      "requires": [
+        "start"
+      ]
+    },
+    {
+      "id": "hp_boost1",
+      "name": "+25 Life",
+      "x": -120,
+      "y": 100,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "hp_flat",
+          "value": 25
+        }
+      ],
+      "requires": [
+        "defensive_foundation"
+      ]
+    },
+    {
+      "id": "hp_boost2",
+      "name": "+25 Life",
+      "x": -160,
+      "y": 140,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "hp_flat",
+          "value": 25
+        }
+      ],
+      "requires": [
+        "hp_boost1"
+      ]
+    },
+    {
+      "id": "vitality",
+      "name": "Vitality",
+      "x": -120,
+      "y": 180,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "hp_flat",
+          "value": 45
+        }
+      ],
+      "requires": [
+        "hp_boost2"
+      ]
+    },
+    {
+      "id": "offensive_foundation",
+      "name": "Offensive Foundation",
+      "x": 80,
+      "y": 60,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "melee_pct",
+          "value": 6
+        },
+        {
+          "stat": "bow_pct",
+          "value": 6
+        },
+        {
+          "stat": "dex",
+          "value": 6
+        }
+      ],
+      "requires": [
+        "start"
+      ]
+    },
+    {
+      "id": "damage_boost",
+      "name": "Damage Boost",
+      "x": 120,
+      "y": 100,
+      "type": "small",
+      "grants": [
+        {
+          "stat": "melee_pct",
+          "value": 5
+        },
+        {
+          "stat": "bow_pct",
+          "value": 5
+        }
+      ],
+      "requires": [
+        "offensive_foundation"
+      ]
+    },
+    {
+      "id": "precision_strike",
+      "name": "Precision Strike",
+      "x": 160,
+      "y": 140,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "melee_pct",
+          "value": 8
+        },
+        {
+          "stat": "dex",
+          "value": 10
+        }
+      ],
+      "requires": [
+        "damage_boost"
+      ]
+    },
+    {
+      "id": "utility_foundation",
+      "name": "Utility Foundation",
+      "x": 0,
+      "y": 120,
+      "type": "notable",
+      "grants": [
+        {
+          "stat": "hp_flat",
+          "value": 20
+        },
+        {
+          "stat": "mp_flat",
+          "value": 20
+        },
+        {
+          "stat": "int",
+          "value": 6
+        }
+      ],
+      "requires": [
+        "start"
+      ]
+    },
+    {
+      "id": "resource_boost",
+      "name": "Resource Boost",
       "x": 0,
       "y": 160,
       "type": "small",
       "grants": [
-        { "stat": "int", "value": 10 }
+        {
+          "stat": "hp_flat",
+          "value": 15
+        },
+        {
+          "stat": "mp_flat",
+          "value": 15
+        }
       ],
-      "requires": ["start"]
+      "requires": [
+        "utility_foundation"
+      ]
     },
     {
-      "id": "mana1",
-      "name": "+40 Mana",
+      "id": "harmony",
+      "name": "Harmony",
       "x": 0,
-      "y": 320,
-      "type": "small",
-      "grants": [
-        { "stat": "mp_flat", "value": 40 }
-      ],
-      "requires": ["int1"]
-    },
-    {
-      "id": "str2",
-      "name": "+15 STR",
-      "x": -160,
-      "y": -120,
-      "type": "small",
-      "grants": [
-        { "stat": "str", "value": 15 }
-      ],
-      "requires": ["str1", "hp1"]
-    },
-    {
-      "id": "dex2",
-      "name": "+15 DEX",
-      "x": 160,
-      "y": -120,
-      "type": "small",
-      "grants": [
-        { "stat": "dex", "value": 15 }
-      ],
-      "requires": ["dex1", "hp1"]
-    },
-    {
-      "id": "power",
-      "name": "Omniscient",
-      "x": 0,
-      "y": -320,
+      "y": 200,
       "type": "notable",
       "grants": [
-        { "stat": "str", "value": 20 },
-        { "stat": "dex", "value": 20 },
-        { "stat": "int", "value": 20 }
+        {
+          "stat": "str",
+          "value": 6
+        },
+        {
+          "stat": "dex",
+          "value": 6
+        },
+        {
+          "stat": "int",
+          "value": 6
+        },
+        {
+          "stat": "hp_flat",
+          "value": 20
+        },
+        {
+          "stat": "mp_flat",
+          "value": 20
+        }
       ],
-      "requires": ["str2", "dex2"]
+      "requires": [
+        "resource_boost"
+      ]
+    },
+    {
+      "id": "ascendant_path",
+      "name": "Ascendant Path",
+      "x": 0,
+      "y": -450,
+      "type": "keystone",
+      "grants": [
+        {
+          "stat": "str",
+          "value": 15
+        },
+        {
+          "stat": "dex",
+          "value": 15
+        },
+        {
+          "stat": "int",
+          "value": 15
+        },
+        {
+          "stat": "hp_flat",
+          "value": 40
+        },
+        {
+          "stat": "mp_flat",
+          "value": 40
+        }
+      ],
+      "requires": [
+        "unbreakable",
+        "phantom_strike",
+        "arcane_dominion"
+      ]
     }
   ],
   "edges": [
-    ["start", "str1"],
-    ["start", "dex1"],
-    ["start", "hp1"],
-    ["start", "int1"],
-    ["str1", "melee1"],
-    ["dex1", "bow1"],
-    ["int1", "mana1"],
-    ["str1", "str2"],
-    ["dex1", "dex2"],
-    ["hp1", "str2"],
-    ["hp1", "dex2"],
-    ["str2", "power"],
-    ["dex2", "power"]
+    [
+      "start",
+      "str1"
+    ],
+    [
+      "start",
+      "dex1"
+    ],
+    [
+      "start",
+      "int1"
+    ],
+    [
+      "start",
+      "defensive_foundation"
+    ],
+    [
+      "start",
+      "offensive_foundation"
+    ],
+    [
+      "start",
+      "utility_foundation"
+    ],
+    [
+      "str1",
+      "str2"
+    ],
+    [
+      "str2",
+      "str3"
+    ],
+    [
+      "str3",
+      "str4"
+    ],
+    [
+      "str4",
+      "str5"
+    ],
+    [
+      "str5",
+      "str6"
+    ],
+    [
+      "str4",
+      "warrior_might"
+    ],
+    [
+      "warrior_might",
+      "melee_specialist"
+    ],
+    [
+      "str5",
+      "melee_specialist"
+    ],
+    [
+      "melee_specialist",
+      "battle_fury"
+    ],
+    [
+      "str6",
+      "battle_fury"
+    ],
+    [
+      "battle_fury",
+      "unbreakable"
+    ],
+    [
+      "str2",
+      "str_side1"
+    ],
+    [
+      "str_side1",
+      "str_side2"
+    ],
+    [
+      "str_side2",
+      "tank_core"
+    ],
+    [
+      "tank_core",
+      "str_side3"
+    ],
+    [
+      "str_side3",
+      "defensive_mastery"
+    ],
+    [
+      "dex1",
+      "dex2"
+    ],
+    [
+      "dex2",
+      "dex3"
+    ],
+    [
+      "dex3",
+      "dex4"
+    ],
+    [
+      "dex4",
+      "dex5"
+    ],
+    [
+      "dex5",
+      "dex6"
+    ],
+    [
+      "dex4",
+      "nimble_fingers"
+    ],
+    [
+      "nimble_fingers",
+      "bow_expert"
+    ],
+    [
+      "dex5",
+      "bow_expert"
+    ],
+    [
+      "bow_expert",
+      "deadeye"
+    ],
+    [
+      "dex6",
+      "deadeye"
+    ],
+    [
+      "deadeye",
+      "phantom_strike"
+    ],
+    [
+      "dex2",
+      "dex_side1"
+    ],
+    [
+      "dex_side1",
+      "dex_side2"
+    ],
+    [
+      "dex_side2",
+      "evasion_core"
+    ],
+    [
+      "int1",
+      "int2"
+    ],
+    [
+      "int2",
+      "int3"
+    ],
+    [
+      "int3",
+      "int4"
+    ],
+    [
+      "int4",
+      "int5"
+    ],
+    [
+      "int5",
+      "int6"
+    ],
+    [
+      "int4",
+      "arcane_knowledge"
+    ],
+    [
+      "arcane_knowledge",
+      "spell_power"
+    ],
+    [
+      "int5",
+      "spell_power"
+    ],
+    [
+      "spell_power",
+      "mana_master"
+    ],
+    [
+      "int6",
+      "mana_master"
+    ],
+    [
+      "mana_master",
+      "arcane_dominion"
+    ],
+    [
+      "int2",
+      "int_side1"
+    ],
+    [
+      "int_side1",
+      "mana_core"
+    ],
+    [
+      "str1",
+      "balanced_training"
+    ],
+    [
+      "dex1",
+      "balanced_training"
+    ],
+    [
+      "dex1",
+      "versatile_training"
+    ],
+    [
+      "int1",
+      "versatile_training"
+    ],
+    [
+      "balanced_training",
+      "hybrid_warrior"
+    ],
+    [
+      "str3",
+      "hybrid_warrior"
+    ],
+    [
+      "str2",
+      "battle_mage"
+    ],
+    [
+      "int3",
+      "battle_mage"
+    ],
+    [
+      "dex2",
+      "shadow_mage"
+    ],
+    [
+      "int3",
+      "shadow_mage"
+    ],
+    [
+      "defensive_foundation",
+      "hp_boost1"
+    ],
+    [
+      "hp_boost1",
+      "hp_boost2"
+    ],
+    [
+      "hp_boost2",
+      "vitality"
+    ],
+    [
+      "offensive_foundation",
+      "damage_boost"
+    ],
+    [
+      "damage_boost",
+      "precision_strike"
+    ],
+    [
+      "utility_foundation",
+      "resource_boost"
+    ],
+    [
+      "resource_boost",
+      "harmony"
+    ],
+    [
+      "unbreakable",
+      "ascendant_path"
+    ],
+    [
+      "phantom_strike",
+      "ascendant_path"
+    ],
+    [
+      "arcane_dominion",
+      "ascendant_path"
+    ]
   ]
 }
-
-

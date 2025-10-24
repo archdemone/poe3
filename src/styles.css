@@ -1056,39 +1056,13 @@ html, body {
   background: rgba(160, 160, 180, 0.8);
 }
 
-/* Skill Tree - Passive node allocation panel */
-.skill-tree {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 7500;
-  pointer-events: auto;
-}
+/* Skill Tree - Passive node allocation panel - moved to ui/skillTree.css */
 
 .skill-tree.hidden {
   display: none;
 }
 
-.tree-panel {
-  background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(35, 35, 40, 0.98));
-  border: 3px solid rgba(150, 150, 160, 0.6);
-  border-radius: 8px;
-  width: 700px;
-  max-width: 95%;
-  max-height: 90vh;
-  box-shadow: 
-    0 0 40px rgba(0, 0, 0, 0.9),
-    inset 0 0 40px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
+/* Tree panel styles moved to ui/skillTree.css */
 
 .tree-header {
   padding: 20px 25px;
@@ -1149,14 +1123,7 @@ html, body {
   box-shadow: 0 0 8px rgba(150, 150, 170, 0.3);
 }
 
-.tree-canvas-container {
-  padding: 20px;
-  flex: 1;
-  overflow: auto;
-  background: rgba(15, 15, 20, 0.8);
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-}
+/* Tree canvas container styles moved to ui/skillTree.css */
 
 #tree-svg {
   display: block;
@@ -1792,11 +1759,11 @@ html, body {
 
 /* side-by-side dock */
 #ui-two-dock {
-  position: absolute; 
+  position: absolute;
   inset: 8px;
-  display: flex; 
+  display: flex;
   gap: 16px;
-  align-items: flex-start; 
+  align-items: flex-start;
   justify-content: flex-start;   /* align to left instead of center */
   pointer-events: none;          /* child panels handle input */
 }
@@ -2371,6 +2338,7 @@ html, body {
   flex: 1 1 0;
   /* respect the individual min/max widths already declared */
 }
+
 
 /* ---------------- Inventory UI tweaks ---------------- */
 /* Header padding & close button placement */

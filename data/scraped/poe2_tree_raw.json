@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "version": "0.1.0",
+    "source": "poe2.dev/tree (mock data)",
+    "scrapedAt": "2024-01-01T00:00:00.000Z",
+    "totalNodes": 12,
+    "totalConnections": 14
+  },
+  "nodes": [
+    {
+      "id": "warrior_start",
+      "name": "Warrior Ascendant",
+      "x": -200,
+      "y": 0,
+      "type": "start",
+      "effects": [
+        { "stat": "str", "op": "add", "value": 20 },
+        { "stat": "hp_flat", "op": "add", "value": 40 }
+      ],
+      "requirements": [],
+      "tags": ["warrior", "strength"],
+      "classStart": "warrior",
+      "isClassStart": true
+    },
+    {
+      "id": "archer_start",
+      "name": "Archer Ascendant",
+      "x": 200,
+      "y": 0,
+      "type": "start",
+      "effects": [
+        { "stat": "dex", "op": "add", "value": 20 },
+        { "stat": "bow_pct", "op": "add", "value": 15 }
+      ],
+      "requirements": [],
+      "tags": ["archer", "dexterity"],
+      "classStart": "archer",
+      "isClassStart": true
+    },
+    {
+      "id": "warrior_str1",
+      "name": "Strength Training",
+      "x": -300,
+      "y": -50,
+      "type": "small",
+      "effects": [{ "stat": "str", "op": "add", "value": 8 }],
+      "requirements": [{ "type": "node", "value": "warrior_start" }],
+      "tags": ["strength"]
+    },
+    {
+      "id": "warrior_str2",
+      "name": "Power Surge",
+      "x": -400,
+      "y": -100,
+      "type": "small",
+      "effects": [
+        { "stat": "str", "op": "add", "value": 8 },
+        { "stat": "melee_pct", "op": "add", "value": 6 }
+      ],
+      "requirements": [{ "type": "node", "value": "warrior_str1" }],
+      "tags": ["strength", "melee"]
+    },
+    {
+      "id": "warrior_might",
+      "name": "Warrior Might",
+      "x": -250,
+      "y": -120,
+      "type": "notable",
+      "effects": [
+        { "stat": "str", "op": "add", "value": 15 },
+        { "stat": "hp_flat", "op": "add", "value": 30 },
+        { "stat": "melee_pct", "op": "add", "value": 12 }
+      ],
+      "requirements": [{ "type": "node", "value": "warrior_str1" }],
+      "tags": ["strength", "melee", "notable"]
+    },
+    {
+      "id": "archer_dex1",
+      "name": "Agile Training",
+      "x": 300,
+      "y": -50,
+      "type": "small",
+      "effects": [{ "stat": "dex", "op": "add", "value": 8 }],
+      "requirements": [{ "type": "node", "value": "archer_start" }],
+      "tags": ["dexterity"]
+    },
+    {
+      "id": "archer_precision1",
+      "name": "Precision Training",
+      "x": 250,
+      "y": -120,
+      "type": "notable",
+      "effects": [
+        { "stat": "dex", "op": "add", "value": 12 },
+        { "stat": "bow_pct", "op": "add", "value": 10 },
+        { "stat": "crit_chance", "op": "add", "value": 8 }
+      ],
+      "requirements": [{ "type": "node", "value": "archer_start" }],
+      "tags": ["dexterity", "bow", "critical", "notable"]
+    },
+    {
+      "id": "ascendant_power",
+      "name": "Ascendant Power",
+      "x": 0,
+      "y": -300,
+      "type": "keystone",
+      "effects": [
+        { "stat": "str", "op": "add", "value": 25 },
+        { "stat": "dex", "op": "add", "value": 25 },
+        { "stat": "int", "op": "add", "value": 25 },
+        { "stat": "hp_flat", "op": "add", "value": 50 },
+        { "stat": "mp_flat", "op": "add", "value": 50 }
+      ],
+      "requirements": [
+        { "type": "node", "value": "warrior_might" },
+        { "type": "node", "value": "archer_precision1" }
+      ],
+      "tags": ["keystone", "hybrid", "all_attributes"]
+    }
+  ],
+  "edges": [
+    ["warrior_start", "warrior_str1"],
+    ["warrior_str1", "warrior_str2"],
+    ["warrior_str1", "warrior_might"],
+    ["archer_start", "archer_dex1"],
+    ["archer_start", "archer_precision1"],
+    ["warrior_might", "ascendant_power"],
+    ["archer_precision1", "ascendant_power"]
+  ]
+}

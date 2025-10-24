@@ -5,16 +5,27 @@ export interface CharacterStats {
   strength: number;
   dexterity: number;
   intelligence: number;
-  
+
   // Resources
   hp: number;
   maxHp: number;
   mp: number;
   maxMp: number;
-  
-  // Defense (placeholders for now)
+  energyShield: number;
+  maxEnergyShield: number;
+
+  // Defense
   armor: number;
   evasion: number;
+
+  // Elemental Resistances
+  fireResistance: number;
+  coldResistance: number;
+  lightningResistance: number;
+  chaosResistance: number;
+
+  // Accuracy (derived from DEX)
+  accuracy: number;
 }
 
 export interface DerivedStats {
@@ -28,32 +39,69 @@ export interface DerivedStats {
   dodgeChance: number;
 }
 
+/** Calculate base stats from attributes (PoE mechanics) */
+export function calculateBaseStatsFromAttributes(strength: number, dexterity: number, intelligence: number): {
+  baseHp: number;
+  baseMp: number;
+  baseAccuracy: number;
+} {
+  return {
+    baseHp: 38 + (strength * 2), // Base 38 + STR * 2
+    baseMp: 33 + (intelligence * 2), // Base 33 + INT * 2
+    baseAccuracy: 80 + (dexterity * 8), // Base 80 + DEX * 8
+  };
+}
+
 /** Create default stats for a new character based on class */
-export function createDefaultStats(characterClass: 'warrior' | 'archer'): CharacterStats {
+export function createDefaultStats(characterClass: string): CharacterStats {
   if (characterClass === 'warrior') {
+    const strength = 20;
+    const dexterity = 10;
+    const intelligence = 10;
+    const baseStats = calculateBaseStatsFromAttributes(strength, dexterity, intelligence);
+
     return {
-      strength: 20,
-      dexterity: 10,
-      intelligence: 10,
-      hp: 100,
-      maxHp: 100,
-      mp: 50,
-      maxMp: 50,
+      strength,
+      dexterity,
+      intelligence,
+      hp: baseStats.baseHp,
+      maxHp: baseStats.baseHp,
+      mp: baseStats.baseMp,
+      maxMp: baseStats.baseMp,
+      energyShield: 0,
+      maxEnergyShield: 0,
       armor: 10,
       evasion: 5,
+      fireResistance: 0,
+      coldResistance: 0,
+      lightningResistance: 0,
+      chaosResistance: 0,
+      accuracy: baseStats.baseAccuracy,
     };
   } else {
     // Archer
+    const strength = 10;
+    const dexterity = 20;
+    const intelligence = 10;
+    const baseStats = calculateBaseStatsFromAttributes(strength, dexterity, intelligence);
+
     return {
-      strength: 10,
-      dexterity: 20,
-      intelligence: 10,
-      hp: 80,
-      maxHp: 80,
-      mp: 60,
-      maxMp: 60,
+      strength,
+      dexterity,
+      intelligence,
+      hp: baseStats.baseHp,
+      maxHp: baseStats.baseHp,
+      mp: baseStats.baseMp,
+      maxMp: baseStats.baseMp,
+      energyShield: 0,
+      maxEnergyShield: 0,
       armor: 5,
       evasion: 15,
+      fireResistance: 0,
+      coldResistance: 0,
+      lightningResistance: 0,
+      chaosResistance: 0,
+      accuracy: baseStats.baseAccuracy,
     };
   }
 }
@@ -130,6 +178,94 @@ export function calculateManaCost(skillId: string): number {
     default:
       return 0; // Auto-attack is free
   }
+}
+
+/** Calculate effective resistance with caps (PoE mechanics) */
+export function calculateEffectiveResistance(baseResistance: number): number {
+  // Normal cap is 75% for elemental resistances, 90% for chaos with special mechanics
+  // For now, we'll use 75% as the standard cap
+  const maxResistance = 75;
+  return Math.min(baseResistance, maxResistance);
+}
+
+/** Calculate damage reduction from resistance */
+export function calculateDamageReductionFromResistance(effectiveResistance: number): number {
+  return effectiveResistance / 100;
+}
+
+/** Get all resistance values for a character */
+export function getCharacterResistances(stats: CharacterStats): {
+  fire: number;
+  cold: number;
+  lightning: number;
+  chaos: number;
+} {
+  return {
+    fire: calculateEffectiveResistance(stats.fireResistance),
+    cold: calculateEffectiveResistance(stats.coldResistance),
+    lightning: calculateEffectiveResistance(stats.lightningResistance),
+    chaos: calculateEffectiveResistance(stats.chaosResistance),
+  };
+}
+
+/** Calculate ailment thresholds (PoE mechanics) */
+export function calculateAilmentThresholds(stats: CharacterStats): {
+  bleed: number;
+  poison: number;
+  ignite: number;
+  freeze: number;
+  shock: number;
+  chill: number;
+} {
+  // Base ailment thresholds are primarily based on max life
+  // These are simplified calculations for now
+  const lifeThreshold = stats.maxHp * 0.1; // Base threshold ~10% of life
+
+  return {
+    bleed: lifeThreshold * 2,    // Bleeding threshold
+    poison: lifeThreshold * 1.5, // Poison threshold
+    ignite: lifeThreshold * 1.2, // Ignite threshold
+    freeze: lifeThreshold,       // Freeze threshold
+    shock: lifeThreshold * 0.8,  // Shock threshold
+    chill: lifeThreshold * 0.5,  // Chill threshold
+  };
+}
+
+/** Calculate stun and heavy stun thresholds */
+export function calculateStunThresholds(stats: CharacterStats): {
+  stun: number;
+  heavyStun: number;
+} {
+  // Stun thresholds are based on life, but also affected by other factors
+  const baseThreshold = stats.maxHp * 0.2; // ~20% of life
+
+  return {
+    stun: baseThreshold,
+    heavyStun: baseThreshold * 1.5, // Heavy stun requires more buildup
+  };
+}
+
+/** Calculate ailment buildup rates and effects */
+export function calculateAilmentMechanics(stats: CharacterStats): {
+  bleedBuildup: number;
+  igniteBuildup: number;
+  poisonBuildup: number;
+  chillBuildup: number;
+  freezeBuildup: number;
+  shockBuildup: number;
+} {
+  // Simplified buildup calculations - in PoE these are more complex
+  // and depend on damage dealt, resistances, etc.
+  const baseBuildup = 10;
+
+  return {
+    bleedBuildup: baseBuildup,
+    igniteBuildup: baseBuildup * 0.8, // Fire hits build ignites
+    poisonBuildup: baseBuildup * 0.6,
+    chillBuildup: baseBuildup * 0.7, // Cold hits build chills
+    freezeBuildup: baseBuildup * 0.5,
+    shockBuildup: baseBuildup * 0.9, // Lightning hits build shocks
+  };
 }
 
 /** Format a number with + sign if positive */

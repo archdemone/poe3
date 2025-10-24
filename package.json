@@ -15,7 +15,8 @@
     "qa:items": "npm run check:items && npm run test && npm run e2e:headless && npm run smoke",
     "qa:cc-launch": "npm run test && npm run e2e:headless",
     "qa:imports": "npm run typecheck && npm run lint && npm run circulars && npm run dead:exports",
-    "qa:all": "npm run qa:imports && npm run test && npm run e2e:headless",
+    "qa:particles": "vitest run tests/unit/particles.spec.ts && playwright test tests/e2e/hideout.particles.spec.ts --reporter=dot",
+    "qa:all": "npm run qa:imports && npm run qa:particles && npm run test && npm run e2e:headless",
     "lint": "eslint --ext .ts,.tsx,.js src",
     "lint:fix": "npm run lint -- --fix",
     "dead:exports": "ts-prune -p tsconfig.json",
@@ -29,7 +30,9 @@
     "@babylonjs/core": "^8.32.2",
     "@babylonjs/loaders": "^8.32.2",
     "@babylonjs/materials": "^8.32.2",
-    "babylonjs": "^6.32.0"
+    "babylonjs": "^6.32.0",
+    "cheerio": "^1.1.2",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

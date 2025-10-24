@@ -1,4 +1,5 @@
 import { ClassDef, AscendancyDef, deriveStats } from './types';
+import type { CharacterStats } from '../../gameplay/stats';
 
 export type CreatorState = {
   classes: ClassDef[];
@@ -66,10 +67,10 @@ export class CreatorStore {
     return this.state.ascendancies.filter(a => a.classId === cls.id);
   }
 
-  getDerivedStats() {
+  getDerivedStats(): CharacterStats | null {
     const cls = this.getSelectedClass();
     const asc = this.getSelectedAscendancy();
-    return cls ? deriveStats(cls.startingStats, asc?.creationBonuses) : null;
+    return cls ? (deriveStats(cls.startingStats, asc?.creationBonuses) as CharacterStats) : null;
   }
 
   isValid(): { valid: boolean; reason?: string } {

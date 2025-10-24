@@ -9,11 +9,12 @@
     <link rel="stylesheet" href="/src/styles.css">
     <link rel="stylesheet" href="/src/ui/inventory/standalone/index.css">
     <link rel="stylesheet" href="/src/ui/inventory/compact/index.css">
+    <link rel="stylesheet" href="/ui/skillTree.css">
   </head>
   <body>
     <!-- The Babylon.js engine will render to this canvas. It spans the
          entire viewport. -->
-    <canvas id="renderCanvas"></canvas>
+    <canvas id="renderCanvas" tabindex="0"></canvas>
     <div id="ui-layer"></div>
 
     <!-- Dynamic UI container for menu overlays (main menu, character creation, etc.) -->
@@ -236,12 +237,9 @@
         </div>
         
         <div class="tree-canvas-container">
-          <svg id="tree-svg" width="600" height="400">
-            <!-- Lines connecting nodes will be drawn here -->
-            <g id="tree-connections"></g>
-            <!-- Nodes will be drawn here -->
-            <g id="tree-nodes"></g>
-          </svg>
+          <canvas id="tree-canvas" width="800" height="600">
+            Your browser does not support HTML5 Canvas.
+          </canvas>
         </div>
         
         <!-- Node tooltip -->

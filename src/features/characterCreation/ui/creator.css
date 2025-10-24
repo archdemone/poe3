@@ -1,23 +1,99 @@
 :root{--bg:#0e0f13;--panel:#15171d;--muted:#7a8395;--text:#e7eaf1;--accent:#8ac7ff;--accent-2:#c2ffa3;}
-.poe-creator{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);backdrop-filter:blur(2px);z-index:1000;color:var(--text);font-family:system-ui,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial}
-.creator-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:min(1200px,95vw);height:min(720px,90vh)}
-.panel{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(0,0,0,0.3));border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.tile{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:10px;cursor:pointer;outline:none}
+/* CC overlay must sit above everything and accept input */
+[data-testid="cc-root"],
+.poe-creator{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(2px);
+  z-index:10000; /* > HUD and canvas overlays */
+  color:var(--text);
+  font-family:system-ui,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;
+  pointer-events:auto; /* Ensure overlay accepts input */
+}
+
+/* ensure all interactive children accept input */
+[data-testid="cc-root"] *,
+.poe-creator * {
+  pointer-events:auto;
+}
+.creator-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:min(1300px,98vw);height:min(800px,95vh)}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(0,0,0,0.3));border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.tile{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:6px 8px;cursor:pointer;outline:none;font-size:12px}
 .tile:focus-visible{box-shadow:0 0 0 2px var(--accent)}
 .tile.selected{border-color:var(--accent)}
-.tile .name{font-weight:600}
-.tile .desc{color:var(--muted);font-size:12px;margin-top:4px}
+.tile .name{font-weight:600;font-size:11px}
+.tile .desc{color:var(--muted);font-size:10px;margin-top:2px;line-height:1.2}
 .preview-panel .appearance-controls{display:flex;gap:6px;margin-top:8px}
 .btn{background:#2b2f3a;border:1px solid rgba(255,255,255,0.08);color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer}
 .btn.small{padding:6px 8px;font-size:12px}
 .btn.primary{background:linear-gradient(180deg,#2e5aa7,#24427a);border-color:#2f5aa8}
-.stat-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr auto;row-gap:8px}
+.stat-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr auto;row-gap:4px;font-size:13px}
 .stat-list li{display:contents}
-.stat-list span{color:var(--muted)}
+.stat-list span{color:var(--muted);font-size:12px}
 .validation{min-height:18px;color:#ffb4b4;margin:6px 0}
 .actions{display:flex;gap:8px;justify-content:flex-end}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1010}
 .modal.hidden{display:none}
 .modal-content{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px;min-width:320px;max-width:480px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+/* Disable canvas and HUD during character creation */
+#renderCanvas.canvas--disabled,
+#game-canvas.canvas--disabled {
+  pointer-events: none !important;
+}
+
+.hud.hud--disabled {
+  pointer-events: none !important;
+}
+
+/* Tooltip styles */
+.stat-tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.stat-tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  max-width: 300px;
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  animation: tooltip-fade-in 0.2s ease-out forwards;
+}
+
+.stat-tooltip:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% - 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  opacity: 0;
+  animation: tooltip-fade-in 0.2s ease-out forwards;
+}
+
+@keyframes tooltip-fade-in {
+  to {
+    opacity: 1;
+  }
+}

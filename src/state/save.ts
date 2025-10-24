@@ -67,6 +67,8 @@ export interface SaveData {
   skillTree: {
     allocatedNodes: string[]; // Node IDs
     availablePoints: number;
+    activeKeystones?: string[]; // New field for keystone tracking
+    weaponSpecializations?: Record<string, string[]>; // Future weapon specialization
   };
   world: {
     currentScene: 'hideout' | 'dungeon';
@@ -128,11 +130,42 @@ export function loadGame(slot: 0 | 1 | 2): SaveData | null {
   try {
     const json = localStorage.getItem(SLOT_KEY(slot));
     if (!json) return null;
-    return JSON.parse(json) as SaveData;
+
+    const saveData = JSON.parse(json) as SaveData;
+
+    // Migrate old save format to new format
+    migrateSaveData(saveData);
+
+    return saveData;
   } catch (err) {
     console.warn(`Failed to load game from slot ${slot}`, err);
     return null;
   }
+}
+
+/** Migrate save data from old format to new format */
+function migrateSaveData(saveData: SaveData): void {
+  // Migrate skill tree data
+  if (saveData.skillTree) {
+    // Add activeKeystones if missing
+    if (!saveData.skillTree.activeKeystones) {
+      saveData.skillTree.activeKeystones = [];
+    }
+
+    // Add weaponSpecializations if missing
+    if (!saveData.skillTree.weaponSpecializations) {
+      saveData.skillTree.weaponSpecializations = {};
+    }
+
+    // Update available points if using old system (3 points vs 24)
+    if (saveData.skillTree.availablePoints < 10) {
+      // Assume this is an old save, update to new point system
+      saveData.skillTree.availablePoints = 24 - (saveData.skillTree.allocatedNodes.length - 1);
+    }
+  }
+
+  // Future migrations can be added here
+  // Always add new migration checks at the end
 }
 
 /** Delete a save slot, removing both metadata and full data. */
@@ -218,7 +251,9 @@ export function createNewSave(
     },
     skillTree: {
       allocatedNodes: ['start'], // Start node is always allocated
-      availablePoints: 3, // Start with 3 points (from start node grant)
+      availablePoints: 24, // Updated for POE2-style tree
+      activeKeystones: [], // Start with no active keystones
+      weaponSpecializations: {}, // Empty weapon specializations
     },
     world: {
       currentScene: 'hideout',

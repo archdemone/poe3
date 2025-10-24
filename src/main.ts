@@ -48,7 +48,7 @@ import { saveGame, updatePlaytime, createNewSave } from './state/save';
 import type { CharacterStats } from './gameplay/stats';
 import { calculateSkillDamage, calculateDerivedStats } from './gameplay/stats';
 import { getAssetLoader, disposeAssetLoader , getModelManager, disposeModelManager } from './systems/assetManager';
-import { createTorchFlame, createMagicalAura, createPortalEffect, createAmbientDust } from './systems/particleEffects';
+import { createTorchFlame, createMagicalAura, createPortalEffect, createAmbientDust } from './gfx/particles';
 
 // Feature flags
 const ENABLE_POE_STYLE_CREATOR = import.meta.env.DEV; // Enable Path of Exile-style character creator (dev only)
@@ -64,12 +64,12 @@ import { installWatchdog } from './features/characterCreation/guard';
 import { installParticleDebugCommands } from './systems/particleDebug';
 import { createStoneTexture, createWoodTexture, createMetalTexture, createCrystalTexture, createGroundTileTexture, createDirtTexture } from './systems/proceduralTextures';
 
-import { updateCharacterSheet, initDebugSliders } from '../ui/charSheet';
+import { updateCharacterSheet, initDebugSliders } from './ui/charSheet';
 
 import { loadSkillTree, setAllocatedNodes, getAllocatedNodeIds, computePassiveBonuses, getSkillTree, setPassivePoints, getTreeState } from './gameplay/skillTree';
 import type { DerivedBonuses } from './gameplay/skillTree';
 
-import { initSkillTree, refreshTree } from '../ui/skillTree';
+import { initSkillTree, refreshTree } from './ui/skillTree';
 
 import type { ItemInstance, EquipmentState, InventoryGrid, MapModifiers } from './systems/items';
 import { createItem, getItemBase, removeItemFromGrid, updateFlaskCharges, useFlask, canUseFlask, applyCurrencyToItem } from './systems/items';
@@ -156,13 +156,17 @@ function saveState(): void {
 
     // Import and use saveGame function
     import('./state/save').then(({ saveGame }) => {
-      saveGame(0, saveData as any); // TODO: fix typing
-      console.log('Game saved successfully');
+      try {
+        saveGame(0, saveData as any); // TODO: fix typing
+        console.log('Game saved successfully');
+      } catch (saveError) {
+        console.error('Failed to save game:', saveError);
+      }
     }).catch(error => {
       console.error('Failed to import save functions:', error);
     });
   } catch (error) {
-    console.error('Failed to save game:', error);
+    console.error('Failed to prepare save data:', error);
   }
 }
 
@@ -178,10 +182,10 @@ export function addGold(amount: number): void {
 function addItem(item: ItemInstance): boolean {
   return addItemToInventory(item);
 }
-import { openVendorAndInventory, attachPanelClosers } from '../ui/layout';
-import { ensureTwoDock } from '../ui/mount';
-import { setupIndependentToggles } from '../ui/toggles';
-import { initVendorUI, showVendor, hideVendor } from '../ui/vendor';
+import { openVendorAndInventory, attachPanelClosers } from './ui/layout';
+import { ensureTwoDock } from './ui/mount';
+import { setupIndependentToggles } from './ui/toggles';
+import { initVendorUI, showVendor, hideVendor } from './ui/vendor';
 
 import { DeathSystem } from './ecs/systems/deathSystem';
 import { spawnMeleeHitbox } from './gameplay/combat/spawnHitbox';
@@ -201,9 +205,9 @@ const scene = new Scene(engine);
 scene.clearColor = new Color3(0.1, 0.1, 0.15).toColor4();
 
 // Expose scene and canvas for debugging and testing
-(window as any).scene = scene;
-(window as any).canvas = canvas;
-(window as any).engine = engine;
+(window as any).__gameScene = scene;
+(window as any).__gameCanvas = canvas;
+(window as any).__gameEngine = engine;
 
 // Install particle debugging commands
 installParticleDebugCommands(scene);
@@ -217,6 +221,29 @@ console.log('Asset management system initialized');
 // This will be replaced when the game initializes
 const defaultCamera = new ArcRotateCamera('defaultCam', 0, 0, 10, Vector3.Zero(), scene);
 scene.activeCamera = defaultCamera;
+
+// Expose camera for debugging and testing
+(window as any).__gameCamera = defaultCamera;
+
+// Debug instrumentation for e2e tests
+(window as any).__sceneDbg = {
+  cameraMoved: false,
+  lastCameraPosition: defaultCamera.position.clone(),
+  lastCameraTarget: defaultCamera.target.clone()
+};
+
+// Monitor camera movement for tests
+scene.onBeforeRenderObservable.add(() => {
+  if (scene.activeCamera) {
+    const camera = scene.activeCamera as ArcRotateCamera;
+    if (!camera.position.equals((window as any).__sceneDbg.lastCameraPosition) ||
+        !camera.target.equals((window as any).__sceneDbg.lastCameraTarget)) {
+      (window as any).__sceneDbg.cameraMoved = true;
+      (window as any).__sceneDbg.lastCameraPosition = camera.position.clone();
+      (window as any).__sceneDbg.lastCameraTarget = camera.target.clone();
+    }
+  }
+});
 
 // Global game state
 let currentSaveData: SaveData | null = null;
@@ -243,8 +270,17 @@ function createIsometricCamera(): ArcRotateCamera {
   cam.upperBetaLimit = beta;
   cam.lowerRadiusLimit = 5;
   cam.upperRadiusLimit = 50;
-  // Disable panning with right mouse button
-  cam.inputs.attached.pointers.buttons = [0, 1]; // Only left and middle mouse
+  // Disable left mouse for camera control (reserve for ground picking and skills)
+  // Only allow middle mouse for panning, mouse wheel for zoom
+  cam.inputs.attached.pointers.buttons = [1]; // Only middle mouse
+
+  // Ensure camera controls don't interfere with left clicks
+  if (cam.inputs.attached.pointers.onButtonDownObservable) {
+    cam.inputs.attached.pointers.onButtonDownObservable.clear();
+  }
+  if (cam.inputs.attached.pointers.onButtonUpObservable) {
+    cam.inputs.attached.pointers.onButtonUpObservable.clear();
+  }
   // Set as the active camera for the scene
   scene.activeCamera = cam;
   return cam;
@@ -992,6 +1028,15 @@ async function setupHideout(): Promise<void> {
   currentScene = 'hideout';
 
   try {
+    // Clear any existing hideout meshes first
+    console.log('[HIDEOUT] Clearing existing meshes...');
+    for (const mesh of hideoutMeshes) {
+      if (!mesh.isDisposed()) {
+        mesh.dispose();
+      }
+    }
+    hideoutMeshes.length = 0;
+
     // Enhanced lighting setup for gothic atmosphere
     console.log('[HIDEOUT] Setting up lighting...');
     setupGothicLighting();
@@ -1034,7 +1079,7 @@ async function setupHideout(): Promise<void> {
     console.log('[HIDEOUT] Gothic hideout setup complete!');
     console.log('[HIDEOUT] Total meshes created:', hideoutMeshes.length);
     console.log('[HIDEOUT] Checking mesh visibility...');
-    
+
     // Debug: Check if meshes are visible
     let visibleCount = 0;
     let invisibleCount = 0;
@@ -1050,8 +1095,12 @@ async function setupHideout(): Promise<void> {
     console.log('='.repeat(60));
   } catch (error) {
     console.error('[HIDEOUT] Error during hideout setup:', error);
-    alert(`HIDEOUT SETUP ERROR: ${error}`);
-    throw error;
+    // Only show alert in debug mode, otherwise just log
+    if (new URLSearchParams(window.location.search).has('debug')) {
+      alert(`HIDEOUT SETUP ERROR: ${error}`);
+    }
+    // Don't throw - allow hideout to continue with reduced features
+    console.warn('[HIDEOUT] Continuing with reduced features due to setup error');
   }
 }
 
@@ -2592,14 +2641,14 @@ let isLmbDown = false;
 
 scene.onPointerObservable.add((pointerInfo) => {
   // Always update mouse world position for skill targeting
-  if (pointerInfo.type === PointerEventTypes.POINTERMOVE || 
+  if (pointerInfo.type === PointerEventTypes.POINTERMOVE ||
       pointerInfo.type === PointerEventTypes.POINTERDOWN) {
     const pick = scene.pick(scene.pointerX, scene.pointerY);
     if (pick && pick.pickedPoint) {
       lastMouseWorldPos = pick.pickedPoint.clone();
     }
   }
-  
+
   // Left mouse button pressed
   if (pointerInfo.type === PointerEventTypes.POINTERDOWN && pointerInfo.event.button === 0) {
     isLmbDown = true;
@@ -2616,7 +2665,39 @@ scene.onPointerObservable.add((pointerInfo) => {
     // If clicked dev chest (any part of it), spawn test items
     const devChestParts = (window as any).devChestParts as Array<any> | undefined;
     if (currentScene === 'hideout' && devChestParts && devChestParts.includes(pick.pickedMesh)) {
+      console.log('[Dev Chest] Clicked dev chest, spawning items...');
       spawnDevItems();
+      console.log('[Dev Chest] Items spawned, checking camera controls...');
+
+      // Check if camera controls are still attached
+      if (scene.activeCamera) {
+        console.log('[Dev Chest] Camera exists, reattaching controls...');
+        scene.activeCamera.attachControl(canvas, true);
+        // Reapply camera restrictions
+        const cam = scene.activeCamera as ArcRotateCamera;
+        cam.inputs.attached.pointers.buttons = [1]; // Only middle mouse
+        if (cam.inputs.attached.pointers.onButtonDownObservable) {
+          cam.inputs.attached.pointers.onButtonDownObservable.clear();
+        }
+        if (cam.inputs.attached.pointers.onButtonUpObservable) {
+          cam.inputs.attached.pointers.onButtonUpObservable.clear();
+        }
+        console.log('[Dev Chest] Camera controls reattached');
+      } else {
+        console.error('[Dev Chest] No active camera!');
+      }
+
+      // Check canvas state
+      console.log('[Dev Chest] Canvas focus state:', document.activeElement === canvas);
+      canvas.focus();
+      console.log('[Dev Chest] Canvas focused, activeElement:', document.activeElement);
+
+      // Check if inventory UI is shown
+      const inventoryStandalone = document.getElementById('inventoryStandalone');
+      const inventoryCompact = document.getElementById('inventoryCompact');
+      console.log('[Dev Chest] Inventory standalone hidden:', inventoryStandalone?.classList.contains('is-hidden'));
+      console.log('[Dev Chest] Inventory compact hidden:', inventoryCompact?.classList.contains('is-hidden'));
+
       return;
     }
     
@@ -2633,19 +2714,24 @@ scene.onPointerObservable.add((pointerInfo) => {
     // If clicked vendor NPC, open vendor UI
     const vendorNPC = (window as any).vendorNPC;
     console.log('[Click] Scene:', currentScene, 'VendorNPC:', vendorNPC, 'PickedMesh:', pick.pickedMesh);
-        if (currentScene === 'hideout' && vendorNPC && pick.pickedMesh === vendorNPC) {
-          console.log('[Click] Opening vendor UI');
-          // Open only vendor panel, not both panels
-          const dock = ensureTwoDock();
-          const vendor = document.getElementById("vendorPanel");
-          if (vendor && dock) {
-            if (!dock.contains(vendor)) {
-              dock.appendChild(vendor);
-            }
-            vendor.classList.remove("is-hidden");
-          }
-          return;
+
+    // Check if clicked near vendor position (fallback for mesh picking issues)
+    const vendorClicked = vendorNPC && pick.pickedPoint &&
+      pick.pickedPoint.subtract(vendorNPC.position).length() < 2.0; // Within 2 units
+
+    if (currentScene === 'hideout' && (pick.pickedMesh === vendorNPC || vendorClicked)) {
+      console.log('[Click] Opening vendor UI', vendorClicked ? '(distance-based)' : '(mesh-based)');
+      // Open only vendor panel, not both panels
+      const dock = ensureTwoDock();
+      const vendor = document.getElementById("vendorPanel");
+      if (vendor && dock) {
+        if (!dock.contains(vendor)) {
+          dock.appendChild(vendor);
         }
+        vendor.classList.remove("is-hidden");
+      }
+      return;
+    }
     
     const binding = slotBindings['lmb'];
     // Determine behaviour based on binding
@@ -2711,18 +2797,29 @@ function handlePlayerMovement(dt: number) {
     }
     dir.normalize();
     moveDir = dir;
-  } else {
+  } else if (hasManualInput) {
     // Compute camera‑relative basis vectors. Forward is the vector from
     // the camera to its target projected onto the horizontal plane.
-    if (!camera) return;
+    if (!camera) {
+      velocity.value.set(0, 0, 0);
+      return;
+    }
     const forwardVec = camera.target.subtract(camera.position);
     forwardVec.y = 0;
+    if (forwardVec.length() === 0) {
+      velocity.value.set(0, 0, 0);
+      return;
+    }
     forwardVec.normalize();
     // Right is the cross product of up and forward. This yields the
     // correct right direction in a right‑handed coordinate system.
     const rightVec = Vector3.Cross(Vector3.Up(), forwardVec).normalize();
     moveDir = forwardVec.scale(forwardFactor).add(rightVec.scale(rightFactor));
     if (moveDir.length() > 0) moveDir.normalize();
+  } else {
+    // No input and no move target - ensure velocity is zero
+    velocity.value.set(0, 0, 0);
+    return;
   }
   velocity.value.x = moveDir.x * speed;
   velocity.value.y = 0;
@@ -2992,14 +3089,12 @@ let playtimeAccumulator = 0;
 
 /** Update charges for all flasks in inventory and equipment */
 function updateAllFlaskCharges(dt: number): void {
-  if (!currentSaveData?.inventory?.grid) return;
+  if (!currentSaveData?.inventory?.grid?.items) return;
 
   // Update flasks in inventory
-  for (const row of currentSaveData.inventory.grid) {
-    for (const item of row) {
-      if (item) {
-        updateFlaskCharges(item, dt);
-      }
+  for (const gridItem of currentSaveData.inventory.grid.items) {
+    if (gridItem.item) {
+      updateFlaskCharges(gridItem.item, dt);
     }
   }
 
@@ -3071,15 +3166,13 @@ function useCurrencyOnItem(currencyItem: ItemInstance, targetItem: ItemInstance)
 
 /** Update flask UI to reflect current flask state */
 function updateFlaskUI(): void {
-  if (!currentSaveData?.inventory?.grid) return;
+  if (!currentSaveData?.inventory?.grid?.items) return;
 
   // Find flasks in inventory
   const flasks = [];
-  for (const row of currentSaveData.inventory.grid) {
-    for (const item of row) {
-      if (item && getItemBase(item.baseId)?.slot === 'flask') {
-        flasks.push(item);
-      }
+  for (const gridItem of currentSaveData.inventory.grid.items) {
+    if (gridItem.item && getItemBase(gridItem.item.baseId)?.slot === 'flask') {
+      flasks.push(gridItem.item);
     }
   }
 
@@ -3861,7 +3954,7 @@ stateManager.on(GameState.MAIN_MENU, async () => {
   }
   
   stopGameLoop();
-  await loadUI('/ui/mainMenu.html');
+  await loadUI('/src/ui/mainMenu.html');
 });
 
 stateManager.on(GameState.CHARACTER_CREATE, async (data) => {
@@ -3902,20 +3995,43 @@ stateManager.on(GameState.CHARACTER_CREATE, async (data) => {
 
 stateManager.on(GameState.HIDEOUT, async (data) => {
   console.log('Entering HIDEOUT state');
-  await unloadUI();
-  
-  if (data?.saveData) {
-    currentSaveData = data.saveData;
-    if (data.slot !== undefined) {
-      currentSlot = data.slot;
+
+  try {
+    await unloadUI();
+
+    // Ensure Babylon.js scene is in a clean state
+    if (scene) {
+      console.log('[HIDEOUT] Ensuring scene is properly configured');
+      // Make sure the scene is active
+      if (engine.activeView?.target !== canvas) {
+        engine.setHardwareScalingLevel(1);
+      }
     }
-    await initializeGame(data.saveData);
-  }
-  
-  // Ensure hideout scene is active
-  if (currentScene !== 'hideout' && gameInitialized) {
-    leaveDungeon();
-    // Note: setupHideout() is called in initializeGame, so we don't need to call it here
+
+    if (data?.saveData) {
+      console.log('[HIDEOUT] Loading save data for slot:', data.slot);
+      currentSaveData = data.saveData;
+      if (data.slot !== undefined) {
+        currentSlot = data.slot;
+      }
+      await initializeGame(data.saveData);
+      console.log('[HIDEOUT] Game initialized successfully');
+    } else {
+      console.log('[HIDEOUT] No save data provided - new character creation');
+    }
+
+    // Ensure hideout scene is active
+    if (currentScene !== 'hideout' && gameInitialized) {
+      console.log('[HIDEOUT] Leaving dungeon to return to hideout');
+      leaveDungeon();
+      // Note: setupHideout() is called in initializeGame, so we don't need to call it here
+    }
+
+    console.log('[HIDEOUT] Hideout state transition complete');
+  } catch (error) {
+    console.error('[HIDEOUT] Error during hideout setup:', error);
+    // Try to recover by going back to main menu
+    stateManager.transitionTo(GameState.MAIN_MENU);
   }
 });
 

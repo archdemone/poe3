@@ -1,0 +1,189 @@
+[
+  {
+    "id": "titan",
+    "classId": "warrior",
+    "displayName": "Titan",
+    "shortDescription": "Titan ascendancy for Warrior",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "warbringer",
+    "classId": "warrior",
+    "displayName": "Warbringer",
+    "shortDescription": "Warbringer ascendancy for Warrior",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "smith_of_kitava",
+    "classId": "warrior",
+    "displayName": "Smith of Kitava",
+    "shortDescription": "Smith of Kitava ascendancy for Warrior",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "infernalist",
+    "classId": "witch",
+    "displayName": "Infernalist",
+    "shortDescription": "Infernalist ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "blood_mage",
+    "classId": "witch",
+    "displayName": "Blood Mage",
+    "shortDescription": "Blood Mage ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "lich",
+    "classId": "witch",
+    "displayName": "Lich",
+    "shortDescription": "Lich ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "stormweaver",
+    "classId": "sorceress",
+    "displayName": "Stormweaver",
+    "shortDescription": "Stormweaver ascendancy for Sorceress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "chronomancer",
+    "classId": "sorceress",
+    "displayName": "Chronomancer",
+    "shortDescription": "Chronomancer ascendancy for Sorceress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "tactician",
+    "classId": "mercenary",
+    "displayName": "Tactician",
+    "shortDescription": "Tactician ascendancy for Mercenary",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "witchhunter",
+    "classId": "mercenary",
+    "displayName": "Witchhunter",
+    "shortDescription": "Witchhunter ascendancy for Mercenary",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "gemling_legionnaire",
+    "classId": "mercenary",
+    "displayName": "Gemling Legionnaire",
+    "shortDescription": "Gemling Legionnaire ascendancy for Mercenary",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "invoker",
+    "classId": "monk",
+    "displayName": "Invoker",
+    "shortDescription": "Invoker ascendancy for Monk",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "acolyte_of_chayula",
+    "classId": "monk",
+    "displayName": "Acolyte of Chayula",
+    "shortDescription": "Acolyte of Chayula ascendancy for Monk",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "deadeye",
+    "classId": "ranger",
+    "displayName": "Deadeye",
+    "shortDescription": "Deadeye ascendancy for Ranger",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "pathfinder",
+    "classId": "ranger",
+    "displayName": "Pathfinder",
+    "shortDescription": "Pathfinder ascendancy for Ranger",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "amazon",
+    "classId": "huntress",
+    "displayName": "Amazon",
+    "shortDescription": "Amazon ascendancy for Huntress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "ritualist",
+    "classId": "huntress",
+    "displayName": "Ritualist",
+    "shortDescription": "Ritualist ascendancy for Huntress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  }
+]

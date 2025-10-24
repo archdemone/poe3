@@ -1,4 +1,4 @@
-# Character Creation Launch Fix
+# Character Creation Launch & Interaction Fix
 
 ## Root Cause Analysis
 
@@ -136,3 +136,75 @@ After these changes:
 - Legacy character creation flow preserved when `ENABLE_POE_STYLE_CREATOR = false`
 - All existing game functionality unchanged
 - No breaking changes to save format or existing UI
+
+---
+
+## Interaction Layer Contract
+
+### Z-Index & Pointer Events
+
+Character Creation overlay sits above all game elements with proper input isolation:
+
+```css
+/* CC overlay must sit above everything and accept input */
+[data-testid="cc-root"] {
+  position: fixed;
+  inset: 0;
+  z-index: 10000; /* > HUD and canvas overlays */
+  pointer-events: auto;
+}
+
+/* Ensure all interactive children accept input */
+[data-testid="cc-root"] * {
+  pointer-events: auto;
+}
+
+/* Disable canvas and HUD during character creation */
+#renderCanvas.canvas--disabled,
+#game-canvas.canvas--disabled {
+  pointer-events: none !important;
+}
+
+.hud.hud--disabled {
+  pointer-events: none !important;
+}
+```
+
+### Gameplay Input Suspension Protocol
+
+When CC enters:
+1. Add `canvas--disabled` class to `#renderCanvas`
+2. Add `hud--disabled` class to `.hud` root
+3. Call `scene.detachControl()` and `camera.detachControl(true)`
+4. Blur engine input element: `engine.getInputElement()?.blur?.()`
+
+When CC exits:
+1. Remove `canvas--disabled` and `hud--disabled` classes
+2. Call `scene.attachControl()` and `camera.attachControl(true)`
+
+### Focus Management
+
+- First interactive element (class tile) gets focus on CC mount
+- All tiles have `tabindex="0"` for keyboard navigation
+- Global key handlers respect CC active state
+
+### Debug Tools
+
+Use `?debug=1` URL parameter to enable:
+- Hit test badge in corner showing hovered element and z-index chain
+- Click logging with target and composed path length
+- Console access to `window.__hit(x, y)` for programmatic testing
+
+### Testing
+
+Run interaction tests with:
+```bash
+npm run e2e -- --grep="Character Creation Interaction"
+```
+
+Tests verify:
+- Mouse and keyboard interaction works
+- Canvas/HUD don't steal input during CC
+- Proper z-index layering
+- Input restoration after CC exit
+- No console errors or failed requests

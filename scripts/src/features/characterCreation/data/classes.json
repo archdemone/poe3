@@ -1,0 +1,180 @@
+[
+  {
+    "id": "warrior",
+    "displayName": "Warrior (Strength-focused)",
+    "affinity": {
+      "str": 32,
+      "dex": 14,
+      "int": 14
+    },
+    "startingStats": {
+      "strength": 27,
+      "dexterity": 9,
+      "intelligence": 9,
+      "hp": 109,
+      "maxHp": 109,
+      "mp": 43,
+      "maxMp": 43,
+      "armor": 17,
+      "evasion": 4
+    },
+    "allowedAscendancies": [
+      "titan",
+      "warbringer",
+      "smith_of_kitava"
+    ],
+    "saveClass": "warrior"
+  },
+  {
+    "id": "witch",
+    "displayName": "Witch (Intelligence-focused)",
+    "affinity": {
+      "str": 14,
+      "dex": 14,
+      "int": 32
+    },
+    "startingStats": {
+      "strength": 9,
+      "dexterity": 9,
+      "intelligence": 27,
+      "hp": 73,
+      "maxHp": 73,
+      "mp": 79,
+      "maxMp": 79,
+      "armor": -1,
+      "evasion": 4
+    },
+    "allowedAscendancies": [
+      "infernalist",
+      "blood_mage",
+      "lich"
+    ],
+    "saveClass": "witch"
+  },
+  {
+    "id": "sorceress",
+    "displayName": "Sorceress (Balanced-focused)",
+    "affinity": {
+      "str": 20,
+      "dex": 20,
+      "int": 20
+    },
+    "startingStats": {
+      "strength": 15,
+      "dexterity": 15,
+      "intelligence": 15,
+      "hp": 85,
+      "maxHp": 85,
+      "mp": 55,
+      "maxMp": 55,
+      "armor": 5,
+      "evasion": 10
+    },
+    "allowedAscendancies": [
+      "stormweaver",
+      "chronomancer"
+    ],
+    "saveClass": "sorceress"
+  },
+  {
+    "id": "mercenary",
+    "displayName": "Mercenary (Balanced-focused)",
+    "affinity": {
+      "str": 20,
+      "dex": 20,
+      "int": 20
+    },
+    "startingStats": {
+      "strength": 15,
+      "dexterity": 15,
+      "intelligence": 15,
+      "hp": 85,
+      "maxHp": 85,
+      "mp": 55,
+      "maxMp": 55,
+      "armor": 5,
+      "evasion": 10
+    },
+    "allowedAscendancies": [
+      "tactician",
+      "witchhunter",
+      "gemling_legionnaire"
+    ],
+    "saveClass": "mercenary"
+  },
+  {
+    "id": "monk",
+    "displayName": "Monk (Intelligence-focused)",
+    "affinity": {
+      "str": 14,
+      "dex": 14,
+      "int": 32
+    },
+    "startingStats": {
+      "strength": 9,
+      "dexterity": 9,
+      "intelligence": 27,
+      "hp": 73,
+      "maxHp": 73,
+      "mp": 79,
+      "maxMp": 79,
+      "armor": -1,
+      "evasion": 4
+    },
+    "allowedAscendancies": [
+      "invoker",
+      "acolyte_of_chayula"
+    ],
+    "saveClass": "monk"
+  },
+  {
+    "id": "ranger",
+    "displayName": "Ranger (Balanced-focused)",
+    "affinity": {
+      "str": 23,
+      "dex": 23,
+      "int": 14
+    },
+    "startingStats": {
+      "strength": 18,
+      "dexterity": 18,
+      "intelligence": 9,
+      "hp": 91,
+      "maxHp": 91,
+      "mp": 43,
+      "maxMp": 43,
+      "armor": 8,
+      "evasion": 13
+    },
+    "allowedAscendancies": [
+      "deadeye",
+      "pathfinder"
+    ],
+    "saveClass": "ranger"
+  },
+  {
+    "id": "huntress",
+    "displayName": "Huntress (Balanced-focused)",
+    "affinity": {
+      "str": 20,
+      "dex": 20,
+      "int": 20
+    },
+    "startingStats": {
+      "strength": 15,
+      "dexterity": 15,
+      "intelligence": 15,
+      "hp": 85,
+      "maxHp": 85,
+      "mp": 55,
+      "maxMp": 55,
+      "armor": 5,
+      "evasion": 10
+    },
+    "allowedAscendancies": [
+      "amazon",
+      "ritualist"
+    ],
+    "saveClass": "huntress"
+  }
+]

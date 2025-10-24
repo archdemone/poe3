@@ -1,30 +1,410 @@
 [
   {
-    "id": "warden",
-    "classId": "sentinel",
-    "displayName": "Warden",
-    "shortDescription": "Stalwart defender focused on armor and life.",
-    "creationBonuses": { "hp_flat": 30, "armor": 10, "str": 4 }
+    "id": "juggernaut",
+    "classId": "marauder",
+    "game": "poe1",
+    "displayName": "Juggernaut",
+    "shortDescription": "Juggernaut ascendancy for Marauder",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
   },
   {
-    "id": "champion",
-    "classId": "sentinel",
-    "displayName": "Champion",
-    "shortDescription": "Offensive frontline with improved melee.",
-    "creationBonuses": { "melee_pct": 10, "str": 4, "hp_flat": 10 }
+    "id": "berserker",
+    "classId": "marauder",
+    "game": "poe1",
+    "displayName": "Berserker",
+    "shortDescription": "Berserker ascendancy for Marauder",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "chieftain",
+    "classId": "marauder",
+    "game": "poe1",
+    "displayName": "Chieftain",
+    "shortDescription": "Chieftain ascendancy for Marauder",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "warden",
+    "classId": "ranger",
+    "game": "poe1",
+    "displayName": "Warden",
+    "shortDescription": "Warden ascendancy for Ranger",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "deadeye",
+    "classId": "ranger",
+    "game": "poe1",
+    "displayName": "Deadeye",
+    "shortDescription": "Deadeye ascendancy for Ranger",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
   },
   {
     "id": "pathfinder",
-    "classId": "huntress",
+    "classId": "ranger",
+    "game": "poe1",
     "displayName": "Pathfinder",
-    "shortDescription": "Mobile skirmisher with better evasion.",
-    "creationBonuses": { "evasion": 10, "dex": 4 }
+    "shortDescription": "Pathfinder ascendancy for Ranger",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
   },
   {
-    "id": "marksman",
+    "id": "slayer",
+    "classId": "duelist",
+    "game": "poe1",
+    "displayName": "Slayer",
+    "shortDescription": "Slayer ascendancy for Duelist",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "gladiator",
+    "classId": "duelist",
+    "game": "poe1",
+    "displayName": "Gladiator",
+    "shortDescription": "Gladiator ascendancy for Duelist",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "champion",
+    "classId": "duelist",
+    "game": "poe1",
+    "displayName": "Champion",
+    "shortDescription": "Champion ascendancy for Duelist",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "inquisitor",
+    "classId": "templar",
+    "game": "poe1",
+    "displayName": "Inquisitor",
+    "shortDescription": "Inquisitor ascendancy for Templar",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "hierophant",
+    "classId": "templar",
+    "game": "poe1",
+    "displayName": "Hierophant",
+    "shortDescription": "Hierophant ascendancy for Templar",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "guardian",
+    "classId": "templar",
+    "game": "poe1",
+    "displayName": "Guardian",
+    "shortDescription": "Guardian ascendancy for Templar",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "assassin",
+    "classId": "shadow",
+    "game": "poe1",
+    "displayName": "Assassin",
+    "shortDescription": "Assassin ascendancy for Shadow",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "trickster",
+    "classId": "shadow",
+    "game": "poe1",
+    "displayName": "Trickster",
+    "shortDescription": "Trickster ascendancy for Shadow",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "saboteur",
+    "classId": "shadow",
+    "game": "poe1",
+    "displayName": "Saboteur",
+    "shortDescription": "Saboteur ascendancy for Shadow",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 4,
+      "int": 0
+    }
+  },
+  {
+    "id": "ascendant",
+    "classId": "scion",
+    "game": "poe1",
+    "displayName": "Ascendant",
+    "shortDescription": "Ascendant ascendancy for Scion",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "titan",
+    "classId": "warrior",
+    "game": "poe2",
+    "displayName": "Titan",
+    "shortDescription": "Titan ascendancy for Warrior",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "warbringer",
+    "classId": "warrior",
+    "game": "poe2",
+    "displayName": "Warbringer",
+    "shortDescription": "Warbringer ascendancy for Warrior",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "smith_of_kitava",
+    "classId": "warrior",
+    "game": "poe2",
+    "displayName": "Smith of Kitava",
+    "shortDescription": "Smith of Kitava ascendancy for Warrior",
+    "creationBonuses": {
+      "str": 4,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "infernalist",
+    "classId": "witch",
+    "game": "poe2",
+    "displayName": "Infernalist",
+    "shortDescription": "Infernalist ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "blood_mage",
+    "classId": "witch",
+    "game": "poe2",
+    "displayName": "Blood Mage",
+    "shortDescription": "Blood Mage ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "lich",
+    "classId": "witch",
+    "game": "poe2",
+    "displayName": "Lich",
+    "shortDescription": "Lich ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "occultist",
+    "classId": "witch",
+    "game": "poe1",
+    "displayName": "Occultist",
+    "shortDescription": "Occultist ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "elementalist",
+    "classId": "witch",
+    "game": "poe1",
+    "displayName": "Elementalist",
+    "shortDescription": "Elementalist ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "necromancer",
+    "classId": "witch",
+    "game": "poe1",
+    "displayName": "Necromancer",
+    "shortDescription": "Necromancer ascendancy for Witch",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 4
+    }
+  },
+  {
+    "id": "stormweaver",
+    "classId": "sorceress",
+    "game": "poe2",
+    "displayName": "Stormweaver",
+    "shortDescription": "Stormweaver ascendancy for Sorceress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "chronomancer",
+    "classId": "sorceress",
+    "game": "poe2",
+    "displayName": "Chronomancer",
+    "shortDescription": "Chronomancer ascendancy for Sorceress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "tactician",
+    "classId": "mercenary",
+    "game": "poe2",
+    "displayName": "Tactician",
+    "shortDescription": "Tactician ascendancy for Mercenary",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "witchhunter",
+    "classId": "mercenary",
+    "game": "poe2",
+    "displayName": "Witchhunter",
+    "shortDescription": "Witchhunter ascendancy for Mercenary",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "gemling_legionnaire",
+    "classId": "mercenary",
+    "game": "poe2",
+    "displayName": "Gemling Legionnaire",
+    "shortDescription": "Gemling Legionnaire ascendancy for Mercenary",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "invoker",
+    "classId": "monk",
+    "game": "poe2",
+    "displayName": "Invoker",
+    "shortDescription": "Invoker ascendancy for Monk",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "acolyte_of_chayula",
+    "classId": "monk",
+    "game": "poe2",
+    "displayName": "Acolyte of Chayula",
+    "shortDescription": "Acolyte of Chayula ascendancy for Monk",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "amazon",
     "classId": "huntress",
-    "displayName": "Marksman",
-    "shortDescription": "Ranged specialist with increased bow damage.",
-    "creationBonuses": { "bow_pct": 10, "dex": 4 }
+    "game": "poe2",
+    "displayName": "Amazon",
+    "shortDescription": "Amazon ascendancy for Huntress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
+  },
+  {
+    "id": "ritualist",
+    "classId": "huntress",
+    "game": "poe2",
+    "displayName": "Ritualist",
+    "shortDescription": "Ritualist ascendancy for Huntress",
+    "creationBonuses": {
+      "str": 0,
+      "dex": 0,
+      "int": 0
+    }
   }
 ]

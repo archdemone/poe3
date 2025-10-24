@@ -1,6 +1,8 @@
 /**
  * HIGH-QUALITY Particle Effects System
  * Creates and manages various particle effects using proper textures
+ *
+ * DEPRECATED: Use src/gfx/particles.ts for new code - this file maintained for backward compatibility
  */
 
 import { Color4 } from '@babylonjs/core/Maths/math.color';
@@ -17,19 +19,20 @@ import { createFlameParticleTexture, createMagicGlowTexture, createSoftParticleT
  * @param name Unique name for the particle system
  * @param position Position of the torch
  * @param scene Babylon.js scene
- * @returns ParticleSystem instance
+ * @returns ParticleSystem instance (or NoOpParticleSystem on failure)
  */
-export function createTorchFlame(name: string, position: Vector3, scene: Scene): ParticleSystem {
-  // Try to use GPU particles for better performance, fallback to CPU
-  let particleSystem: ParticleSystem;
-  
-  if (GPUParticleSystem.IsSupported) {
-    particleSystem = new GPUParticleSystem(name, { capacity: 150 }, scene);
-    console.log(`[Particles] Using GPU particles for ${name}`);
-  } else {
-    particleSystem = new ParticleSystem(name, 150, scene);
-    console.log(`[Particles] Using CPU particles for ${name}`);
-  }
+export function createTorchFlame(name: string, position: Vector3, scene: Scene): any {
+  try {
+    // Try to use GPU particles for better performance, fallback to CPU
+    let particleSystem: any;
+
+    if (GPUParticleSystem?.IsSupported) {
+      particleSystem = new GPUParticleSystem(name, { capacity: 150 }, scene);
+      console.log(`[Particles] Using GPU particles for ${name}`);
+    } else {
+      particleSystem = new ParticleSystem(name, 150, scene);
+      console.log(`[Particles] Using CPU particles for ${name}`);
+    }
 
   // Use high-quality flame texture
   const flameTexture = createFlameParticleTexture(`${name}_texture`, scene, 128);
@@ -72,6 +75,16 @@ export function createTorchFlame(name: string, position: Vector3, scene: Scene):
   particleSystem.gravity = new Vector3(0, -0.3, 0);
 
   return particleSystem;
+  } catch (error) {
+    console.warn(`[Particles] Failed to create torch flame ${name}:`, error);
+    // Return no-op particle system to prevent crashes
+    return {
+      start: () => {},
+      stop: () => {},
+      dispose: () => {},
+      isStarted: () => false
+    };
+  }
 }
 
 /**
@@ -85,9 +98,10 @@ export function createMagicalAura(
   name: string,
   emitter: AbstractMesh | Vector3,
   scene: Scene
-): ParticleSystem {
-  // Try GPU particles for better performance
-  let particleSystem: ParticleSystem;
+): any {
+  try {
+    // Try GPU particles for better performance
+    let particleSystem: any;
   
   if (GPUParticleSystem.IsSupported) {
     particleSystem = new GPUParticleSystem(name, { capacity: 200 }, scene);
@@ -141,6 +155,15 @@ export function createMagicalAura(
   particleSystem.gravity = new Vector3(0, 0.15, 0);
 
   return particleSystem;
+  } catch (error) {
+    console.warn(`[Particles] Failed to create magical aura ${name}:`, error);
+    return {
+      start: () => {},
+      stop: () => {},
+      dispose: () => {},
+      isStarted: () => false
+    };
+  }
 }
 
 /**
@@ -154,9 +177,10 @@ export function createPortalEffect(
   name: string,
   emitter: AbstractMesh | Vector3,
   scene: Scene
-): ParticleSystem {
-  // Use GPU particles for portal effect
-  let particleSystem: ParticleSystem;
+): any {
+  try {
+    // Use GPU particles for portal effect
+    let particleSystem: any;
   
   if (GPUParticleSystem.IsSupported) {
     particleSystem = new GPUParticleSystem(name, { capacity: 250 }, scene);
@@ -209,6 +233,15 @@ export function createPortalEffect(
   particleSystem.gravity = new Vector3(0, 0.4, 0);
 
   return particleSystem;
+  } catch (error) {
+    console.warn(`[Particles] Failed to create portal effect ${name}:`, error);
+    return {
+      start: () => {},
+      stop: () => {},
+      dispose: () => {},
+      isStarted: () => false
+    };
+  }
 }
 
 /**
@@ -224,9 +257,10 @@ export function createAmbientDust(
   centerPosition: Vector3,
   radius: number,
   scene: Scene
-): ParticleSystem {
-  // Use CPU particles for dust (low count, doesn't need GPU)
-  const particleSystem = new ParticleSystem(name, 60, scene);
+): any {
+  try {
+    // Use CPU particles for dust (low count, doesn't need GPU)
+    const particleSystem = new ParticleSystem(name, 60, scene);
 
   // Use subtle dust texture
   const dustTexture = createDustTexture(`${name}_texture`, scene, 32);
@@ -267,5 +301,14 @@ export function createAmbientDust(
   particleSystem.gravity = new Vector3(0, -0.015, 0);
 
   return particleSystem;
+  } catch (error) {
+    console.warn(`[Particles] Failed to create ambient dust ${name}:`, error);
+    return {
+      start: () => {},
+      stop: () => {},
+      dispose: () => {},
+      isStarted: () => false
+    };
+  }
 }
 
