@@ -236,12 +236,44 @@
           </div>
         </div>
         
-        <div class="tree-canvas-container">
-          <canvas id="tree-canvas" width="800" height="600">
-            Your browser does not support HTML5 Canvas.
-          </canvas>
+        <div class="tree-content">
+          <div class="tree-canvas-container">
+            <canvas id="tree-canvas" width="800" height="600">
+              Your browser does not support HTML5 Canvas.
+            </canvas>
+          </div>
+
+          <!-- Build Stats Panel -->
+          <div class="tree-stats-panel">
+            <h3>Build Stats</h3>
+            <div id="tree-build-stats" class="build-stats-content">
+              <div class="stat-category">
+                <h4>Core Attributes</h4>
+                <div class="stat-line"><span>Strength:</span> <span id="build-str">10</span></div>
+                <div class="stat-line"><span>Dexterity:</span> <span id="build-dex">10</span></div>
+                <div class="stat-line"><span>Intelligence:</span> <span id="build-int">10</span></div>
+              </div>
+              <div class="stat-category">
+                <h4>Life & Mana</h4>
+                <div class="stat-line"><span>Maximum Life:</span> <span id="build-hp">100</span></div>
+                <div class="stat-line"><span>Maximum Mana:</span> <span id="build-mp">50</span></div>
+              </div>
+              <div class="stat-category">
+                <h4>Offense</h4>
+                <div class="stat-line"><span>Melee Damage:</span> <span id="build-melee">+0%</span></div>
+                <div class="stat-line"><span>Bow Damage:</span> <span id="build-bow">+0%</span></div>
+                <div class="stat-line"><span>Spell Damage:</span> <span id="build-spell">+0%</span></div>
+                <div class="stat-line"><span>Crit Chance:</span> <span id="build-crit">5%</span></div>
+              </div>
+              <div class="stat-category">
+                <h4>Defense</h4>
+                <div class="stat-line"><span>Armor:</span> <span id="build-armor">0</span></div>
+                <div class="stat-line"><span>Evasion:</span> <span id="build-evasion">0</span></div>
+              </div>
+            </div>
+          </div>
         </div>
-        
+
         <!-- Node tooltip -->
         <div id="node-tooltip" class="node-tooltip hidden">
           <div class="tooltip-name">Node Name</div>

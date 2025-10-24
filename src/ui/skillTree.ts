@@ -380,7 +380,50 @@ function updatePointsDisplay(): void {
 /** Refresh the tree display (call after external state changes) */
 export function refreshTree(): void {
   updatePointsDisplay();
+  updateBuildStatsPanel();
   // Canvas renderer handles its own updates via render loop
+}
+
+/** Update the build stats panel with current passive bonuses */
+function updateBuildStatsPanel(): void {
+  const treeData = getSkillTree();
+  if (!treeData) return;
+
+  try {
+    const stats = computePassiveBonuses(treeData);
+
+    // Update each stat display
+    const updateStat = (id: string, value: number, isPercent = false, showSign = false) => {
+      const el = document.getElementById(id);
+      if (el) {
+        const formatted = isPercent
+          ? `${showSign && value >= 0 ? '+' : ''}${Math.round(value)}%`
+          : `${showSign && value >= 0 ? '+' : ''}${Math.round(value)}`;
+        el.textContent = formatted;
+      }
+    };
+
+    // Core attributes
+    updateStat('build-str', stats.str);
+    updateStat('build-dex', stats.dex);
+    updateStat('build-int', stats.int);
+
+    // Life & Mana
+    updateStat('build-hp', stats.hp_flat);
+    updateStat('build-mp', stats.mp_flat);
+
+    // Offense
+    updateStat('build-melee', stats.melee_pct, true, true);
+    updateStat('build-bow', stats.bow_pct, true, true);
+    updateStat('build-spell', stats.spell_pct, true, true);
+    updateStat('build-crit', stats.crit_chance, true);
+
+    // Defense
+    updateStat('build-armor', stats.armor);
+    updateStat('build-evasion', stats.evasion);
+  } catch (err) {
+    console.warn('Failed to update build stats panel:', err);
+  }
 }
 
 /** Cleanup function to stop render loop when skill tree is closed */
