@@ -110,10 +110,10 @@ function generateSkillTree(): SkillTreeData {
     edges.push(['start', firstNodeId]);
 
     // Create branches along this path
-    for (let ring = 1; ring <= 7; ring++) {
-      const radius = innerRadius + ring * 65;
-      const nodeCount = 6 + ring * 2; // More nodes in outer rings
-      const angleSpread = 50; // Degrees of spread for this path
+    for (let ring = 1; ring <= 9; ring++) {
+      const radius = innerRadius + ring * 60;
+      const nodeCount = 7 + ring * 2; // More nodes in outer rings
+      const angleSpread = 55; // Degrees of spread for this path
 
       for (let i = 0; i < nodeCount; i++) {
         const angleOffset = ((i / (nodeCount - 1)) - 0.5) * angleSpread;
@@ -129,17 +129,17 @@ function generateSkillTree(): SkillTreeData {
         let nodeName = '';
         let description: string | undefined;
 
-        if (ring === 7 && (i === 0 || i === nodeCount - 1)) {
+        if (ring === 9 && (i === 0 || i === nodeCount - 1)) {
           // Keystones at outer edges
           nodeType = 'keystone';
-          nodeName = `${path.name} Keystone ${i === 0 ? 'A' : 'B'}`;
+          nodeName = `${path.name} Keystone ${i === 0 ? 'Alpha' : 'Omega'}`;
           effects = [
-            { stat: path.stat, op: 'add', value: 30 },
-            { stat: 'hp_flat', op: 'add', value: 50 },
-            { stat: `${path.stat === 'str' ? 'melee' : path.stat === 'dex' ? 'bow' : 'spell'}_pct`, op: 'more', value: 20 }
+            { stat: path.stat, op: 'add', value: 35 },
+            { stat: 'hp_flat', op: 'add', value: 60 },
+            { stat: `${path.stat === 'str' ? 'melee' : path.stat === 'dex' ? 'bow' : 'spell'}_pct`, op: 'more', value: 25 }
           ];
-          description = `Powerful ${path.name.toLowerCase()} keystone`;
-        } else if ((ring === 4 || ring === 6) && i === Math.floor(nodeCount / 2)) {
+          description = `Ultimate ${path.name.toLowerCase()} power`;
+        } else if ((ring === 5 || ring === 7) && i === Math.floor(nodeCount / 2)) {
           // Notable in middle rings
           nodeType = 'notable';
           nodeName = `${path.name} Notable ${ring}`;
@@ -186,24 +186,24 @@ function generateSkillTree(): SkillTreeData {
   ];
 
   hybridConnections.forEach((hybrid, idx) => {
-    for (let ring = 2; ring <= 4; ring++) {
-      const radius = innerRadius + ring * 70;
+    for (let ring = 2; ring <= 6; ring++) {
+      const radius = innerRadius + ring * 60;
       const pos = polarToCartesian(hybrid.angle, radius);
       const nodeId = `hybrid_${hybrid.from}_${hybrid.to}_r${ring}`;
 
       nodes.push(createNode(
         nodeId,
-        `+4 ${hybrid.stats[0].toUpperCase()} / +4 ${hybrid.stats[1].toUpperCase()}`,
+        `+${ring + 2} ${hybrid.stats[0].toUpperCase()} / +${ring + 2} ${hybrid.stats[1].toUpperCase()}`,
         pos.x,
         pos.y,
-        ring === 4 ? 'notable' : 'small',
+        ring >= 5 ? 'notable' : 'small',
         [
-          { stat: hybrid.stats[0], op: 'add', value: 4 },
-          { stat: hybrid.stats[1], op: 'add', value: 4 }
+          { stat: hybrid.stats[0], op: 'add', value: ring + 2 },
+          { stat: hybrid.stats[1], op: 'add', value: ring + 2 }
         ],
         [],
         ['hybrid', ...hybrid.stats],
-        ring === 4 ? `Balanced ${hybrid.name} node` : undefined
+        ring >= 5 ? `Balanced ${hybrid.name} node` : undefined
       ));
     }
   });
