@@ -300,8 +300,9 @@ export class SkillTreeRenderer {
     const zoomY = canvasHeight / (treeHeight + 200);
     const fitZoom = Math.min(zoomX, zoomY, 1); // Don't zoom in more than 1:1
 
-    this.viewport.x = centerX - (canvasWidth / fitZoom) / 2;
-    this.viewport.y = centerY - (canvasHeight / fitZoom) / 2;
+    // viewport.x and viewport.y represent the CENTER of the viewport in world space
+    this.viewport.x = centerX;
+    this.viewport.y = centerY;
     this.viewport.zoom = Math.max(fitZoom, 0.1); // Minimum zoom of 0.1
   }
 
@@ -336,17 +337,22 @@ export class SkillTreeRenderer {
       if (!fromNode || !toNode) continue;
 
       // Transform coordinates to screen space with zoom
-      const fromScreenX = (fromNode.x - this.viewport.x) * this.viewport.zoom;
-      const fromScreenY = (fromNode.y - this.viewport.y) * this.viewport.zoom;
-      const toScreenX = (toNode.x - this.viewport.x) * this.viewport.zoom;
-      const toScreenY = (toNode.y - this.viewport.y) * this.viewport.zoom;
+      // viewport.x/y are the CENTER of the viewport, so we add canvas.width/(2*dpr) to shift to canvas origin
+      // Note: canvas is scaled by devicePixelRatio, so we work in logical pixels
+      const dpr = window.devicePixelRatio;
+      const fromScreenX = (fromNode.x - this.viewport.x) * this.viewport.zoom + this.canvas.width / (2 * dpr);
+      const fromScreenY = (fromNode.y - this.viewport.y) * this.viewport.zoom + this.canvas.height / (2 * dpr);
+      const toScreenX = (toNode.x - this.viewport.x) * this.viewport.zoom + this.canvas.width / (2 * dpr);
+      const toScreenY = (toNode.y - this.viewport.y) * this.viewport.zoom + this.canvas.height / (2 * dpr);
 
       // Only render if at least one endpoint is on screen
       const padding = 50;
-      const fromOnScreen = fromScreenX >= -padding && fromScreenX <= this.canvas.width + padding &&
-                          fromScreenY >= -padding && fromScreenY <= this.canvas.height + padding;
-      const toOnScreen = toScreenX >= -padding && toScreenX <= this.canvas.width + padding &&
-                        toScreenY >= -padding && toScreenY <= this.canvas.height + padding;
+      const logicalWidth = this.canvas.width / dpr;
+      const logicalHeight = this.canvas.height / dpr;
+      const fromOnScreen = fromScreenX >= -padding && fromScreenX <= logicalWidth + padding &&
+                          fromScreenY >= -padding && fromScreenY <= logicalHeight + padding;
+      const toOnScreen = toScreenX >= -padding && toScreenX <= logicalWidth + padding &&
+                        toScreenY >= -padding && toScreenY <= logicalHeight + padding;
 
       if (!fromOnScreen && !toOnScreen) continue;
 
@@ -376,13 +382,18 @@ export class SkillTreeRenderer {
 
   private renderNode(node: SkillNode, state: TreeState): void {
     // Transform world coordinates to screen coordinates with zoom
-    const screenX = (node.x - this.viewport.x) * this.viewport.zoom;
-    const screenY = (node.y - this.viewport.y) * this.viewport.zoom;
+    // viewport.x/y are the CENTER of the viewport, so we add canvas.width/(2*dpr) to shift to canvas origin
+    // Note: canvas is scaled by devicePixelRatio, so we work in logical pixels
+    const dpr = window.devicePixelRatio;
+    const screenX = (node.x - this.viewport.x) * this.viewport.zoom + this.canvas.width / (2 * dpr);
+    const screenY = (node.y - this.viewport.y) * this.viewport.zoom + this.canvas.height / (2 * dpr);
 
     // Skip if outside screen bounds (with padding)
     const padding = 100;
-    if (screenX < -padding || screenX > this.canvas.width + padding ||
-        screenY < -padding || screenY > this.canvas.height + padding) return;
+    const logicalWidth = this.canvas.width / dpr;
+    const logicalHeight = this.canvas.height / dpr;
+    if (screenX < -padding || screenX > logicalWidth + padding ||
+        screenY < -padding || screenY > logicalHeight + padding) return;
 
     const isAllocated = state.allocated.has(node.id);
     const canAllocate = this.canAllocateNode(node, state);
