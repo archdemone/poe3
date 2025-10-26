@@ -336,10 +336,10 @@ export class SkillTreeRenderer {
       if (!fromNode || !toNode) continue;
 
       // Transform coordinates to screen space with zoom
-      const fromScreenX = (fromNode.x - this.viewport.x) * this.viewport.zoom + this.canvas.width / 2;
-      const fromScreenY = (fromNode.y - this.viewport.y) * this.viewport.zoom + this.canvas.height / 2;
-      const toScreenX = (toNode.x - this.viewport.x) * this.viewport.zoom + this.canvas.width / 2;
-      const toScreenY = (toNode.y - this.viewport.y) * this.viewport.zoom + this.canvas.height / 2;
+      const fromScreenX = (fromNode.x - this.viewport.x) * this.viewport.zoom;
+      const fromScreenY = (fromNode.y - this.viewport.y) * this.viewport.zoom;
+      const toScreenX = (toNode.x - this.viewport.x) * this.viewport.zoom;
+      const toScreenY = (toNode.y - this.viewport.y) * this.viewport.zoom;
 
       // Only render if at least one endpoint is on screen
       const padding = 50;
@@ -376,8 +376,8 @@ export class SkillTreeRenderer {
 
   private renderNode(node: SkillNode, state: TreeState): void {
     // Transform world coordinates to screen coordinates with zoom
-    const screenX = (node.x - this.viewport.x) * this.viewport.zoom + this.canvas.width / 2;
-    const screenY = (node.y - this.viewport.y) * this.viewport.zoom + this.canvas.height / 2;
+    const screenX = (node.x - this.viewport.x) * this.viewport.zoom;
+    const screenY = (node.y - this.viewport.y) * this.viewport.zoom;
 
     // Skip if outside screen bounds (with padding)
     const padding = 100;
