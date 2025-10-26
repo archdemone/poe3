@@ -18,6 +18,7 @@ import { Viewport } from '@babylonjs/core/Maths/math.viewport';
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 import { ParticleSystem } from '@babylonjs/core/Particles/particleSystem';
+import { Animation } from '@babylonjs/core/Animations/animation';
 import { Scene } from '@babylonjs/core/scene';
 
 import {
@@ -40,6 +41,7 @@ import {
   PlayerState,
   EnemyAISystem,
   CombatSystem,
+  AnimatedCharacter,
 } from './ecs';
 import { stateManager, GameState } from './state/gameState';
 import { loadUI, unloadUI } from './ui/loader';
@@ -49,6 +51,9 @@ import type { CharacterStats } from './gameplay/stats';
 import { calculateSkillDamage, calculateDerivedStats } from './gameplay/stats';
 import { getAssetLoader, disposeAssetLoader , getModelManager, disposeModelManager } from './systems/assetManager';
 import { createTorchFlame, createMagicalAura, createPortalEffect, createAmbientDust } from './gfx/particles';
+import { loadCharacterModel, createProgressiveAnimationLoader, getCharacterAssetPath } from './systems/characterLoader';
+import { AnimationController, PlayerAnimState } from './systems/AnimationController';
+import { AnimationSystem } from './ecs/systems/AnimationSystem';
 
 // Feature flags
 const ENABLE_POE_STYLE_CREATOR = import.meta.env.DEV; // Enable Path of Exile-style character creator (dev only)
@@ -300,6 +305,7 @@ const world = new World();
 // numbers. Movement and health systems can be registered immediately.
 world.addSystem(new MovementSystem());
 world.addSystem(new HealthSystem());
+world.addSystem(new AnimationSystem());
 
 // Scene management variables. The game has two scenes: a hideout and
 // a dungeon. Each scene has its own set of meshes. Switching
@@ -2093,157 +2099,485 @@ function populateGMenuUI(): void {
   }
 }
 
-// Input handling for WASD.
+// Input handling for WASD and dodge.
 const input: Record<string, boolean> = {};
+let dodgeCooldown = 0;
+const DODGE_COOLDOWN_MS = 2000; // 2 seconds
+
 window.addEventListener('keydown', (ev) => {
   input[ev.key.toLowerCase()] = true;
+  
+  // Handle dodge input (Space key)
+  if (ev.key === ' ' && dodgeCooldown <= 0) {
+    triggerDodge();
+  }
 });
+
 window.addEventListener('keyup', (ev) => {
   input[ev.key.toLowerCase()] = false;
 });
 
-// Create a player entity with a visible mesh.
-function createPlayer(): Entity {
+/**
+ * Trigger dodge animation and effects
+ */
+function triggerDodge(): void {
+  const animatedChar = world.getComponent<AnimatedCharacter>(playerEntity, 'animatedCharacter');
+  const velocity = world.getComponent<Velocity>(playerEntity, 'velocity');
+  
+  if (!animatedChar || !velocity) return;
+  
+  // Check if already dodging or in combat animation
+  if (animatedChar.controller && animatedChar.controller.isDodging()) {
+    return;
+  }
+  
+  console.log('[Dodge] Triggering dodge');
+  
+  // Play dodge animation
+  if (animatedChar.controller) {
+    animatedChar.controller.playAnimation(PlayerAnimState.DODGE, false, true);
+  }
+  
+  // Add dodge velocity boost in facing direction
+  const dodgeDirection = animatedChar.facing.normalize();
+  const dodgeSpeed = 8.0; // Fast dodge speed
+  velocity.value = dodgeDirection.scale(dodgeSpeed);
+  
+  // Set cooldown
+  dodgeCooldown = DODGE_COOLDOWN_MS;
+  
+  // Enable iframe (use existing combat system)
+  const combatant = world.getComponent<Combatant>(playerEntity, 'combatant');
+  if (combatant) {
+    combatant.lastHitAt = -1000; // Reset hit timer for iframe
+  }
+}
+
+// Create a player entity with an animated 3D character model.
+async function createPlayer(): Promise<Entity> {
   const e = world.createEntity();
   
-  // Create ENHANCED procedural character model with better details
-  const parentMesh = new AbstractMesh('player', scene);
-  parentMesh.position = new Vector3(0, 0.5, 0);
-  
-  // Body (torso) - more detailed with better shape
-  const body = MeshBuilder.CreateCylinder('playerBody', { 
-    height: 1.1, 
-    diameterTop: 0.55, 
-    diameterBottom: 0.65,
-    tessellation: 12 
-  }, scene);
-  body.parent = parentMesh;
-  body.position.y = 0.05;
-  const bodyMat = new StandardMaterial('playerBodyMat', scene);
-  bodyMat.diffuseColor = new Color3(0.15, 0.25, 0.45); // Deep blue armor
-  bodyMat.specularColor = new Color3(0.6, 0.6, 0.7);
-  bodyMat.specularPower = 128;
-  body.material = bodyMat;
-  
-  // Chest plate detail
-  const chestPlate = MeshBuilder.CreateBox('playerChest', { width: 0.5, height: 0.4, depth: 0.15 }, scene);
-  chestPlate.parent = parentMesh;
-  chestPlate.position.set(0, 0.3, -0.28);
-  chestPlate.material = bodyMat;
-  
-  // Shoulder pads
-  const leftShoulder = MeshBuilder.CreateSphere('leftShoulder', { diameter: 0.35, segments: 8 }, scene);
-  leftShoulder.parent = parentMesh;
-  leftShoulder.position.set(-0.45, 0.5, 0);
-  leftShoulder.scaling.y = 0.6;
-  leftShoulder.material = bodyMat;
-  
-  const rightShoulder = MeshBuilder.CreateSphere('rightShoulder', { diameter: 0.35, segments: 8 }, scene);
-  rightShoulder.parent = parentMesh;
-  rightShoulder.position.set(0.45, 0.5, 0);
-  rightShoulder.scaling.y = 0.6;
-  rightShoulder.material = bodyMat;
-  
-  // Head
-  const head = MeshBuilder.CreateSphere('playerHead', { diameter: 0.42, segments: 12 }, scene);
-  head.parent = parentMesh;
-  head.position.y = 0.85;
-  const headMat = new StandardMaterial('playerHeadMat', scene);
-  headMat.diffuseColor = new Color3(0.85, 0.75, 0.65); // Better skin tone
-  headMat.specularColor = new Color3(0.2, 0.2, 0.2);
-  headMat.specularPower = 32;
-  head.material = headMat;
-  
-  // Helmet/hood
-  const helmet = MeshBuilder.CreateSphere('playerHelmet', { diameter: 0.46, segments: 12 }, scene);
-  helmet.parent = parentMesh;
-  helmet.position.y = 0.88;
-  helmet.scaling.y = 0.7; // Flatten for helmet shape
-  const helmetMat = new StandardMaterial('helmetMat', scene);
-  helmetMat.diffuseColor = new Color3(0.3, 0.3, 0.35); // Dark metal
-  helmetMat.specularColor = new Color3(0.7, 0.7, 0.8);
-  helmetMat.specularPower = 256;
-  helmet.material = helmetMat;
-  
-  // Arms with better tapering
-  const leftArm = MeshBuilder.CreateCylinder('playerLeftArm', { 
-    height: 0.85, 
-    diameterTop: 0.18, 
-    diameterBottom: 0.15,
-    tessellation: 8 
-  }, scene);
-  leftArm.parent = parentMesh;
-  leftArm.position.set(-0.42, 0, 0);
-  leftArm.rotation.z = 0.2;
-  leftArm.material = bodyMat;
-  
-  const rightArm = MeshBuilder.CreateCylinder('playerRightArm', { 
-    height: 0.85, 
-    diameterTop: 0.18, 
-    diameterBottom: 0.15,
-    tessellation: 8 
-  }, scene);
-  rightArm.parent = parentMesh;
-  rightArm.position.set(0.42, 0, 0);
-  rightArm.rotation.z = -0.2;
-  rightArm.material = bodyMat;
-  
-  // Legs with better shape
-  const leftLeg = MeshBuilder.CreateCylinder('playerLeftLeg', { 
-    height: 0.9, 
-    diameterTop: 0.24, 
-    diameterBottom: 0.2,
-    tessellation: 8 
-  }, scene);
-  leftLeg.parent = parentMesh;
-  leftLeg.position.set(-0.18, -0.95, 0);
-  leftLeg.material = bodyMat;
-  
-  const rightLeg = MeshBuilder.CreateCylinder('playerRightLeg', { 
-    height: 0.9, 
-    diameterTop: 0.24, 
-    diameterBottom: 0.2,
-    tessellation: 8 
-  }, scene);
-  rightLeg.parent = parentMesh;
-  rightLeg.position.set(0.18, -0.95, 0);
-  rightLeg.material = bodyMat;
-  
-  // Belt
-  const belt = MeshBuilder.CreateCylinder('playerBelt', { height: 0.08, diameter: 0.68, tessellation: 12 }, scene);
-  belt.parent = parentMesh;
-  belt.position.y = -0.45;
-  const beltMat = new StandardMaterial('beltMat', scene);
-  beltMat.diffuseColor = new Color3(0.3, 0.2, 0.1); // Leather
-  beltMat.specularColor = new Color3(0.2, 0.2, 0.2);
-  belt.material = beltMat;
-  
-  const transform: Transform = { position: parentMesh.position.clone(), mesh: parentMesh };
-  const velocity: Velocity = { value: new Vector3(0, 0, 0) };
-  const health: Health = { current: 100, max: 100 };
-  const tag: PlayerTag = {};
-  const combatant: Combatant = {
-    team: 'player',
-    armour: 10,
-    evasion: 5,
-    critChance: 0.05,
-    critMult: 1.5,
-    iFrameMs: 300,
-    lastHitAt: -1000,
-  };
-  const hurtbox: Hurtbox = { radius: 0.6 };
-  const playerState: PlayerState = {
-    isDead: false,
-  };
-  
-  world.addComponent(e, 'transform', transform);
-  world.addComponent(e, 'velocity', velocity);
-  world.addComponent(e, 'health', health);
-  world.addComponent(e, 'player', tag);
-  world.addComponent(e, 'combatant', combatant);
-  world.addComponent(e, 'hurtbox', hurtbox);
-  world.addComponent(e, 'playerState', playerState);
-  return e;
+  try {
+    console.log('[Player] Loading animated character model...');
+
+    // Load character model
+    console.log('[Player] Starting GLB model load...');
+    let characterModel;
+    try {
+      characterModel = await loadCharacterModel(scene, getCharacterAssetPath('character.glb'));
+      console.log('[Player] Character model loaded successfully');
+    } catch (modelError) {
+      console.error('[Player] Failed to load character model:', modelError);
+      throw new Error(`Character model loading failed: ${modelError.message}`);
+    }
+    const rootMesh = characterModel.rootMesh;
+    console.log('[Player] GLB model loaded successfully:', {
+      rootMesh: rootMesh.name,
+      skeleton: characterModel.skeleton ? 'present' : 'missing',
+      position: rootMesh.position,
+      children: rootMesh.getChildren().length,
+      modelAnimations: characterModel.animationGroups?.length || 0,
+      meshCount: characterModel.meshes?.length || 0
+    });
+
+    // Reset mesh transform to ensure clean state
+    rootMesh.position.set(0, 0, 0);
+    rootMesh.rotation.set(0, 0, 0);
+    rootMesh.scaling.set(1, 1, 1);
+    rootMesh.name = 'player';
+
+    // Position the player properly
+    const playerPosition = new Vector3(0, 0.5, 0);
+    rootMesh.position = playerPosition.clone();
+    console.log('[Player] GLB mesh reset and positioned at:', rootMesh.position);
+
+    // Ensure skeleton is properly attached
+    if (characterModel.skeleton) {
+      console.log('[Player] Skeleton bones count:', characterModel.skeleton.bones.length);
+      console.log('[Player] Skeleton bone names:', characterModel.skeleton.bones.slice(0, 5).map(b => b.name));
+
+      // Enable bone texture animation for high-bone-count skeletons to avoid uniform buffer limits
+      if (characterModel.skeleton.bones.length > 50) {
+        console.log('[Player] Enabling bone texture animation for high-bone-count skeleton');
+        characterModel.skeleton.useTextureToStoreBoneMatrices = true;
+      }
+
+      // Ensure skeleton is attached to the mesh
+      if (!rootMesh.skeleton) {
+        rootMesh.skeleton = characterModel.skeleton;
+        console.log('[Player] Attached skeleton to mesh');
+      } else {
+        console.log('[Player] Mesh already has skeleton attached');
+      }
+
+      // Ensure skeleton is prepared for animation
+      if (characterModel.skeleton.needInitialSkinMatrix) {
+        characterModel.skeleton.needInitialSkinMatrix = false;
+        console.log('[Player] Prepared skeleton for animation');
+      }
+    } else {
+      console.warn('[Player] No skeleton found in GLB model!');
+    }
+
+    // Check if main model has animations (they're added to the scene)
+    const sceneAnimGroups = scene.animationGroups;
+    const sceneAnimations = scene.animations;
+    console.log('[Player] Scene animation groups after model load:', sceneAnimGroups.length);
+    console.log('[Player] Scene animations after model load:', sceneAnimations.length);
+
+    // Detailed logging of AnimationGroups
+    sceneAnimGroups.forEach((group, index) => {
+      console.log(`  [${index}] AnimationGroup: ${group?.name || 'undefined'}`);
+      console.log(`    - animations: ${group?.animations ? 'present' : 'undefined/null'}`);
+      if (group?.animations) {
+        console.log(`    - animations length: ${group.animations.length}`);
+        group.animations.forEach((anim, animIndex) => {
+          console.log(`      [${animIndex}] ${anim?.name || 'unnamed'} (${anim?.getKeys()?.length || 0} keys)`);
+        });
+      }
+      console.log(`    - targetedAnimations: ${group?.targetedAnimations ? 'present' : 'undefined/null'}`);
+      if (group?.targetedAnimations) {
+        console.log(`    - targetedAnimations length: ${group.targetedAnimations.length}`);
+        group.targetedAnimations.forEach((targetedAnim, animIndex) => {
+          console.log(`      [${animIndex}] target: ${targetedAnim?.target?.name || 'unknown'}, animation: ${targetedAnim?.animation?.name || 'unnamed'}`);
+        });
+      }
+    });
+
+    sceneAnimations.forEach((anim, index) => {
+      console.log(`  [${index}] Scene animation: ${anim?.name || 'unnamed'} (${anim?.getKeys()?.length || 0} keys)`);
+      console.log(`    - targetPropertyPath: ${anim?.targetPropertyPath || 'none'}`);
+      console.log(`    - target: ${anim?.target?.name || 'none'}`);
+    });
+
+    // Create animation controller
+    let animationController: AnimationController;
+    let animationLoader: any = null;
+
+    // Check if we have valid AnimationGroups with actual animations
+    const hasValidAnimationGroups = sceneAnimGroups.some(group =>
+      group &&
+      (group.targetedAnimations?.length > 0 || group.animations?.length > 0)
+    );
+
+    console.log(`[Player] Has valid animation groups: ${hasValidAnimationGroups}`);
+
+    // Try to use scene animations first (GLB may store animations as individual Animation objects)
+    if (sceneAnimations.length > 0) {
+      console.log('[Player] Using individual animations from main model');
+      animationController = new AnimationController(characterModel.skeleton, null);
+
+      // Group animations by target (each target should have multiple animations for different states)
+      const animationsByTarget = new Map<string, Animation[]>();
+      sceneAnimations.forEach(anim => {
+        const targetName = anim.targetPropertyPath?.split('.')[0] || 'unknown';
+        if (!animationsByTarget.has(targetName)) {
+          animationsByTarget.set(targetName, []);
+        }
+        animationsByTarget.get(targetName)!.push(anim);
+      });
+
+      // Create AnimationGroups for each animation state we need
+      const animationStates = [
+        { state: PlayerAnimState.IDLE, keywords: ['idle', 'Idle'] },
+        { state: PlayerAnimState.RUN, keywords: ['run', 'Run', 'walk', 'Walk'] },
+        { state: PlayerAnimState.SPRINT, keywords: ['sprint', 'Sprint'] },
+        { state: PlayerAnimState.ATTACK, keywords: ['attack', 'Attack'] },
+        { state: PlayerAnimState.CAST, keywords: ['cast', 'Cast', 'spell', 'Spell'] },
+        { state: PlayerAnimState.DODGE, keywords: ['dodge', 'Dodge', 'roll', 'Roll'] }
+      ];
+
+      animationStates.forEach(({ state, keywords }) => {
+        // Find animations that match this state
+        const matchingAnimations: Animation[] = [];
+        sceneAnimations.forEach(anim => {
+          const animName = anim.name || '';
+          if (keywords.some(keyword => animName.toLowerCase().includes(keyword.toLowerCase()))) {
+            matchingAnimations.push(anim);
+          }
+        });
+
+        if (matchingAnimations.length > 0) {
+          // Create an AnimationGroup for this state
+          const animGroup = new AnimationGroup(state, scene);
+          matchingAnimations.forEach(anim => {
+            animGroup.addTargetedAnimation(anim, characterModel.skeleton);
+          });
+
+          const characterAnimation: CharacterAnimation = {
+            name: state,
+            animationGroup: animGroup,
+            duration: animGroup.animations.reduce((max, anim) => Math.max(max, anim.getDuration()), 0)
+          };
+          animationController.addAnimation(state, characterAnimation);
+          console.log(`[Player] Created animation group ${state} with ${matchingAnimations.length} animations`);
+        } else {
+          console.warn(`[Player] No animations found for state ${state}`);
+        }
+      });
+
+    } else if (sceneAnimGroups.length > 0 && hasValidAnimationGroups) {
+      // Use AnimationGroups - they might have targetedAnimations instead of animations
+      console.log('[Player] Using animation groups from main model');
+      animationController = new AnimationController(characterModel.skeleton, null);
+
+      sceneAnimGroups.forEach((group) => {
+        if (!group || !group.name) {
+          console.warn('[Player] Skipping invalid animation group:', group);
+          return;
+        }
+
+        // Try to determine animation state from group name
+        const animName = group.name.toLowerCase();
+        let state: PlayerAnimState | null = null;
+
+        if (animName.includes('idle')) state = PlayerAnimState.IDLE;
+        else if (animName.includes('run') || animName.includes('walk')) state = PlayerAnimState.RUN;
+        else if (animName.includes('sprint')) state = PlayerAnimState.SPRINT;
+        else if (animName.includes('attack')) state = PlayerAnimState.ATTACK;
+        else if (animName.includes('cast') || animName.includes('spell')) state = PlayerAnimState.CAST;
+        else if (animName.includes('dodge') || animName.includes('roll')) state = PlayerAnimState.DODGE;
+        else if (animName.includes('mixamo.com') && group.targetedAnimations && group.targetedAnimations.length > 0) {
+          // If it's a mixamo animation with targeted animations, use it as idle by default
+          // We can add more logic later to distinguish different mixamo animations
+          state = PlayerAnimState.IDLE;
+          console.log(`[Player] Using mixamo.com animation group as ${state}`);
+        }
+
+        if (!state) {
+          console.log(`[Player] Skipping unknown animation group: ${group.name}`);
+          return;
+        }
+
+        // Calculate duration from AnimationGroup properties
+        let duration = 1.0; // Default duration
+        if (group.to !== undefined && group.to !== null) {
+          // Use AnimationGroup.to property for duration
+          duration = group.to;
+        } else if (group.targetedAnimations && group.targetedAnimations.length > 0) {
+          // Fallback: try to get duration from targeted animations differently
+          // Since targetedAnim.animation might be a string, we can't call getDuration()
+          // Use a reasonable default based on animation type
+          duration = 2.0; // Default 2 seconds for mixamo animations
+          console.log(`[Player] Using default duration ${duration}s for AnimationGroup with targeted animations`);
+        } else if (group.animations && group.animations.length > 0) {
+          // Fallback to regular animations
+          duration = group.animations.reduce((max, anim) => Math.max(max, anim.getDuration()), 0);
+        }
+
+        const animation: CharacterAnimation = {
+          name: state,
+          animationGroup: group,
+          duration: duration
+        };
+        animationController.addAnimation(state, animation);
+        console.log(`[Player] Added animation ${state} from AnimationGroup '${group.name}' (duration: ${duration}s)`);
+      });
+    } else {
+      // Final fallback: loading separate animation files
+      console.log('[Player] No animations found in main model, using separate animation files');
+      try {
+        animationLoader = createProgressiveAnimationLoader(scene, characterModel.skeleton);
+        console.log('[Player] Created progressive animation loader');
+      } catch (loaderError) {
+        console.error('[Player] Failed to create animation loader:', loaderError);
+        throw new Error(`Animation loader creation failed: ${loaderError.message}`);
+      }
+
+      try {
+        animationController = new AnimationController(characterModel.skeleton, animationLoader);
+        console.log('[Player] Created animation controller');
+      } catch (controllerError) {
+        console.error('[Player] Failed to create animation controller:', controllerError);
+        throw new Error(`Animation controller creation failed: ${controllerError.message}`);
+      }
+
+      // Preload essential animations (idle and run)
+      try {
+        console.log('[Player] Preloading essential animations...');
+        await animationLoader.preloadEssentialAnimations();
+        console.log('[Player] Essential animations preloaded');
+      } catch (preloadError) {
+        console.error('[Player] Failed to preload essential animations:', preloadError);
+        throw new Error(`Animation preloading failed: ${preloadError.message}`);
+      }
+    }
+
+    // Load initial idle animation (only if using separate animation files)
+    if (animationLoader) {
+    try {
+      console.log('[Player] Loading idle animation...');
+      const idleAnimation = await animationLoader.loadAnimation(PlayerAnimState.IDLE);
+      animationController.addAnimation(PlayerAnimState.IDLE, idleAnimation);
+      console.log('[Player] Idle animation loaded and added successfully');
+
+        // Also try to load run animation for movement
+        try {
+          console.log('[Player] Loading run animation...');
+          const runAnimation = await animationLoader.loadAnimation(PlayerAnimState.RUN);
+          animationController.addAnimation(PlayerAnimState.RUN, runAnimation);
+          console.log('[Player] Loaded run animation for movement');
+        } catch (runError) {
+          console.warn('[Player] Failed to load run animation:', runError);
+          console.warn('[Player] Run animation error details:', {
+            message: runError.message,
+            stack: runError.stack
+          });
+        }
+    } catch (error) {
+      console.warn('[Player] Failed to load idle animation:', error);
+      console.warn('[Player] Idle animation error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+      throw new Error(`Animation loading failed: ${error.message}`);
+      }
+    }
+
+    // Disable matrix decomposition for interpolation (helps with Mixamo animations)
+    Animation.AllowMatrixDecomposeForInterpolation = false;
+    console.log('[Player] Disabled matrix decomposition for interpolation');
+
+    // Play idle animation
+    console.log('[Player] Starting idle animation...');
+
+    // Debug: Check what AnimationGroups are in the scene after loading
+    console.log('[Player] Scene AnimationGroups after loading separate files:', scene.animationGroups.length);
+    scene.animationGroups.forEach((ag, index) => {
+      console.log(`  [${index}] ${ag.name}: ${ag.animations?.length || 0} animations, playing: ${ag.isPlaying}`);
+      if (ag.targetedAnimations) {
+        console.log(`    targetedAnimations: ${ag.targetedAnimations.length}`);
+        ag.targetedAnimations.forEach((ta, tai) => {
+          console.log(`      [${tai}] target: ${ta.target?.name}, animation: ${ta.animation?.name}`);
+        });
+      }
+    });
+
+    animationController.playAnimation(PlayerAnimState.IDLE, true);
+
+    // Debug: Check if the animation actually started
+    setTimeout(() => {
+      console.log('[Player] Animation status after 1 second:');
+      scene.animationGroups.forEach((ag, index) => {
+        console.log(`  [${index}] ${ag.name}: playing=${ag.isPlaying}`);
+      });
+    }, 1000);
+    
+    // Create animated character component
+    const animatedCharacter: AnimatedCharacter = {
+      controller: animationController,
+      currentState: PlayerAnimState.IDLE,
+      facing: new Vector3(0, 0, 1), // Face forward initially
+      combatState: 'idle',
+      attackStartTime: 0,
+      attackDuration: 0
+    };
+    
+    // Create other components
+    console.log('[Player] Creating entity components with GLB mesh...');
+    const transform: Transform = { position: rootMesh.position.clone(), mesh: rootMesh };
+    const velocity: Velocity = { value: new Vector3(0, 0, 0) };
+    const health: Health = { current: 100, max: 100 };
+    const tag: PlayerTag = {};
+    const combatant: Combatant = {
+      team: 'player',
+      armour: 10,
+      evasion: 5,
+      critChance: 0.05,
+      critMult: 1.5,
+      iFrameMs: 300,
+      lastHitAt: -1000,
+    };
+    const hurtbox: Hurtbox = { radius: 0.6 };
+    const playerState: PlayerState = {
+      isDead: false,
+    };
+
+    console.log('[Player] Transform component created:', {
+      position: transform.position,
+      mesh: transform.mesh?.name || 'null',
+      meshType: transform.mesh?.constructor?.name || 'unknown'
+    });
+    
+    // Add all components to entity
+    world.addComponent(e, 'transform', transform);
+    world.addComponent(e, 'velocity', velocity);
+    world.addComponent(e, 'health', health);
+    world.addComponent(e, 'player', tag);
+    world.addComponent(e, 'combatant', combatant);
+    world.addComponent(e, 'hurtbox', hurtbox);
+    world.addComponent(e, 'playerState', playerState);
+    world.addComponent(e, 'animatedCharacter', animatedCharacter);
+    
+    console.log('[Player] Animated GLB character created successfully');
+    console.log('[Player] Final entity details:', {
+      entityId: e,
+      hasTransform: world.getComponent(e, 'transform') !== undefined,
+      hasPlayer: world.getComponent(e, 'player') !== undefined,
+      hasAnimatedCharacter: world.getComponent(e, 'animatedCharacter') !== undefined,
+      transformMesh: world.getComponent(e, 'transform')?.mesh?.name || 'none'
+    });
+    return e;
+    
+  } catch (error) {
+    console.error('[Player] Failed to create animated character, falling back to procedural model:', error);
+    
+    // Fallback to simple procedural model if character loading fails
+    const parentMesh = new AbstractMesh('player', scene);
+    parentMesh.position = new Vector3(0, 0.5, 0);
+    
+    // Create a simple capsule as fallback
+    const body = MeshBuilder.CreateCapsule('playerBody', { 
+      radius: 0.3, 
+      height: 1.8,
+      tessellation: 8 
+    }, scene);
+    body.parent = parentMesh;
+    body.position.y = 0.9;
+    
+    const bodyMat = new StandardMaterial('playerBodyMat', scene);
+    bodyMat.diffuseColor = new Color3(0.15, 0.25, 0.45);
+    body.material = bodyMat;
+    
+    // Create basic animated character component with no-op controller
+    const animatedCharacter: AnimatedCharacter = {
+      controller: null, // No animation controller for fallback
+      currentState: PlayerAnimState.IDLE,
+      facing: new Vector3(0, 0, 1),
+      combatState: 'idle',
+      attackStartTime: 0,
+      attackDuration: 0
+    };
+    
+    const transform: Transform = { position: parentMesh.position.clone(), mesh: parentMesh };
+    const velocity: Velocity = { value: new Vector3(0, 0, 0) };
+    const health: Health = { current: 100, max: 100 };
+    const tag: PlayerTag = {};
+    const combatant: Combatant = {
+      team: 'player',
+      armour: 10,
+      evasion: 5,
+      critChance: 0.05,
+      critMult: 1.5,
+      iFrameMs: 300,
+      lastHitAt: -1000,
+    };
+    const hurtbox: Hurtbox = { radius: 0.6 };
+    const playerState: PlayerState = {
+      isDead: false,
+    };
+    
+    world.addComponent(e, 'transform', transform);
+    world.addComponent(e, 'velocity', velocity);
+    world.addComponent(e, 'health', health);
+    world.addComponent(e, 'player', tag);
+    world.addComponent(e, 'combatant', combatant);
+    world.addComponent(e, 'hurtbox', hurtbox);
+    world.addComponent(e, 'playerState', playerState);
+    world.addComponent(e, 'animatedCharacter', animatedCharacter);
+    
+    return e;
+  }
 }
 
 // Create a stationary target dummy with infinite health.
@@ -2763,7 +3097,12 @@ scene.onPointerObservable.add((pointerInfo) => {
 function handlePlayerMovement(dt: number) {
   const velocity = world.getComponent<Velocity>(playerEntity, 'velocity');
   if (!velocity) return;
-  const speed = 5;
+  
+  // Check for sprint input (Shift key)
+  const isSprinting = input['shift'];
+  const baseSpeed = 5;
+  const sprintMultiplier = 1.5;
+  const speed = isSprinting ? baseSpeed * sprintMultiplier : baseSpeed;
   // Determine desired movement along forward and right axes based on
   // input. Positive forwardFactor means moving forward relative to
   // the camera's facing; positive rightFactor means moving right.
@@ -2854,6 +3193,15 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
     return;
   }
   lastSkillUse[skillId] = now;
+  
+  // Get player animated character component
+  const animatedChar = world.getComponent<AnimatedCharacter>(playerEntity, 'animatedCharacter');
+  
+  // Check if player is already performing a combat animation
+  if (animatedChar && animatedChar.controller && animatedChar.controller.isPlayingCombatAnimation()) {
+    return; // Can't attack while already attacking/casting
+  }
+  
   // Fetch player transform for origin
   const playerTransform = world.getComponent<Transform>(playerEntity, 'transform');
   if (!playerTransform) return;
@@ -2871,6 +3219,11 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
   }
   
   if (skillId === 'heavyStrike') {
+    // Trigger attack animation
+    if (animatedChar && animatedChar.controller) {
+      animatedChar.controller.playAnimation(PlayerAnimState.ATTACK, false, true);
+    }
+    
     // Melee attack: spawn hitbox in front of player
     
     // Calculate forward direction toward target
@@ -2896,6 +3249,11 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
       dmg   // damage
     );
   } else if (skillId === 'splitShot') {
+    // Trigger attack animation for ranged attack
+    if (animatedChar && animatedChar.controller) {
+      animatedChar.controller.playAnimation(PlayerAnimState.ATTACK, false, true);
+    }
+    
     // Apply bow percentage bonus from tree + equipment
     const totalBowPct = passiveBonuses.bow_pct + equipmentBonuses.bow_pct;
     if (totalBowPct > 0) {
@@ -2919,6 +3277,11 @@ function executeSkill(skillId: string, targetPoint: Vector3): void {
       spawnProjectile(origin, shotDir, dmg);
     }
   } else if (skillId === 'chainSpark') {
+    // Trigger spell cast animation
+    if (animatedChar && animatedChar.controller) {
+      animatedChar.controller.playAnimation(PlayerAnimState.CAST, false, true);
+    }
+    
     // Launch a slower spell projectile. For now it behaves like a
     // single arrow with higher damage. In a full implementation this
     // would chain between enemies.
@@ -3209,9 +3572,9 @@ function updateFlaskUI(): void {
   });
 }
 
-function update() {
+async function update() {
   const dt = 1 / 60;
-  
+
   // Update playtime
   if (currentSaveData) {
     playtimeAccumulator += dt;
@@ -3226,6 +3589,11 @@ function update() {
   // Update flask charges
   updateAllFlaskCharges(dt);
 
+  // Update dodge cooldown
+  if (dodgeCooldown > 0) {
+    dodgeCooldown -= dt * 1000; // Convert to ms
+  }
+
   // Update UI elements
   updateResourceOrbs();
   updateFlaskUI();
@@ -3239,7 +3607,7 @@ function update() {
     }
   }
   handlePlayerMovement(dt);
-  world.update(dt);
+  await world.update(dt);
   // In dungeon, check for exit
   if (currentScene === 'dungeon') {
     // Check if player reached end of corridor (approx z > 58)
@@ -3711,7 +4079,7 @@ async function initializeGame(saveData: SaveData): Promise<void> {
   console.log('Starting game initialization...');
   
   // Create player first
-  playerEntity = createPlayer();
+  playerEntity = await createPlayer();
   console.log('Player created');
   
   // Load save data into game state (may update player position)
@@ -3723,6 +4091,15 @@ async function initializeGame(saveData: SaveData): Promise<void> {
   const playerTransform = world.getComponent<Transform>(playerEntity, 'transform');
   if (playerTransform) {
     camera.setTarget(playerTransform.position);
+    console.log('[Init] Player entity setup:', {
+      entityId: playerEntity,
+      position: playerTransform.position,
+      meshName: playerTransform.mesh?.name || 'no mesh',
+      meshType: playerTransform.mesh?.constructor?.name || 'unknown',
+      hasSkeleton: playerTransform.mesh?.skeleton ? 'yes' : 'no'
+    });
+  } else {
+    console.error('[Init] Player entity has no transform component!');
   }
   console.log('Camera created');
   

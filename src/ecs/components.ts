@@ -106,3 +106,14 @@ export interface CDamageCredit {
   lastSkillId?: string;
   lastHitTimeMs: number;
 }
+
+/** Animated character component for 3D character models with animations */
+export interface AnimatedCharacter {
+  controller: any; // AnimationController - using any to avoid circular imports
+  currentState: string; // PlayerAnimState as string
+  queuedState?: string; // For animation queuing
+  facing: Vector3; // Direction character is facing
+  combatState: 'idle' | 'attacking' | 'casting' | 'dodging';
+  attackStartTime: number;
+  attackDuration: number;
+}

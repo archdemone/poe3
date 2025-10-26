@@ -57,9 +57,12 @@ export class World {
   }
 
   /** Advance the world by dt seconds. Each system is updated in order. */
-  update(dt: number): void {
+  async update(dt: number): Promise<void> {
     for (const system of this.systems) {
-      system.update(this, dt);
+      const result = system.update(this, dt);
+      if (result instanceof Promise) {
+        await result;
+      }
     }
   }
 }

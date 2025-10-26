@@ -13,7 +13,7 @@ import type { World, Entity } from './world';
 /** Base interface for systems. A system processes a set of entities each
  * frame. */
 export interface System {
-  update(world: World, dt: number): void;
+  update(world: World, dt: number): void | Promise<void>;
 }
 
 /** A simple movement system that integrates velocity into position. If

@@ -28,13 +28,15 @@
   },
   "dependencies": {
     "@babylonjs/core": "^8.32.2",
-    "@babylonjs/loaders": "^8.32.2",
+    "@babylonjs/loaders": "^8.33.2",
     "@babylonjs/materials": "^8.32.2",
     "babylonjs": "^6.32.0",
     "cheerio": "^1.1.2",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
+    "@gltf-transform/core": "^4.2.1",
+    "@gltf-transform/functions": "^4.2.1",
     "@playwright/test": "^1.48.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
@@ -46,7 +48,9 @@
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "fast-check": "^4.3.0",
+    "fbx2gltf": "^0.9.7-p1",
     "glob": "^11.0.3",
+    "gltf-pipeline": "^4.3.0",
     "jsdom": "^27.0.1",
     "madge": "^6.1.0",
     "prettier": "^3.3.0",

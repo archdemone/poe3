@@ -1,0 +1,3 @@
+# This is a placeholder file
+# In a real implementation, this would be a GLB file converted from the FBX files
+# For now, the system will fall back to the procedural capsule model
