@@ -580,15 +580,9 @@ function generateSkillTree(): SkillTreeData {
 
   console.log(`  ✓ Bridge connections added: ${edges.length} total connections`);
 
-  // ADD REQUIREMENTS to nodes based on edges
-  edges.forEach(([from, to]) => {
-    const toNode = nodes.find(n => n.id === to);
-    if (toNode && toNode.id !== 'start') {
-      if (!toNode.requirements.some(r => r.type === 'node' && r.value === from)) {
-        toNode.requirements.push({ type: 'node', value: from });
-      }
-    }
-  });
+  // NOTE: We do NOT add requirements based on edges anymore.
+  // Path connectivity is checked via edges in canAllocateNode() function.
+  // This allows nodes to be allocated if ANY connected neighbor is allocated (not ALL).
 
   console.log('\n📊 Generation Summary:');
   console.log(`  Total nodes: ${nodes.length}`);

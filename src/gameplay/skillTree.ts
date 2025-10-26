@@ -324,16 +324,52 @@ export function canAllocateNode(nodeId: string): boolean {
   if (!node) return false;
   if (treeState.allocated.has(nodeId)) return false;
   if (treeState.passivePoints <= 0) return false;
-  
-  // Check requirements (both legacy and new systems)
-  if (!checkRequirements(node)) {
+
+  // Check path connectivity: node must be connected via edges to at least one allocated node
+  if (!isConnectedToAllocatedNode(nodeId)) {
+    return false;
+  }
+
+  // Check special requirements (level, attribute, class) - but NOT node requirements
+  // Node connectivity is handled by edges, not requirements array
+  if (!checkNonNodeRequirements(node)) {
     return false;
   }
 
   return true;
 }
 
-/** Check if all requirements for a node are met */
+/** Check if a node is connected to at least one allocated node via edges */
+function isConnectedToAllocatedNode(nodeId: string): boolean {
+  if (!skillTreeData) return false;
+
+  // Find all edges connected to this node
+  for (const [from, to] of skillTreeData.edges) {
+    if (from === nodeId && treeState.allocated.has(to)) return true;
+    if (to === nodeId && treeState.allocated.has(from)) return true;
+  }
+
+  return false;
+}
+
+/** Check only non-node requirements (level, attribute, class) */
+function checkNonNodeRequirements(node: SkillNode): boolean {
+  // Check new requirement system, but skip node requirements (handled by edges)
+  if (node.requirements && node.requirements.length > 0) {
+    for (const req of node.requirements) {
+      // Skip node requirements - path connectivity is checked separately via edges
+      if (req.type === 'node') continue;
+
+      if (!checkRequirement(req)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/** Check if all requirements for a node are met (legacy - still used by some functions) */
 function checkRequirements(node: SkillNode): boolean {
   // Check legacy requirements
   if (node.requires && node.requires.length > 0) {
@@ -352,7 +388,7 @@ function checkRequirements(node: SkillNode): boolean {
       }
     }
   }
-  
+
   return true;
 }
 
